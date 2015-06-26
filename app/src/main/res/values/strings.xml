@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">SocialQs</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_main_activity_login">MainActivityLogin</string>
+    <string name="title_activity_main_activity_signup">MainActivitySignup</string>
+
+    <!-- Intro Screen -->
+    <string name="hello_social">Welcome to SocialQs</string>
+    <string name="lbl_login">Login</string>
+    <string name="lbl_signup">Sign Up</string>
+    <!-- Login Screen -->
+    <string name="lbl_username">Username</string>
+    <string name="lbl_enter_username">Enter a username</string>
+    <string name="lbl_pwd">Password</string>
+    <string name="lbl_enter_pwd">Enter a password</string>
+    <string name="title_activity_login_success">LoginSuccessActivity</string>
+    <string name="login_success">Successfully logged in!</string>
+    <string name="title_activity_signup_success">SignupSuccessActivity</string>
+    <string name="signup_success">Successfully signed up!</string>
+    <string name="title_activity_home_screen">HomeScreenActivity</string>
+    <string name="home_welcome_text">Welcome user_name</string>
+    <string name="lbl_view">View Questions</string>
+    <string name="title_activity_ask_question">AskQuestionActivity</string>
+    <string name="ask_question_welcome">Enter a question</string>
+    <string name="lbl_ask">Submit</string>
+    <string name="lbl_question_prompt">Enter Question</string>
+    <string name="lbl_enter_question">Enter your question</string>
+    <string name="lbl_choice1_prompt">Enter option 1</string>
+    <string name="lbl_choice2_prompt">Enter option 2</string>
+    <string name="lbl_enter_choice1">Enter option 1</string>
+    <string name="lbl_enter_choice2">Enter option 2</string>
+    <string name="lbl_cancel">Cancel</string>
+</resources>
