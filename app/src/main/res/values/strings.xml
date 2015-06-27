@@ -32,4 +32,5 @@
     <string name="lbl_enter_choice1">Enter option 1</string>
     <string name="lbl_enter_choice2">Enter option 2</string>
     <string name="lbl_cancel">Cancel</string>
+    <string name="title_activity_view_questions">ViewQuestionsActivity</string>
 </resources>

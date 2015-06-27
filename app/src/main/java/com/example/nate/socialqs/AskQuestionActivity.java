@@ -1,11 +1,14 @@
 package com.example.nate.socialqs;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.parse.ParseObject;
 
@@ -23,12 +26,41 @@ public class AskQuestionActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ask_question);
 
-        /*figure this out?
-        ParseObject gameScore = new ParseObject("UserQuestion");
-        gameScore.put("score", 1337);
-        gameScore.put("playerName", "Sean Plott");
-        gameScore.put("cheatMode", false);
-        gameScore.saveInBackground(); */
+        _question = (EditText) findViewById(R.id.fld_question_body);
+        _choice1 = (EditText) findViewById(R.id.fld_choice1);
+        _choice2 = (EditText) findViewById(R.id.fld_choice2);
+        _submit = (Button) findViewById(R.id.btn_ask);
+        _cancel = (Button) findViewById(R.id.btn_ask_cancel);
+
+
+        _submit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String q = _question.getText().toString();
+                String c1 = _choice1.getText().toString();
+                String c2 = _choice2.getText().toString();
+                ParseObject userQuestion = new ParseObject("UserQuestion");
+
+                userQuestion.put("question", q);
+                userQuestion.put("choice1", c1);
+                userQuestion.put("choice2", c2);
+                userQuestion.saveInBackground();
+                Toast.makeText(getApplicationContext(), "Success "+ q + c1 + c2,
+                        Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(AskQuestionActivity.this, HomeScreenActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        _cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "Question Cancelled",
+                        Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(AskQuestionActivity.this, HomeScreenActivity.class);
+                startActivity(intent);
+            }
+        });
 
     }
 
