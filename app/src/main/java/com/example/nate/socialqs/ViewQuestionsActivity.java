@@ -7,11 +7,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import java.util.List;
 
@@ -25,15 +27,23 @@ public class ViewQuestionsActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_questions);
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        if (currentUser != null) {
+
+        } else {
+            // show the signup or login screen
+            Toast.makeText(getApplicationContext(), "User logged out?",
+                    Toast.LENGTH_LONG).show();
+        }
         ParseQuery<ParseObject> query = ParseQuery.getQuery("UserQuestion");
-        query.whereEqualTo("choice2", "winning");
+        query.whereEqualTo("asker", currentUser.getUsername());
         query.findInBackground(new FindCallback<ParseObject>() {
             public void done(List<ParseObject> scoreList, ParseException e) {
                 if (e == null) {
                     Log.d("score", "Retrieved " + scoreList.size() + " thems"); //change to toast
-                    questionItemArrayAdapter = new QuestionAdapter(ViewQuestionsActivity.this, new String[10]);
-                    questionListView = (ListView) findViewById(R.id.questionList);
-                    questionListView.setAdapter(questionItemArrayAdapter);
+                    QuestionAdapter adapter = new QuestionAdapter(ViewQuestionsActivity.this,scoreList);
+                    ListView listView = (ListView) findViewById(R.id.questionList);
+                    listView.setAdapter(adapter);
 
                 } else {
                     Log.d("score", "Error: " + e.getMessage());

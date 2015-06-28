@@ -12,7 +12,7 @@
 
 
         <TextView
-            android:id="@+id/textView1"
+            android:id="@+id/textViewQuestionText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Header Text"
@@ -20,12 +20,15 @@
         android:textColor="#222222"
         android:textStyle="bold" />
 
-
-        <TextView
-            android:id="@+id/textView2"
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+        <Button
+            android:id="@+id/buttonChoice1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tweet body text here"
+            android:text="Choice 1"
         android:layout_marginTop="5dp"
         android:ellipsize="end"
         android:lines="3"
@@ -33,16 +36,18 @@
         android:textSize="14sp" />
 
 
-        <TextView
-            android:id="@+id/textView3"
+        <Button
+            android:id="@+id/buttonChoice2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="20 Nov 2013"
-        android:layout_marginTop="5dp"
-        android:textColor="#999999"
-        android:textSize="12sp" />
+            android:text="Choice 2"
+            android:layout_marginTop="5dp"
+            android:ellipsize="end"
+            android:lines="3"
+            android:textColor="#666666"
+            android:textSize="14sp" />
 
-
+        </LinearLayout>
     </LinearLayout>
 
 

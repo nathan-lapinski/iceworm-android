@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.parse.ParseObject;
+import com.parse.ParseUser;
 
 
 public class AskQuestionActivity extends ActionBarActivity {
@@ -40,7 +41,15 @@ public class AskQuestionActivity extends ActionBarActivity {
                 String c1 = _choice1.getText().toString();
                 String c2 = _choice2.getText().toString();
                 ParseObject userQuestion = new ParseObject("UserQuestion");
+                ParseUser currentUser = ParseUser.getCurrentUser();
+                if (currentUser != null) {
 
+                } else {
+                    // show the signup or login screen
+                    Toast.makeText(getApplicationContext(), "User logged out?",
+                            Toast.LENGTH_LONG).show();
+                }
+                userQuestion.put("asker",currentUser.getUsername());
                 userQuestion.put("question", q);
                 userQuestion.put("choice1", c1);
                 userQuestion.put("choice2", c2);
