@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/question_results_text"
+        android:text="This is the question"/>
+
+    <LinearLayout android:id="@+id/choice1_results_block"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/question_results_text"
+        android:layout_marginTop="25dp"
+        android:orientation="horizontal">
+
+        <TextView android:id="@+id/choice1_results_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/lbl_username"
+            android:textColor="@android:color/black"
+
+            />
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:id="@+id/choice1_results_progress"
+            android:progress="35"/>
+    </LinearLayout>
+    <LinearLayout android:id="@+id/choice2_results_block"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/choice1_results_block"
+        android:layout_marginTop="25dp"
+        android:orientation="horizontal">
+
+        <TextView android:id="@+id/choice2_results_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/lbl_username"
+            android:textColor="@android:color/black"
+            />
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:id="@+id/choice2_results_progress"
+            android:progress="65"/>
+    </LinearLayout>
+</LinearLayout>

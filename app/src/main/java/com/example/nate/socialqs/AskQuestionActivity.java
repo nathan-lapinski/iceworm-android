@@ -55,6 +55,7 @@ public class AskQuestionActivity extends ActionBarActivity {
                 userQuestion.put("choice2", c2);
                 userQuestion.put("choice1_votes",0);
                 userQuestion.put("choice2_votes",0);
+                userQuestion.put("answered",false);
                 userQuestion.saveInBackground();
                 Toast.makeText(getApplicationContext(), "Success "+ q + c1 + c2,
                         Toast.LENGTH_LONG).show();
