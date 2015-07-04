@@ -52,18 +52,38 @@ public class MainActivitySignup extends ActionBarActivity {
 
                 }
 
-                ParseUser user = new ParseUser();
+                final ParseUser user = new ParseUser();
                 user.setUsername(uname);
                 user.setPassword(pword);
                 user.setEmail(email);
+                //set some default fields that will be populated later
+                user.put("firstName", "");
+                user.put("lastName", "");
+                user.put("profilePicture","");
 
                 user.signUpInBackground(new SignUpCallback() {
                     @Override
                     public void done(ParseException e) {
                         if (e == null) {
-                            Intent intent = new Intent(MainActivitySignup.this, AskQuestionActivity.class);
-                            startActivity(intent);
-                            finish();
+                            //at this point, the user has been created, so lets generate the userq table
+                            final ParseObject userQ = new ParseObject("UserQs");
+                            userQ.saveInBackground(new SaveCallback() {
+                                public void done(ParseException e) {
+                                    if (e == null) {
+                                        //find the user..?
+                                        user.put("uQId", userQ.getObjectId());
+                                        user.saveInBackground();
+                                        //start the success activity, put this in a callback
+                                        Intent intent = new Intent(MainActivitySignup.this, AskQuestionActivity.class);
+                                        startActivity(intent);
+                                        finish();
+
+                                    } else {
+                                        //fail
+                                    }
+                                }
+                            });
+
                         } else {
                             Toast.makeText(getApplicationContext(), "Error Creating User: " + e,
                                     Toast.LENGTH_LONG).show();

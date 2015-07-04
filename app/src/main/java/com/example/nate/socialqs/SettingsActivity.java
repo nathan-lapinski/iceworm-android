@@ -10,6 +10,8 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.parse.ParseUser;
+
 
 public class SettingsActivity extends ActionBarActivity {
 
@@ -46,6 +48,15 @@ public class SettingsActivity extends ActionBarActivity {
             }
         });
         /*****************/
+        _logout = (Button) findViewById(R.id.btn_logout);
+        _logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ParseUser.logOut();
+                Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
