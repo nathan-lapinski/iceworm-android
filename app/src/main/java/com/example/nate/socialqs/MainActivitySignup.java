@@ -23,6 +23,7 @@ public class MainActivitySignup extends ActionBarActivity {
     Button _signupBtn;
     EditText _username;
     EditText _password;
+    EditText _email;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +32,7 @@ public class MainActivitySignup extends ActionBarActivity {
         _signupBtn = ( Button ) findViewById(R.id.btn_signup);
         _username = ( EditText ) findViewById(R.id.fld_username);
         _password = ( EditText ) findViewById(R.id.fld_pwd);
+        _email = ( EditText) findViewById(R.id.fld_email);
         Parse.initialize(this, "unu1viESNa3YMwTEYtG0ZOMzCF2IZXLkPsOTUdjj", "tqp6GFOoP3vhGcHKigZRomZFwSETwQj6uOAiSssA");
         _signupBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -43,6 +45,7 @@ public class MainActivitySignup extends ActionBarActivity {
                 //validate input first
                 String uname = _username.getText().toString();
                 String pword = _password.getText().toString();
+                String email = _email.getText().toString();
 
                 if ((uname == null) || (pword == null)) {
                     //error state
@@ -52,18 +55,17 @@ public class MainActivitySignup extends ActionBarActivity {
                 ParseUser user = new ParseUser();
                 user.setUsername(uname);
                 user.setPassword(pword);
+                user.setEmail(email);
 
                 user.signUpInBackground(new SignUpCallback() {
                     @Override
                     public void done(ParseException e) {
                         if (e == null) {
-                            Toast.makeText(getApplicationContext(), "WIN",
-                                    Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(MainActivitySignup.this, HomeScreenActivity.class);
+                            Intent intent = new Intent(MainActivitySignup.this, AskQuestionActivity.class);
                             startActivity(intent);
                             finish();
                         } else {
-                            Toast.makeText(getApplicationContext(), "FKD" + e,
+                            Toast.makeText(getApplicationContext(), "Error Creating User: " + e,
                                     Toast.LENGTH_LONG).show();
                         }
                     }

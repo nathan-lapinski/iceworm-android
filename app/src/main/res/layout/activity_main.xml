@@ -18,7 +18,7 @@
             android:layout_width="290dp"
             android:layout_height="wrap_content"
 
-            android:text="@string/lbl_login"
+            android:text="Sign In"
             android:background="@color/button_material_light"
             android:alpha="0.70"
             android:gravity="center"
@@ -30,7 +30,7 @@
             android:id="@+id/btn_signup"
             android:layout_width="290dp"
             android:layout_height="wrap_content"
-            android:text="@string/lbl_signup"
+            android:text="Create Account"
             android:background="@color/button_material_light"
             android:alpha="0.70"
             android:layout_below="@+id/btn_login"

@@ -58,7 +58,7 @@ public class MainActivityLogin extends ActionBarActivity {
                             // Hooray! The user is logged in.
                             Toast.makeText(getApplicationContext(), "WIN",
                                     Toast.LENGTH_LONG).show();
-                            Intent intent = new Intent(MainActivityLogin.this, HomeScreenActivity.class);
+                            Intent intent = new Intent(MainActivityLogin.this, AskQuestionActivity.class);
                             startActivity(intent);
                             finish();
                         } else {

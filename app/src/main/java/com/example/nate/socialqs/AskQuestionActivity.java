@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.parse.ParseObject;
@@ -25,8 +26,36 @@ public class AskQuestionActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_ask_question);
-
+        setContentView(R.layout.activity_ask_question_test);
+        /*Inflate the menu -- put this in a function at some point*/
+        ImageButton i_ask = (ImageButton) findViewById(R.id.image_button_ask);
+        ImageButton i_in = (ImageButton) findViewById(R.id.image_button_incoming);
+        ImageButton i_out = (ImageButton) findViewById(R.id.image_button_outgoing);
+        ImageButton i_set = (ImageButton) findViewById(R.id.image_button_settings);
+        //Assign the click functionality
+        //i_ask is active
+        i_in.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(AskQuestionActivity.this, ViewMyQuestionsActivity.class);
+                startActivity(intent);
+            }
+        });
+        i_out.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(AskQuestionActivity.this, ViewQuestionsActivity.class);
+                startActivity(intent);
+            }
+        });
+        i_set.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(AskQuestionActivity.this, SettingsActivity.class);
+                startActivity(intent);
+            }
+        });
+        /*****************/
         _question = (EditText) findViewById(R.id.fld_question_body);
         _choice1 = (EditText) findViewById(R.id.fld_choice1);
         _choice2 = (EditText) findViewById(R.id.fld_choice2);
@@ -40,8 +69,10 @@ public class AskQuestionActivity extends ActionBarActivity {
                 String q = _question.getText().toString();
                 String c1 = _choice1.getText().toString();
                 String c2 = _choice2.getText().toString();
+
                 ParseObject userQuestion = new ParseObject("UserQuestion");
                 ParseUser currentUser = ParseUser.getCurrentUser();
+
                 if (currentUser != null) {
 
                 } else {
@@ -50,6 +81,7 @@ public class AskQuestionActivity extends ActionBarActivity {
                             Toast.LENGTH_LONG).show();
                 }
                 userQuestion.put("asker",currentUser.getUsername());
+  //              userQuestion.put("askerID",currentUser.getString("objectId"));
                 userQuestion.put("question", q);
                 userQuestion.put("choice1", c1);
                 userQuestion.put("choice2", c2);
@@ -59,7 +91,7 @@ public class AskQuestionActivity extends ActionBarActivity {
                 userQuestion.saveInBackground();
                 Toast.makeText(getApplicationContext(), "Success "+ q + c1 + c2,
                         Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(AskQuestionActivity.this, HomeScreenActivity.class);
+                Intent intent = new Intent(AskQuestionActivity.this, AskQuestionActivity.class);
                 startActivity(intent);
             }
         });
@@ -69,7 +101,7 @@ public class AskQuestionActivity extends ActionBarActivity {
             public void onClick(View v) {
                 Toast.makeText(getApplicationContext(), "Question Cancelled",
                         Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(AskQuestionActivity.this, HomeScreenActivity.class);
+                Intent intent = new Intent(AskQuestionActivity.this, AskQuestionActivity.class);
                 startActivity(intent);
             }
         });

@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -21,12 +20,12 @@ import com.parse.ParseUser;
 import java.util.List;
 
 
-public class ViewQuestionsActivity extends ActionBarActivity {
+public class ViewMyQuestionsActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_view_questions);
+        setContentView(R.layout.activity_view_my_questions);
 
         /*Inflate the menu -- put this in a function at some point*/
         ImageButton i_ask = (ImageButton) findViewById(R.id.image_button_ask);
@@ -38,21 +37,21 @@ public class ViewQuestionsActivity extends ActionBarActivity {
         i_ask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ViewQuestionsActivity.this, AskQuestionActivity.class);
+                Intent intent = new Intent(ViewMyQuestionsActivity.this, AskQuestionActivity.class);
                 startActivity(intent);
             }
         });
-        i_in.setOnClickListener(new View.OnClickListener() {
+        i_out.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ViewQuestionsActivity.this, ViewMyQuestionsActivity.class);
+                Intent intent = new Intent(ViewMyQuestionsActivity.this, ViewQuestionsActivity.class);
                 startActivity(intent);
             }
         });
         i_set.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ViewQuestionsActivity.this, SettingsActivity.class);
+                Intent intent = new Intent(ViewMyQuestionsActivity.this, SettingsActivity.class);
                 startActivity(intent);
             }
         });
@@ -67,12 +66,12 @@ public class ViewQuestionsActivity extends ActionBarActivity {
                     Toast.LENGTH_LONG).show();
         }
         ParseQuery<ParseObject> query = ParseQuery.getQuery("UserQuestion");
-        query.whereNotEqualTo("asker", currentUser.getUsername());
+        query.whereEqualTo("asker", currentUser.getUsername());
         query.findInBackground(new FindCallback<ParseObject>() {
             public void done(List<ParseObject> scoreList, ParseException e) {
                 if (e == null) {
-                    QuestionAdapter adapter = new QuestionAdapter(ViewQuestionsActivity.this,scoreList);
-                    ListView listView = (ListView) findViewById(R.id.questionList);
+                    MyQuestionAdapter adapter = new MyQuestionAdapter(ViewMyQuestionsActivity.this, scoreList);
+                    ListView listView = (ListView) findViewById(R.id.questionList2);
                     listView.setAdapter(adapter);
 
                 } else {
@@ -80,13 +79,12 @@ public class ViewQuestionsActivity extends ActionBarActivity {
                 }
             }
         });
-
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_view_questions, menu);
+        getMenuInflater().inflate(R.menu.menu_view_my_questions, menu);
         return true;
     }
 

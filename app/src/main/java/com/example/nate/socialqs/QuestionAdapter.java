@@ -64,12 +64,41 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                     query.findInBackground(new FindCallback<ParseObject>() {
                         public void done(List<ParseObject> scoreList, ParseException e) {
                             if (e == null) {
-                                Toast.makeText(j.getContext(), "Button 1 good",
-                                        Toast.LENGTH_LONG).show();
+
                                 ParseObject obj = scoreList.get(0); //only one
                                 int old_votes = obj.getInt("choice1_votes");
                                 obj.put("choice1_votes",++old_votes);
+                                obj.put("answered",true);
                                 obj.saveInBackground();
+                                //let's pull down the scores for this question and display them dynamically in textviews.
+                                //we already know choice2 votes lol
+                                int c2_votes = obj.getInt("choice2_votes");
+                                String c1f = "Choice 2 got " + c2_votes + " votes";
+                                String c2f = "Choice 1 got " + old_votes + " votes";
+                                //cool, now lets try to replace the existing linear layout with a new one
+                                LayoutInflater inflater;
+                                inflater = (LayoutInflater) j.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+                                LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.question_results_view, null);
+                                //at this point, we should have the new layout, so lets try to attach it
+                                tl1.removeView(tl1.getChildAt(0));
+                                tl3.removeView(tl3.getChildAt(0));
+                                TextView inner1 = (TextView) layout.findViewById(R.id.choice1_results_text);
+                                TextView inner2 = (TextView) layout.findViewById(R.id.choice2_results_text);
+                                ProgressBar prog1 = (ProgressBar) layout.findViewById(R.id.choice1_results_progress);
+                                ProgressBar prog2 = (ProgressBar) layout.findViewById(R.id.choice2_results_progress);
+                                inner1.setText(obj.getString("choice1"));
+                                inner2.setText(obj.getString("choice2"));
+                                int[] res = getProgressStats(old_votes,c2_votes);
+                                Toast.makeText(j.getContext(), "Prog1 is " + res[0] + " prog2 is " + res[1],
+                                        Toast.LENGTH_LONG).show();
+                                prog1.setProgress(res[0]);
+                                prog2.setProgress(res[1]);
+                                //let
+                                tl3.addView(layout);
+                                tl.refreshDrawableState();
+                                tl1.refreshDrawableState();
+                                // p.refreshDrawableState();
                             } else {
                                 Log.d("score", "Error: " + e.getMessage());
                             }
@@ -119,40 +148,6 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                 prog2.setProgress(res[1]);
                                 //let
                                 tl3.addView(layout);
-
-
-
-                                //figure out how to add view elements
-                                //remove the buttons
-                                /*
-                                View b = tl1.findViewById(R.id.buttonChoice1);
-                                ViewGroup p = (ViewGroup)b.getParent();
-                                ((ViewGroup)b.getParent()).removeView(b);
-                                View b2 = tl1.findViewById(R.id.buttonChoice2);
-                                ViewGroup p2 = (ViewGroup)b2.getParent();
-                                ((ViewGroup)b2.getParent()).removeView(b2);
-
-                                //try creating a new view
-                                ViewGroup.LayoutParams lparams = new ViewGroup.LayoutParams(
-                                        ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                                TextView tv=new TextView(j.getContext());
-                                tv.setLayoutParams(lparams);
-                                tv.setText(c1f);
-                                p.addView(tv);
-                                ViewGroup.LayoutParams lparams2 = new ViewGroup.LayoutParams(
-                                        ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                                TextView tv2=new TextView(j.getContext());
-                                tv2.setLayoutParams(lparams2);
-                                tv2.setText(c2f);
-                                p.addView(tv2);
-                                ViewGroup.LayoutParams lparams3 = new ViewGroup.LayoutParams(
-                                        ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                                ProgressBar c1bar = new ProgressBar(j.getContext(),null,
-                                        android.R.attr.progressBarStyleHorizontal);
-                                c1bar.setLayoutParams(lparams3);
-                                c1bar.setProgress(56);
-                                p.addView(c1bar);*/
-                                //--
                                 tl.refreshDrawableState();
                                 tl1.refreshDrawableState();
                                // p.refreshDrawableState();
