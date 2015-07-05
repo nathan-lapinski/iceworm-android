@@ -56,8 +56,6 @@ public class MainActivityLogin extends ActionBarActivity {
                     public void done(ParseUser user, ParseException e) {
                         if (user != null) {
                             // Hooray! The user is logged in.
-                            Toast.makeText(getApplicationContext(), "WIN",
-                                    Toast.LENGTH_LONG).show();
                             Intent intent = new Intent(MainActivityLogin.this, AskQuestionActivity.class);
                             startActivity(intent);
                             finish();

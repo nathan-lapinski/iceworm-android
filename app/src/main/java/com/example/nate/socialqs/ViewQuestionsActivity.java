@@ -4,12 +4,16 @@ import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.FindCallback;
@@ -18,6 +22,8 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -58,7 +64,7 @@ public class ViewQuestionsActivity extends ActionBarActivity {
         });
         /*****************/
 
-        ParseUser currentUser = ParseUser.getCurrentUser();
+        final ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser != null) {
 
         } else {
@@ -66,8 +72,55 @@ public class ViewQuestionsActivity extends ActionBarActivity {
             Toast.makeText(getApplicationContext(), "User logged out?",
                     Toast.LENGTH_LONG).show();
         }
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("UserQuestion");
-        query.whereNotEqualTo("asker", currentUser.getUsername());
+
+
+        ParseQuery<ParseObject> vote_query = ParseQuery.getQuery("UserQs");
+        vote_query.whereEqualTo("objectId", currentUser.get("uQId")); //not sure if this works
+
+        vote_query.findInBackground(new FindCallback<ParseObject>() {
+            public void done(List<ParseObject> resList, ParseException e) {
+                if (e == null) {
+
+                    ArrayList<String> votes;
+                    if(resList.get(0) == null){
+                        votes = new ArrayList<String>();
+                        Toast.makeText(getApplicationContext(), "It Was null!!",
+                                Toast.LENGTH_LONG).show();
+                    } else {
+                        votes = (ArrayList<String>) resList.get(0).get("myQsId"); //was votedOnId
+                       /* Toast.makeText(getApplicationContext(), "It's alive!!: " + votes.get(0),
+                                Toast.LENGTH_LONG).show();*/
+                    }
+                    final ArrayList<String> myvotes = votes;
+                    ParseQuery<ParseObject> query = ParseQuery.getQuery("SocialQs");
+                    query.whereNotEqualTo("askerName", currentUser.getUsername());
+                    query.findInBackground(new FindCallback<ParseObject>() {
+                        public void done(List<ParseObject> scoreList, ParseException e) {
+                            if (e == null) {
+                                for(int i = 0; i < scoreList.size(); i++){
+                                    if(myvotes == null){//this is the case where the user hasn't voted yet...
+                                        scoreList.get(i).put("temp_votes_array",new ArrayList<String>());
+                                    }else {
+                                        scoreList.get(i).put("temp_votes_array", myvotes);
+                                    }
+                                }
+                                QuestionAdapter adapter = new QuestionAdapter(ViewQuestionsActivity.this,scoreList);
+                                ListView listView = (ListView) findViewById(R.id.questionList);
+                                listView.setAdapter(adapter);
+
+                            } else {
+                                Log.d("score", "Error: " + e.getMessage());
+                            }
+                        }
+                    });
+                } else {
+
+                }
+            }
+        });
+        /*
+        ParseQuery<ParseObject> query = ParseQuery.getQuery("SocialQs");
+        query.whereNotEqualTo("askername", currentUser.getUsername());
         query.findInBackground(new FindCallback<ParseObject>() {
             public void done(List<ParseObject> scoreList, ParseException e) {
                 if (e == null) {
@@ -80,7 +133,7 @@ public class ViewQuestionsActivity extends ActionBarActivity {
                 }
             }
         });
-
+        */
     }
 
     @Override

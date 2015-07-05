@@ -11,8 +11,11 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
+import com.parse.SignUpCallback;
 
 
 public class AskQuestionActivity extends ActionBarActivity {
@@ -70,7 +73,7 @@ public class AskQuestionActivity extends ActionBarActivity {
                 String c1 = _choice1.getText().toString();
                 String c2 = _choice2.getText().toString();
 
-                ParseObject userQuestion = new ParseObject("UserQuestion");
+                final ParseObject userQuestion = new ParseObject("SocialQs");
                 ParseUser currentUser = ParseUser.getCurrentUser();
 
                 if (currentUser != null) {
@@ -80,19 +83,47 @@ public class AskQuestionActivity extends ActionBarActivity {
                     Toast.makeText(getApplicationContext(), "User logged out?",
                             Toast.LENGTH_LONG).show();
                 }
+
+
                 userQuestion.put("asker",currentUser.getUsername());
-  //              userQuestion.put("askerID",currentUser.getString("objectId"));
                 userQuestion.put("question", q);
-                userQuestion.put("choice1", c1);
-                userQuestion.put("choice2", c2);
-                userQuestion.put("choice1_votes",0);
-                userQuestion.put("choice2_votes",0);
-                userQuestion.put("answered",false);
-                userQuestion.saveInBackground();
-                Toast.makeText(getApplicationContext(), "Success "+ q + c1 + c2,
-                        Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(AskQuestionActivity.this, AskQuestionActivity.class);
-                startActivity(intent);
+                userQuestion.put("option1", c1);
+                userQuestion.put("option2", c2);
+                userQuestion.put("stats1",0);
+                userQuestion.put("stats2",0);
+                userQuestion.put("askerName",currentUser.get("username"));
+                userQuestion.put("privacyOptions",1);
+
+                userQuestion.saveInBackground(new SaveCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        if (e == null) {
+                            //at this point, the user has been created, so lets generate the userq table
+                            final ParseObject vote = new ParseObject("Votes");
+                            vote.saveInBackground(new SaveCallback() {
+                                public void done(ParseException e) {
+                                    if (e == null) {
+                                        //find the user..?
+                                        userQuestion.put("votesId", vote.getObjectId());
+                                        userQuestion.saveInBackground();
+                                        //start the success activity, put this in a callback
+                                        Intent intent = new Intent(AskQuestionActivity.this, AskQuestionActivity.class);
+                                        startActivity(intent);
+                                        finish();
+
+                                    } else {
+                                        //fail
+                                    }
+                                }
+                            });
+
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Error Creating User: " + e,
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+
             }
         });
 
