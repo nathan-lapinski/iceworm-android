@@ -39,7 +39,8 @@
                 style="?android:attr/progressBarStyleHorizontal"
                 android:id="@+id/choice1_results_progress"
                 android:progress="35"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                />
         </LinearLayout>
 
         <LinearLayout android:id="@+id/choice2_results_block"

@@ -47,10 +47,10 @@ public class MyQuestionAdapter extends ArrayAdapter<ParseObject> {
         ProgressBar p1 = (ProgressBar)convertView.findViewById(R.id.choice1_results_progress);
         ProgressBar p2 = (ProgressBar)convertView.findViewById(R.id.choice2_results_progress);
         q.setText(obj.getString("question"));
-        c1.setText(obj.getString("choice1"));
-        c2.setText(obj.getString("choice2"));
+        c1.setText(obj.getString("option1"));
+        c2.setText(obj.getString("option2"));
         int[] results = {0,0};
-        results = getProgressStats(obj.getInt("choice1_votes"),obj.getInt("choice2_votes"));
+        results = getProgressStats(obj.getInt("stats1"),obj.getInt("stats2"));
         p1.setProgress(results[0]);
         p2.setProgress(results[1]);
 
