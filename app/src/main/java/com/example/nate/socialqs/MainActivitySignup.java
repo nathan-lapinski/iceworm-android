@@ -33,7 +33,8 @@ public class MainActivitySignup extends ActionBarActivity {
         _username = ( EditText ) findViewById(R.id.fld_username);
         _password = ( EditText ) findViewById(R.id.fld_pwd);
         _email = ( EditText) findViewById(R.id.fld_email);
-        Parse.initialize(this, "unu1viESNa3YMwTEYtG0ZOMzCF2IZXLkPsOTUdjj", "tqp6GFOoP3vhGcHKigZRomZFwSETwQj6uOAiSssA");
+      //  Parse.initialize(this, "unu1viESNa3YMwTEYtG0ZOMzCF2IZXLkPsOTUdjj", "tqp6GFOoP3vhGcHKigZRomZFwSETwQj6uOAiSssA");
+        Parse.initialize(this, "7aEu2aiPHAun7HWnN42hWJ4eQuZueBiHZoGq7GZb", "FU38Qh4hHo0LDGLAQP8PKB8wtjzwhPFGArpwqj7t");
         _signupBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -57,9 +58,9 @@ public class MainActivitySignup extends ActionBarActivity {
                 user.setPassword(pword);
                 user.setEmail(email);
                 //set some default fields that will be populated later
-                user.put("firstName", "");
-                user.put("lastName", "");
-                user.put("profilePicture","");
+                //user.put("firstName", "");
+                //user.put("lastName", "");
+
 
                 user.signUpInBackground(new SignUpCallback() {
                     @Override

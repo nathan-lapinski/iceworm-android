@@ -84,8 +84,7 @@ public class ViewQuestionsActivity extends ActionBarActivity {
                     ArrayList<String> votes;
                     if(resList.get(0) == null){
                         votes = new ArrayList<String>();
-                        Toast.makeText(getApplicationContext(), "It Was null!!",
-                                Toast.LENGTH_LONG).show();
+
                     } else {
                         votes = (ArrayList<String>) resList.get(0).get("myQsId"); //was votedOnId
                        /* Toast.makeText(getApplicationContext(), "It's alive!!: " + votes.get(0),
@@ -93,7 +92,7 @@ public class ViewQuestionsActivity extends ActionBarActivity {
                     }
                     final ArrayList<String> myvotes = votes;
                     ParseQuery<ParseObject> query = ParseQuery.getQuery("SocialQs");
-                    query.whereNotEqualTo("askerName", currentUser.getUsername());
+                    query.whereNotEqualTo("askername", currentUser.getUsername());
                     query.findInBackground(new FindCallback<ParseObject>() {
                         public void done(List<ParseObject> scoreList, ParseException e) {
                             if (e == null) {
@@ -118,22 +117,7 @@ public class ViewQuestionsActivity extends ActionBarActivity {
                 }
             }
         });
-        /*
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("SocialQs");
-        query.whereNotEqualTo("askername", currentUser.getUsername());
-        query.findInBackground(new FindCallback<ParseObject>() {
-            public void done(List<ParseObject> scoreList, ParseException e) {
-                if (e == null) {
-                    QuestionAdapter adapter = new QuestionAdapter(ViewQuestionsActivity.this,scoreList);
-                    ListView listView = (ListView) findViewById(R.id.questionList);
-                    listView.setAdapter(adapter);
 
-                } else {
-                    Log.d("score", "Error: " + e.getMessage());
-                }
-            }
-        });
-        */
     }
 
     @Override

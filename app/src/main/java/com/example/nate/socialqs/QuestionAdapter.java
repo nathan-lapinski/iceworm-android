@@ -250,8 +250,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                 inner1.setText(obj.getString("option1"));
                                 inner2.setText(obj.getString("option2"));
                                 int[] res = getProgressStats(c2_votes,old_votes);
-                                Toast.makeText(j.getContext(), "Prog1 is " + res[0] + " prog2 is " + res[1],
-                                        Toast.LENGTH_LONG).show();
+
                                 prog1.setProgress(res[0]);
                                 prog2.setProgress(res[1]);
                                 //let
@@ -266,8 +265,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                     });
                     break;
                 default:
-                    Toast.makeText(v.getContext(), "It broke real badlike",
-                            Toast.LENGTH_LONG).show();
+
             }
 
         }
@@ -301,8 +299,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
         //it means we've already voted on it and we need to display the results view.
         if ((votes.size() > 0) && is_found) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.question_results_view, parent, false);
-            Toast.makeText(getContext(), "I'm in it!",
-                    Toast.LENGTH_LONG).show();
+
             //load the progress bar view here
             //insert the values for the view here
             TextView q = (TextView) convertView.findViewById(R.id.question_results_text);

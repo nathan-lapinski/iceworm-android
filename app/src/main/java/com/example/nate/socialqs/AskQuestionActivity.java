@@ -3,19 +3,25 @@ package com.example.nate.socialqs;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.Toast;
 
+import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
+
+import java.util.List;
 
 
 public class AskQuestionActivity extends ActionBarActivity {
@@ -85,20 +91,21 @@ public class AskQuestionActivity extends ActionBarActivity {
                 }
 
 
-                userQuestion.put("asker",currentUser.getUsername());
+            //    userQuestion.put("asker",currentUser.getUsername());
                 userQuestion.put("question", q);
                 userQuestion.put("option1", c1);
                 userQuestion.put("option2", c2);
                 userQuestion.put("stats1",0);
                 userQuestion.put("stats2",0);
-                userQuestion.put("askerName",currentUser.get("username"));
-                userQuestion.put("privacyOptions",1);
+                userQuestion.put("askername",currentUser.getUsername());
+                userQuestion.put("askerId",currentUser.getObjectId());
+                //userQuestion.put("privacyOptions",1);
 
                 userQuestion.saveInBackground(new SaveCallback() {
                     @Override
                     public void done(ParseException e) {
                         if (e == null) {
-                            //at this point, the user has been created, so lets generate the userq table
+
                             final ParseObject vote = new ParseObject("Votes");
                             vote.saveInBackground(new SaveCallback() {
                                 public void done(ParseException e) {
@@ -116,6 +123,41 @@ public class AskQuestionActivity extends ActionBarActivity {
                                     }
                                 }
                             });
+                            //not sure if questionObject needs to be saved and requeried first...
+                            ParseQuery<ParseObject> query = ParseQuery.getQuery("UserQs");
+                            // query.whereNotEqualTo("objectId", ParseUser.getCurrentUser().get("uQId"));
+                            query.findInBackground(new FindCallback<ParseObject>() {
+                                public void done(List<ParseObject> scoreList, ParseException e) {
+                                    if (e == null) {
+                                        for (int i = 0; i < scoreList.size(); i++) {
+                                            if (scoreList.get(i).getObjectId().equals(ParseUser.getCurrentUser().get("uQId"))) {
+                                                scoreList.get(i).addUnique("myQsId", userQuestion.getObjectId());
+                                                scoreList.get(i).saveInBackground();
+                                            } else {
+                                                scoreList.get(i).addUnique("theirQsId", userQuestion.getObjectId());
+                                                scoreList.get(i).saveInBackground();
+                                            }
+                                        }
+
+                                    } else {
+                                        Log.d("score", "Error: " + e.getMessage());
+                                    }
+                                }
+                            });
+
+                            /*//now add it to mine...
+                            ParseQuery<ParseObject> query2 = ParseQuery.getQuery("UserQs");
+                            query.whereEqualTo("objectId", ParseUser.getCurrentUser().get("uQId"));
+                            query.findInBackground(new FindCallback<ParseObject>() {
+                                public void done(List<ParseObject> scoreList, ParseException e) {
+                                    if (e == null) {
+                                        scoreList.get(0).addUnique("myQsId",userQuestion.getObjectId());
+                                        scoreList.get(0).saveInBackground();
+                                    } else {
+                                        Log.d("score", "Error: " + e.getMessage());
+                                    }
+                                }
+                            });*/
 
                         } else {
                             Toast.makeText(getApplicationContext(), "Error Creating User: " + e,

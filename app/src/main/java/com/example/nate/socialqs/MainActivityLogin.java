@@ -30,7 +30,8 @@ public class MainActivityLogin extends ActionBarActivity {
         _loginBtn = ( Button ) findViewById(R.id.btn_login);
         _username = ( EditText ) findViewById(R.id.fld_username);
         _password = ( EditText ) findViewById(R.id.fld_pwd);
-        Parse.initialize(this, "unu1viESNa3YMwTEYtG0ZOMzCF2IZXLkPsOTUdjj", "tqp6GFOoP3vhGcHKigZRomZFwSETwQj6uOAiSssA");
+        //Parse.initialize(this, "unu1viESNa3YMwTEYtG0ZOMzCF2IZXLkPsOTUdjj", "tqp6GFOoP3vhGcHKigZRomZFwSETwQj6uOAiSssA");
+        Parse.initialize(this, "7aEu2aiPHAun7HWnN42hWJ4eQuZueBiHZoGq7GZb", "FU38Qh4hHo0LDGLAQP8PKB8wtjzwhPFGArpwqj7t");
         _loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -60,9 +61,7 @@ public class MainActivityLogin extends ActionBarActivity {
                             startActivity(intent);
                             finish();
                         } else {
-                            // Signup failed. Look at the ParseException to see what happened.
-                            Toast.makeText(getApplicationContext(), "FKD" + e,
-                                    Toast.LENGTH_LONG).show();
+                            // Signup failed. Look at the ParseException to see what happened
                         }
                     }
                 });

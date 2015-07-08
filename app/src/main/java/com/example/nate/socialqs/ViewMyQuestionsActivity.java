@@ -66,7 +66,7 @@ public class ViewMyQuestionsActivity extends ActionBarActivity {
                     Toast.LENGTH_LONG).show();
         }
         ParseQuery<ParseObject> query = ParseQuery.getQuery("SocialQs");
-        query.whereEqualTo("asker", currentUser.getUsername());
+        query.whereEqualTo("askername", currentUser.getUsername());
         query.findInBackground(new FindCallback<ParseObject>() {
             public void done(List<ParseObject> scoreList, ParseException e) {
                 if (e == null) {

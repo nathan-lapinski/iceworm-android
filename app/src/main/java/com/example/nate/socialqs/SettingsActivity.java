@@ -36,7 +36,7 @@ public class SettingsActivity extends ActionBarActivity {
         i_in.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(SettingsActivity.this, ViewQuestionsActivity.class);
+                Intent intent = new Intent(SettingsActivity.this, ViewMyQuestionsActivity.class);
                 startActivity(intent);
             }
         });
