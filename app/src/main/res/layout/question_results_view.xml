@@ -2,7 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="#ffffff"
+    android:alpha="0.8">
 
 
     <TextView
@@ -10,7 +12,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/question_results_text"
         android:text="This is the question"
-        android:gravity="center" />
+        android:gravity="center"
+        android:textColor="#000000" />
 
     <LinearLayout
         android:orientation="horizontal"
@@ -23,7 +26,8 @@
             android:layout_below="@id/question_results_text"
             android:layout_marginTop="25dp"
             android:orientation="horizontal"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:layout_marginRight="20dp">
 
             <TextView android:id="@+id/choice1_results_text"
                 android:layout_width="fill_parent"
@@ -33,6 +37,12 @@
 
                 android:layout_weight="1" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="100%"
+                android:id="@+id/choice1_percent" />
+
             <ProgressBar
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
@@ -40,6 +50,7 @@
                 android:id="@+id/choice1_results_progress"
                 android:progress="35"
                 android:layout_weight="1"
+                android:progressDrawable="@drawable/custom_progressbar"
                 />
         </LinearLayout>
 
@@ -49,7 +60,8 @@
             android:layout_below="@id/choice1_results_block"
             android:layout_marginTop="25dp"
             android:orientation="horizontal"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:layout_marginLeft="20dp">
 
             <TextView android:id="@+id/choice2_results_text"
                 android:layout_width="fill_parent"
@@ -58,14 +70,27 @@
                 android:textColor="@android:color/black"
                 android:layout_weight="1" />
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="100%"
+                android:id="@+id/choice2_percent" />
+
             <ProgressBar
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:id="@+id/choice2_results_progress"
                 android:progress="65"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:progressDrawable="@drawable/custom_progressbar"/>
         </LinearLayout>
+
+        <ImageButton
+            android:layout_width="32dp"
+            android:layout_height="29dp"
+            android:id="@+id/btn_delete"
+            android:src="@drawable/abc_ic_clear_mtrl_alpha" />
     </LinearLayout>
 
 </LinearLayout>

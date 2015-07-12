@@ -28,6 +28,9 @@ public class AskQuestionActivity extends ActionBarActivity {
 
     Button _submit;
     Button _cancel;
+    Button _groupies;
+    Button _privacy;
+
     EditText _question;
     EditText _choice1;
     EditText _choice2;
@@ -70,6 +73,8 @@ public class AskQuestionActivity extends ActionBarActivity {
         _choice2 = (EditText) findViewById(R.id.fld_choice2);
         _submit = (Button) findViewById(R.id.btn_ask);
         _cancel = (Button) findViewById(R.id.btn_ask_cancel);
+        _groupies = (Button) findViewById(R.id.btn_ask_groupies);
+        _privacy = (Button) findViewById(R.id.btn_ask_privacy);
 
 
         _submit.setOnClickListener(new View.OnClickListener() {
@@ -90,6 +95,12 @@ public class AskQuestionActivity extends ActionBarActivity {
                             Toast.LENGTH_LONG).show();
                 }
 
+                if((q.equals("")) || (c1.equals("")) || (c2.equals(""))){
+                    Toast.makeText(getApplicationContext(), "Error: One or more required parameters is empty",
+                            Toast.LENGTH_LONG).show();
+                    Intent intent = new Intent(AskQuestionActivity.this, AskQuestionActivity.class);
+                    startActivity(intent);
+                }
 
             //    userQuestion.put("asker",currentUser.getUsername());
                 userQuestion.put("question", q);
@@ -116,7 +127,6 @@ public class AskQuestionActivity extends ActionBarActivity {
                                         //start the success activity, put this in a callback
                                         Intent intent = new Intent(AskQuestionActivity.this, AskQuestionActivity.class);
                                         startActivity(intent);
-                                        finish();
 
                                     } else {
                                         //fail
@@ -176,6 +186,22 @@ public class AskQuestionActivity extends ActionBarActivity {
                         Toast.LENGTH_LONG).show();
                 Intent intent = new Intent(AskQuestionActivity.this, AskQuestionActivity.class);
                 startActivity(intent);
+            }
+        });
+
+        _groupies.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "Group functionality will be available in a future release",
+                        Toast.LENGTH_LONG).show();
+            }
+        });
+
+        _privacy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "Privacy settings will be available in a future release",
+                        Toast.LENGTH_LONG).show();
             }
         });
 

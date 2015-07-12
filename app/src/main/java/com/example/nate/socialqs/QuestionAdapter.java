@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -38,12 +40,49 @@ import java.util.List;
 public class QuestionAdapter extends ArrayAdapter<ParseObject> {
     private LayoutInflater inflater;
 
-
+    //testing this out
+    List<ParseObject> master_list;
     public QuestionAdapter(Activity activity, List<ParseObject> data){
         super(activity, R.layout.row_question, data);
         inflater = activity.getWindow().getLayoutInflater();
+        this.master_list = data;
     }
 
+    public class MyDeleteListener implements View.OnClickListener
+    {
+        final ParseObject my_obj;
+        int position;
+        public MyDeleteListener(ParseObject row, int pos){
+            this.my_obj = row;
+            this.position = pos;
+        }
+        @Override
+        public void onClick(View v){
+            String user_q_id = ParseUser.getCurrentUser().getString("uQId");
+            ParseQuery<ParseObject> q = ParseQuery.getQuery("UserQs");
+            q.whereEqualTo("objectId", user_q_id);
+            q.findInBackground(new FindCallback<ParseObject>() {
+                public void done(List<ParseObject> scoreList, ParseException e) {
+                    if (e == null) {
+                        //remove it from active qs
+                        scoreList.get(0).removeAll("theirQsId", Arrays.asList(my_obj.getObjectId()));
+                        //add it to deleted qs
+                        scoreList.get(0).addAllUnique("deletedTheirQsId", Arrays.asList(my_obj.getObjectId()));
+                        scoreList.get(0).saveInBackground();
+                    } else {
+                        //fail
+                    }
+                }
+
+            }); // end the async call to update the votes
+            //Now let's update the UI by removing this row from the list view
+            master_list.remove(position); //should maybe pop it from the array??
+            //now to update the actual list.
+            notifyDataSetChanged();
+            notifyDataSetInvalidated();
+
+        }
+    }
     /*77777*/
     public class MyCustomListener implements View.OnClickListener
     {
@@ -76,7 +115,6 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
 
             //which button was clicked?
 
-            //FIX VOTING TO WORK WITH NEW DATABASE
             final View j = v;
             switch(v.getId()){
                 case R.id.buttonChoice1:
@@ -157,8 +195,8 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                 inner1.setText(obj.getString("option1"));
                                 inner2.setText(obj.getString("option2"));
                                 int[] res = getProgressStats(old_votes,c2_votes);
-                                Toast.makeText(j.getContext(), "Prog1 is " + res[0] + " prog2 is " + res[1],
-                                        Toast.LENGTH_LONG).show();
+
+
                                 prog1.setProgress(res[0]);
                                 prog2.setProgress(res[1]);
                                 //let
@@ -307,6 +345,11 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
             TextView c2 = (TextView) convertView.findViewById(R.id.choice2_results_text);
             ProgressBar p1 = (ProgressBar) convertView.findViewById(R.id.choice1_results_progress);
             ProgressBar p2 = (ProgressBar) convertView.findViewById(R.id.choice2_results_progress);
+            TextView per1 = (TextView)convertView.findViewById(R.id.choice1_percent);
+            TextView per2 = (TextView)convertView.findViewById(R.id.choice2_percent);
+            ImageButton del = (ImageButton)convertView.findViewById(R.id.btn_delete);
+            View.OnClickListener my_del = new MyDeleteListener(obj,position);
+            del.setOnClickListener(my_del);
             q.setText(obj.getString("question"));
             c1.setText(obj.getString("option1"));
             c2.setText(obj.getString("option2"));
@@ -314,6 +357,8 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
             results = getProgressStats(obj.getInt("stats1"), obj.getInt("stats2"));
             p1.setProgress(results[0]);
             p2.setProgress(results[1]);
+            per1.setText(results[0]+"%");
+            per2.setText(results[1]+"%");
 
 
         } else {
@@ -322,6 +367,9 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
             TextView question_text = (TextView) convertView.findViewById(R.id.textViewQuestionText);
             Button choice1 = (Button) convertView.findViewById(R.id.buttonChoice1);
             Button choice2 = (Button) convertView.findViewById(R.id.buttonChoice2);
+            ImageButton del = (ImageButton)convertView.findViewById(R.id.btn_delete);
+            View.OnClickListener my_del = new MyDeleteListener(obj,position);
+            del.setOnClickListener(my_del);
 
             View.OnClickListener my_test = new MyCustomListener(obj);
             choice1.setOnClickListener(my_test);
@@ -334,12 +382,6 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
 
         return convertView;
     }
-
-
-
-
-
-
 
     private int[] getProgressStats(int choice_1_votes, int choice_2_votes){
         int[] results = {0,0}; //set both results to zero, initially.
