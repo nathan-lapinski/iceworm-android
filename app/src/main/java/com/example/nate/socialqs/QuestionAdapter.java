@@ -162,7 +162,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                     public void done(List<ParseObject> scoreList, ParseException e) {
                                         if(e == null){
                                             ParseObject x = scoreList.get(0);
-                                            x.addAllUnique("myQsId",Arrays.asList(q_id));
+                                            x.addAllUnique("votedOn1Id",Arrays.asList(q_id));
                                             x.saveInBackground();
                                         } else {
                                             //failure
@@ -255,7 +255,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                     public void done(List<ParseObject> scoreList, ParseException e) {
                                         if(e == null){
                                             ParseObject x = scoreList.get(0);
-                                            x.addAllUnique("myQsId",Arrays.asList(q_id));
+                                            x.addAllUnique("votedOn2Id",Arrays.asList(q_id));
                                             x.saveInBackground();
                                         } else {
                                             //failure

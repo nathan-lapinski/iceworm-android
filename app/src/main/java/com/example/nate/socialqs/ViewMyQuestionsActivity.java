@@ -17,6 +17,7 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -65,17 +66,42 @@ public class ViewMyQuestionsActivity extends ActionBarActivity {
             Toast.makeText(getApplicationContext(), "User logged out?",
                     Toast.LENGTH_LONG).show();
         }
-        ParseQuery<ParseObject> query = ParseQuery.getQuery("SocialQs");
-        query.whereEqualTo("askername", currentUser.getUsername());
-        query.findInBackground(new FindCallback<ParseObject>() {
-            public void done(List<ParseObject> scoreList, ParseException e) {
-                if (e == null) {
-                    MyQuestionAdapter adapter = new MyQuestionAdapter(ViewMyQuestionsActivity.this, scoreList);
-                    ListView listView = (ListView) findViewById(R.id.questionList2);
-                    listView.setAdapter(adapter);
 
+        ParseQuery<ParseObject> uq_q = ParseQuery.getQuery("UserQs");
+        uq_q.whereEqualTo("objectId",currentUser.getString("uQId"));
+        uq_q.findInBackground(new FindCallback<ParseObject>() {
+            public void done(List<ParseObject> resList, ParseException e) {
+                if (e == null) {
+
+                    ArrayList<String> my_active_qs;
+                    if(resList.get(0) == null){
+                        my_active_qs = new ArrayList<String>();
+
+                    } else {
+                        my_active_qs = (ArrayList<String>) resList.get(0).get("myQsId"); //was votedOnId
+                    }
+                    ParseQuery<ParseObject> query = ParseQuery.getQuery("SocialQs");
+
+                    if(my_active_qs == null){
+
+                    } else {
+                        query.whereContainedIn("objectId", my_active_qs);
+                        //query.whereNotEqualTo("askername", currentUser.getUsername());
+                        query.findInBackground(new FindCallback<ParseObject>() {
+                            public void done(List<ParseObject> scoreList, ParseException e) {
+                                if (e == null) {
+                                    MyQuestionAdapter adapter = new MyQuestionAdapter(ViewMyQuestionsActivity.this, scoreList);
+                                    ListView listView = (ListView) findViewById(R.id.questionList2);
+                                    listView.setAdapter(adapter);
+
+                                } else {
+                                    Log.d("score", "Error: " + e.getMessage());
+                                }
+                            }
+                        });
+                    }//null
                 } else {
-                    Log.d("score", "Error: " + e.getMessage());
+                    //query failed
                 }
             }
         });
