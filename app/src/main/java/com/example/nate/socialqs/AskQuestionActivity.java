@@ -1,26 +1,38 @@
 package com.example.nate.socialqs;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
 
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 
 
@@ -30,10 +42,21 @@ public class AskQuestionActivity extends ActionBarActivity {
     Button _cancel;
     Button _groupies;
     Button _privacy;
+    ImageButton _img_btn_q;
+    ImageButton _img_btn_one;
+    ImageButton _img_btn_two;
 
     EditText _question;
     EditText _choice1;
     EditText _choice2;
+
+    int _b1_id;
+    int _b2_id;
+    int _b3_id;
+
+    ParseFile file1;
+    ParseFile file2;
+    ParseFile file3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +98,9 @@ public class AskQuestionActivity extends ActionBarActivity {
         _cancel = (Button) findViewById(R.id.btn_ask_cancel);
         _groupies = (Button) findViewById(R.id.btn_ask_groupies);
         _privacy = (Button) findViewById(R.id.btn_ask_privacy);
-
+        _img_btn_q = (ImageButton) findViewById(R.id.img_btn_question);
+        _img_btn_one = (ImageButton) findViewById(R.id.img_btn_one);
+        _img_btn_two = (ImageButton) findViewById(R.id.img_btn_two);
 
         _submit.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,6 +135,15 @@ public class AskQuestionActivity extends ActionBarActivity {
                 userQuestion.put("stats2",0);
                 userQuestion.put("askername",currentUser.getUsername());
                 userQuestion.put("askerId",currentUser.getObjectId());
+                if(file1 != null){
+                    userQuestion.put("questionPhoto", file1);
+                }
+                if(file2 != null){
+                    userQuestion.put("option1Photo",file2);
+                }
+                if(file3 != null){
+                    userQuestion.put("option2Photo",file3);
+                }
                 //userQuestion.put("privacyOptions",1);
 
                 userQuestion.saveInBackground(new SaveCallback() {
@@ -155,20 +189,6 @@ public class AskQuestionActivity extends ActionBarActivity {
                                 }
                             });
 
-                            /*//now add it to mine...
-                            ParseQuery<ParseObject> query2 = ParseQuery.getQuery("UserQs");
-                            query.whereEqualTo("objectId", ParseUser.getCurrentUser().get("uQId"));
-                            query.findInBackground(new FindCallback<ParseObject>() {
-                                public void done(List<ParseObject> scoreList, ParseException e) {
-                                    if (e == null) {
-                                        scoreList.get(0).addUnique("myQsId",userQuestion.getObjectId());
-                                        scoreList.get(0).saveInBackground();
-                                    } else {
-                                        Log.d("score", "Error: " + e.getMessage());
-                                    }
-                                }
-                            });*/
-
                         } else {
                             Toast.makeText(getApplicationContext(), "Error Creating User: " + e,
                                     Toast.LENGTH_LONG).show();
@@ -203,6 +223,32 @@ public class AskQuestionActivity extends ActionBarActivity {
                 Toast.makeText(getApplicationContext(), "Privacy settings will be available in a future release",
                         Toast.LENGTH_LONG).show();
             }
+
+        });
+
+        _img_btn_q.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                _b1_id = v.getId();
+                loadImagefromGallery(v,_b1_id);
+            }
+
+        });
+        _img_btn_one.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                _b2_id = v.getId();
+                loadImagefromGallery(v,_b2_id);
+            }
+
+        });
+        _img_btn_two.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                _b3_id = v.getId();
+                loadImagefromGallery(v,_b3_id);
+            }
+
         });
 
     }
@@ -228,4 +274,215 @@ public class AskQuestionActivity extends ActionBarActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    //-----------------
+    private static int RESULT_LOAD_IMAGE = 1;
+    public void loadImagefromGallery(View view, int k){
+        Intent i = new Intent(
+                Intent.ACTION_PICK,
+                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+        startActivityForResult(i, RESULT_LOAD_IMAGE);
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data) {
+            Uri selectedImage = data.getData();
+            String[] filePathColumn = { MediaStore.Images.Media.DATA };
+
+            Cursor cursor = getContentResolver().query(selectedImage,
+                    filePathColumn, null, null, null);
+            cursor.moveToFirst();
+
+            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+            String picturePath = cursor.getString(columnIndex);
+            cursor.close();
+
+            //try to update the image that was passed via the intent
+            if(_b1_id > 0){
+                ImageButton _clk = (ImageButton) findViewById(_b1_id);
+                _clk.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+                Bitmap bitmap = BitmapFactory.decodeFile(picturePath);
+                // Convert it to byte
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                // Compress image to lower quality scale 1 - 100
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                byte[] image = stream.toByteArray();
+                //update the parsefile
+                file1 = new ParseFile("q1.png", image);
+                // Upload the image into Parse Cloud
+               // file1.saveInBackground();
+
+                // Create a New Class called "ImageUpload" in Parse
+                ParseObject imgupload = new ParseObject("ImageUpload");
+
+                // Create a column named "ImageName" and set the string
+                imgupload.put("ImageName", "Quesion_img");
+
+                // Create a column named "ImageFile" and insert the image
+                imgupload.put("ImageFile", file1);
+
+                // Create the class and the columns
+               // imgupload.saveInBackground();
+                _b1_id = 0;
+            } else if(_b2_id > 0) {
+                ImageButton _clk = (ImageButton) findViewById(_b2_id);
+                _clk.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+                Bitmap bitmap = BitmapFactory.decodeFile(picturePath);
+                // Convert it to byte
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                // Compress image to lower quality scale 1 - 100
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                byte[] image = stream.toByteArray();
+                //update the parsefile
+                file2 = new ParseFile("o1.png", image);
+                // Upload the image into Parse Cloud
+             //   file2.saveInBackground();
+
+                // Create a New Class called "ImageUpload" in Parse
+                ParseObject imgupload = new ParseObject("ImageUpload");
+
+                // Create a column named "ImageName" and set the string
+                imgupload.put("ImageName", "Quesion_img");
+
+                // Create a column named "ImageFile" and insert the image
+                imgupload.put("ImageFile", file2);
+
+                // Create the class and the columns
+             //   imgupload.saveInBackground();
+                _b2_id = 0;
+            } else if (_b3_id > 0) {
+                ImageButton _clk = (ImageButton) findViewById(_b3_id);
+                _clk.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+                Bitmap bitmap = BitmapFactory.decodeFile(picturePath);
+                // Convert it to byte
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                // Compress image to lower quality scale 1 - 100
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                byte[] image = stream.toByteArray();
+                //update the parsefile
+                file3 = new ParseFile("o2.png", image);
+                // Upload the image into Parse Cloud
+          //      file3.saveInBackground();
+
+                // Create a New Class called "ImageUpload" in Parse
+                ParseObject imgupload = new ParseObject("ImageUpload");
+
+                // Create a column named "ImageName" and set the string
+                imgupload.put("ImageName", "Quesion_img");
+
+                // Create a column named "ImageFile" and insert the image
+                imgupload.put("ImageFile", file3);
+
+                // Create the class and the columns
+           //     imgupload.saveInBackground();
+                _b3_id = 0;
+            } else {
+                //uh oh...
+                Toast.makeText(AskQuestionActivity.this, "Error with the intent",
+                        Toast.LENGTH_SHORT).show();
+            }
+
+        }
+
+
+    }
+
+
+    /*
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        try {
+
+
+            // When an Image is picked
+            if (requestCode == RESULT_LOAD_IMG && resultCode == RESULT_OK
+                    && null != data) {
+                // Get the Image from data
+                Toast.makeText(this, "This went off!",
+                        Toast.LENGTH_LONG).show();
+                Uri selectedImage = data.getData();
+                String[] filePathColumn = { MediaStore.Images.Media.DATA };
+
+                // Get the cursor
+                Cursor cursor = getContentResolver().query(selectedImage,
+                        filePathColumn, null, null, null);
+                // Move to first row
+                cursor.moveToFirst();
+
+                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                imgDecodableString = cursor.getString(columnIndex);
+                cursor.close();
+
+                //--------------------------
+                // Locate the image in res > drawable-hdpi
+                Bitmap bitmap = BitmapFactory.decodeFile(imgDecodableString);
+                // Convert it to byte
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                // Compress image to lower quality scale 1 - 100
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                byte[] image = stream.toByteArray();
+
+                // Create the ParseFile
+                ParseFile file = new ParseFile("asker.png", image);
+
+
+                // Upload the image into Parse Cloud
+              //  file.saveInBackground();
+
+                // Create a New Class called "ImageUpload" in Parse
+                ParseObject imgupload = new ParseObject("ImageUpload");
+
+                // Create a column named "ImageName" and set the string
+                imgupload.put("ImageName", "AndroidBegin Logo");
+
+                // Create a column named "ImageFile" and insert the image
+                imgupload.put("ImageFile", file);
+
+                // Create the class and the columns
+                //imgupload.saveInBackground();
+
+                //try to update the image that was passed via the intent
+                if(_b1_id > 0){
+                    setContentView(R.layout.activity_ask_question_test);
+                    ImageButton _clk = (ImageButton) findViewById(_b1_id);
+                    _clk.setImageBitmap(BitmapFactory.decodeFile(imgDecodableString));
+                    _b1_id = 0;
+                } else if(_b2_id > 0) {
+                    setContentView(R.layout.activity_ask_question_test);
+                    ImageButton _clk = (ImageButton) findViewById(_b2_id);
+                    _clk.setImageBitmap(BitmapFactory.decodeFile(imgDecodableString));
+                    _b2_id = 0;
+                } else if (_b3_id > 0) {
+                    setContentView(R.layout.activity_ask_question_test);
+                    ImageButton _clk = (ImageButton) findViewById(_b3_id);
+                    _clk.setImageBitmap(BitmapFactory.decodeFile(imgDecodableString));
+                    _b3_id = 0;
+                } else {
+                    //uh oh...
+                    Toast.makeText(AskQuestionActivity.this, "Error with the intent",
+                            Toast.LENGTH_SHORT).show();
+                }
+
+                // Show a simple toast message
+                Toast.makeText(AskQuestionActivity.this, "Image Uploaded",
+                        Toast.LENGTH_SHORT).show();
+
+                //--------------------------
+
+            } else {
+                Toast.makeText(this, "You haven't picked Image",
+                        Toast.LENGTH_LONG).show();
+            }
+        } catch (Exception e) {
+            //don't let them get here tho, it crashes the phone.
+            Toast.makeText(this, "Upload size is too large, please choose a smaller file.", Toast.LENGTH_LONG)
+                    .show();
+        }
+
+    }*/
+
 }

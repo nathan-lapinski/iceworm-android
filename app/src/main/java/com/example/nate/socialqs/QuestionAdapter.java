@@ -336,7 +336,22 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
         //now we need to look through that array (if it is > 0) and see if this object id is in there. If so,
         //it means we've already voted on it and we need to display the results view.
         if ((votes.size() > 0) && is_found) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.question_results_view, parent, false);
+            //here we are viewing results...so we need to differentiate whether or not it has an image. Check obj for this.
+
+            if( (obj.get("questionPhoto") != null) || (obj.get("option1Photo") != null) || (obj.get("option2Photo") != null)  ){
+                //then we have at least one image
+                Toast.makeText(getContext(), "images",
+                        Toast.LENGTH_SHORT).show();
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_results_view_image, parent, false);
+
+            } else {
+                //we have no images, so use the default template
+                Toast.makeText(getContext(), "No image",
+                        Toast.LENGTH_SHORT).show();
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_results_view_test, parent, false);
+            }
+
+          //  convertView = LayoutInflater.from(getContext()).inflate(R.layout.question_results_view, parent, false);
 
             //load the progress bar view here
             //insert the values for the view here
