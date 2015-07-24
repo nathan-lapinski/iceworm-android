@@ -103,20 +103,20 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
             //read your lovely variable
             //we should be able to access the obj now...
             //??
-            LinearLayout l1 = (LinearLayout)v.getParent();
+           /* LinearLayout l1 = (LinearLayout)v.getParent();
             LinearLayout l2 = (LinearLayout)l1.getParent();
             LinearLayout l3 = (LinearLayout)l2.getParent();
             final LinearLayout tl = l2;
             final LinearLayout tl1 = l1;
-            final LinearLayout tl3 = l3;
+            final LinearLayout tl3 = l3;*/
             //??
 
 
             /**/
             //try to get the parent data
 
-            TextView tv = (TextView)l2.findViewById(R.id.textViewQuestionText);
-            String q_text = tv.getText().toString();
+           // TextView tv = (TextView)l2.findViewById(R.id.textViewQuestionText);
+           // String q_text = tv.getText().toString();
 
             //which button was clicked?
 
@@ -124,7 +124,8 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
             switch(v.getId()){
                 case R.id.buttonChoice1:
                     ParseQuery<ParseObject> query = ParseQuery.getQuery("SocialQs");
-                    query.whereEqualTo("question",q_text);
+                    //query.whereEqualTo("question",q_text);
+                    query.whereEqualTo("question",my_obj.get("question"));
                     query.findInBackground(new FindCallback<ParseObject>() {
                         public void done(List<ParseObject> scoreList, ParseException e) {
                             if (e == null) {
@@ -213,8 +214,8 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                             int[] results = {0,0};
                                             results = getProgressStats(obj.getInt("stats1"),obj.getInt("stats2"));
                                             q.setText( obj.getString("question"));
-                                            c1.setText(obj.getString("option1") + " " + results[0]+"%");
-                                            c2.setText(obj.getString("option2") + " " + results[1]+"%");
+                                            c1.setText(obj.getString("option1") + " " + old_votes +"%");
+                                            c2.setText(obj.getString("option2") + " " + c2_votes+"%");
                                             if((obj.get("option1Photo") != null)) {
                                                 ParseFile image = (ParseFile) obj.getParseFile("option1Photo");
                                                 loadImages(image, v1);
@@ -238,8 +239,10 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                             int[] results = {0,0};
                                             results = getProgressStats(obj.getInt("stats1"),obj.getInt("stats2"));
                                             q.setText( obj.getString("question"));
-                                            c1.setText(obj.getString("option1") + " " + results[0]+"%");
-                                            c2.setText(obj.getString("option2") + " " + results[1]+"%");
+                                           // c1.setText(obj.getString("option1") + " " + results[0]+"%");
+                                           // c2.setText(obj.getString("option2") + " " + results[1]+"%");
+                                            c1.setText(obj.getString("option1") + " " + old_votes +"%");
+                                            c2.setText(obj.getString("option2") + " " + c2_votes+"%");
                                             if((obj.get("questionPhoto") != null)) {
                                                 ParseFile image = (ParseFile) obj.getParseFile("questionPhoto");
                                                 loadImages(image, q1);
@@ -259,8 +262,8 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                         int[] results = {0,0};
                                         results = getProgressStats(obj.getInt("stats1"),obj.getInt("stats2"));
                                         q.setText( obj.getString("question"));
-                                        c1.setText(obj.getString("option1") + " " + results[0]+"%");
-                                        c2.setText(obj.getString("option2") + " " + results[1]+"%");
+                                        c1.setText(obj.getString("option1") + " " + old_votes +"%");
+                                        c2.setText(obj.getString("option2") + " " + c2_votes+"%");
                                         if((obj.get("option1Photo") != null)) {
                                             ParseFile image = (ParseFile) obj.getParseFile("option1Photo");
                                             loadImages(image, v1);
@@ -281,8 +284,8 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                     int[] results = {0,0};
                                     results = getProgressStats(obj.getInt("stats1"),obj.getInt("stats2"));
                                     q.setText( obj.getString("question"));
-                                    c1.setText(obj.getString("option1") + " " + results[0]+"%");
-                                    c2.setText(obj.getString("option2") + " " + results[1]+"%");
+                                    c1.setText(obj.getString("option1") + " " + old_votes +"%");
+                                    c2.setText(obj.getString("option2") + " " + c2_votes+"%");
                                 }
 
                                 //????
@@ -316,7 +319,8 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                     break;
                 case R.id.buttonChoice2:
                     ParseQuery<ParseObject> query2 = ParseQuery.getQuery("SocialQs");
-                    query2.whereEqualTo("question",q_text);
+                   // query2.whereEqualTo("question",q_text);
+                    query2.whereEqualTo("question",my_obj.get("question"));
                     query2.findInBackground(new FindCallback<ParseObject>() {
                         public void done(List<ParseObject> scoreList, ParseException e) {
                             if (e == null) {
@@ -399,8 +403,8 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                             int[] results = {0,0};
                                             results = getProgressStats(obj.getInt("stats1"),obj.getInt("stats2"));
                                             q.setText( obj.getString("question"));
-                                            c1.setText(obj.getString("option1") + " " + results[0]+"%");
-                                            c2.setText(obj.getString("option2") + " " + results[1]+"%");
+                                            c1.setText(obj.getString("option1") + " " + c2_votes+"%");
+                                            c2.setText(obj.getString("option2") + " " + old_votes+"%");
                                             if((obj.get("option1Photo") != null)) {
                                                 ParseFile image = (ParseFile) obj.getParseFile("option1Photo");
                                                 loadImages(image, v1);
@@ -424,8 +428,8 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                             int[] results = {0,0};
                                             results = getProgressStats(obj.getInt("stats1"),obj.getInt("stats2"));
                                             q.setText( obj.getString("question"));
-                                            c1.setText(obj.getString("option1") + " " + results[0]+"%");
-                                            c2.setText(obj.getString("option2") + " " + results[1]+"%");
+                                            c1.setText(obj.getString("option1") + " " + c2_votes+"%");
+                                            c2.setText(obj.getString("option2") + " " + old_votes+"%");
                                             if((obj.get("questionPhoto") != null)) {
                                                 ParseFile image = (ParseFile) obj.getParseFile("questionPhoto");
                                                 loadImages(image, q1);
@@ -445,8 +449,8 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                         int[] results = {0,0};
                                         results = getProgressStats(obj.getInt("stats1"),obj.getInt("stats2"));
                                         q.setText( obj.getString("question"));
-                                        c1.setText(obj.getString("option1") + " " + results[0]+"%");
-                                        c2.setText(obj.getString("option2") + " " + results[1]+"%");
+                                        c1.setText(obj.getString("option1") + " " + c2_votes+"%");
+                                        c2.setText(obj.getString("option2") + " " + old_votes+"%");
                                         if((obj.get("option1Photo") != null)) {
                                             ParseFile image = (ParseFile) obj.getParseFile("option1Photo");
                                             loadImages(image, v1);
@@ -467,8 +471,8 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                     int[] results = {0,0};
                                     results = getProgressStats(obj.getInt("stats1"),obj.getInt("stats2"));
                                     q.setText( obj.getString("question"));
-                                    c1.setText(obj.getString("option1") + " " + results[0]+"%");
-                                    c2.setText(obj.getString("option2") + " " + results[1]+"%");
+                                    c1.setText(obj.getString("option1") + " " + c2_votes+"%");
+                                    c2.setText(obj.getString("option2") + " " + old_votes+"%");
                                 }
                                /* LayoutInflater inflater;
                                 inflater = (LayoutInflater) j.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
