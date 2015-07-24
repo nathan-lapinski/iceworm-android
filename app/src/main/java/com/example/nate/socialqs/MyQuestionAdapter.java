@@ -117,7 +117,7 @@ public class MyQuestionAdapter extends ArrayAdapter<ParseObject> {
                         ParseFile image = (ParseFile) obj.getParseFile("option2Photo");
                         loadImages(image, v2);
                     }
-                    if((obj.get("option1Photo") != null)) {
+                    if((obj.get("questionPhoto") != null)) {
                         ParseFile image = (ParseFile) obj.getParseFile("questionPhoto");
                         loadImages(image, q1);
                     }
@@ -133,7 +133,7 @@ public class MyQuestionAdapter extends ArrayAdapter<ParseObject> {
                     q.setText( obj.getString("question"));
                     c1.setText(obj.getString("option1") + " " + results[0]+"%");
                     c2.setText(obj.getString("option2") + " " + results[1]+"%");
-                    if((obj.get("option1Photo") != null)) {
+                    if((obj.get("questionPhoto") != null)) {
                         ParseFile image = (ParseFile) obj.getParseFile("questionPhoto");
                         loadImages(image, q1);
                     }
@@ -163,10 +163,6 @@ public class MyQuestionAdapter extends ArrayAdapter<ParseObject> {
                 }
             }
 
-          /*  p1.setProgress(results[0]);
-            p2.setProgress(results[1]);
-            per1.setText(results[0]+"%");
-            per2.setText(results[1]+"%");*/
         } else {
             //we have no images, so use the default template
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_results_view_test, parent, false);
@@ -179,34 +175,6 @@ public class MyQuestionAdapter extends ArrayAdapter<ParseObject> {
             c1.setText(obj.getString("option1") + " " + results[0]+"%");
             c2.setText(obj.getString("option2") + " " + results[1]+"%");
         }
-
-
-        /*
-        //load the progress bar view here
-        convertView = LayoutInflater.from(getContext()).inflate(R.layout.question_results_view, parent, false);
-        //insert the values for the view here
-        TextView q = (TextView)convertView.findViewById(R.id.question_results_text);
-        TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
-        TextView c2 = (TextView)convertView.findViewById(R.id.choice2_results_text);
-        ProgressBar p1 = (ProgressBar)convertView.findViewById(R.id.choice1_results_progress);
-        ProgressBar p2 = (ProgressBar)convertView.findViewById(R.id.choice2_results_progress);
-        TextView per1 = (TextView)convertView.findViewById(R.id.choice1_percent);
-        TextView per2 = (TextView)convertView.findViewById(R.id.choice2_percent);
-        ImageButton del = (ImageButton)convertView.findViewById(R.id.btn_delete);
-        View.OnClickListener my_del = new MyDeleteListener(obj,position);
-        del.setOnClickListener(my_del);
-
-        q.setText(obj.getString("question"));
-        c1.setText(obj.getString("option1"));
-        c2.setText(obj.getString("option2"));
-        int[] results = {0,0};
-        results = getProgressStats(obj.getInt("stats1"),obj.getInt("stats2"));
-        p1.setProgress(results[0]);
-        p2.setProgress(results[1]);
-        per1.setText(results[0]+"%");
-        per2.setText(results[1]+"%");
-        */
-        // return inflater.inflate(R.layout.row_question, parent, false);
         return convertView;
     }
 

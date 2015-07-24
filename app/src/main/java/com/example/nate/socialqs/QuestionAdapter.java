@@ -6,6 +6,8 @@ package com.example.nate.socialqs;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
@@ -16,6 +18,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -24,8 +27,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.FindCallback;
+import com.parse.GetDataCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -179,10 +184,109 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                 String c1f = "Choice 2 got " + c2_votes + " votes";
                                 String c2f = "Choice 1 got " + old_votes + " votes";
                                 //cool, now lets try to replace the existing linear layout with a new one
-                                LayoutInflater inflater;
-                                inflater = (LayoutInflater) j.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                               // LayoutInflater convertView;
+                                //convertView = (LayoutInflater) j.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                View convertView;
 
-                                LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.question_results_view, null);
+                                /*
+                                * TODO: Same deal, determine the layout based on the obj parameter.
+                                * */
+                                if( (obj.get("questionPhoto") != null) || (obj.get("option1Photo") != null) || (obj.get("option2Photo") != null)  ){
+            /*
+            In this case, we have at least one image. There are 3 templating options to choose from at this point:
+            1: No image question, image for one or more options
+            2: image question, no image options
+            3: image question and one or more image options
+             */
+                                    if(obj.get("questionPhoto") != null){
+                                        //then we know that the question has an image
+                                        if( (obj.get("option1Photo") != null) || (obj.get("option2Photo") != null) ){
+                                            //image options
+                                            //convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_result_more_images, parent, false);
+                                            convertView = (LinearLayout) inflater.inflate(R.layout.questions_result_more_images, null);
+                                            TextView q = (TextView)convertView.findViewById(R.id.question_results_text);
+                                            TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
+                                            TextView c2 = (TextView)convertView.findViewById(R.id.choice2_results_text);
+                                            ImageView v1 = (ImageView)convertView.findViewById(R.id.choice1_results_image);
+                                            ImageView v2 = (ImageView)convertView.findViewById(R.id.choice2_results_image);
+                                            ImageView q1 = (ImageView)convertView.findViewById(R.id.question_results_image);
+                                            int[] results = {0,0};
+                                            results = getProgressStats(obj.getInt("stats1"),obj.getInt("stats2"));
+                                            q.setText( obj.getString("question"));
+                                            c1.setText(obj.getString("option1") + " " + results[0]+"%");
+                                            c2.setText(obj.getString("option2") + " " + results[1]+"%");
+                                            if((obj.get("option1Photo") != null)) {
+                                                ParseFile image = (ParseFile) obj.getParseFile("option1Photo");
+                                                loadImages(image, v1);
+                                            }
+                                            if((obj.get("option2Photo") != null)) {
+                                                ParseFile image = (ParseFile) obj.getParseFile("option2Photo");
+                                                loadImages(image, v2);
+                                            }
+                                            if((obj.get("questionPhoto") != null)) {
+                                                ParseFile image = (ParseFile) obj.getParseFile("questionPhoto");
+                                                loadImages(image, q1);
+                                            }
+                                        }else{
+                                            //no image options
+                                           // convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_result_one_image, parent, false);
+                                            convertView = (LinearLayout) inflater.inflate(R.layout.questions_result_one_image, null);
+                                            TextView q = (TextView)convertView.findViewById(R.id.question_results_text);
+                                            TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
+                                            TextView c2 = (TextView)convertView.findViewById(R.id.choice2_results_text);
+                                            ImageView q1 = (ImageView)convertView.findViewById(R.id.question_results_image);
+                                            int[] results = {0,0};
+                                            results = getProgressStats(obj.getInt("stats1"),obj.getInt("stats2"));
+                                            q.setText( obj.getString("question"));
+                                            c1.setText(obj.getString("option1") + " " + results[0]+"%");
+                                            c2.setText(obj.getString("option2") + " " + results[1]+"%");
+                                            if((obj.get("questionPhoto") != null)) {
+                                                ParseFile image = (ParseFile) obj.getParseFile("questionPhoto");
+                                                loadImages(image, q1);
+                                            }
+                                        }
+                                    } else {
+                                        //no question image, but options image(s)
+                                        //convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_results_view_image, parent, false);
+                                        convertView = (LinearLayout) inflater.inflate(R.layout.questions_results_view_image, null);
+                                        TextView q = (TextView)convertView.findViewById(R.id.question_results_text);
+                                        TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
+                                        TextView c2 = (TextView)convertView.findViewById(R.id.choice2_results_text);
+                                        ImageView v1 = (ImageView)convertView.findViewById(R.id.choice1_results_image);
+                                        ImageView v2 = (ImageView)convertView.findViewById(R.id.choice2_results_image);
+
+
+                                        int[] results = {0,0};
+                                        results = getProgressStats(obj.getInt("stats1"),obj.getInt("stats2"));
+                                        q.setText( obj.getString("question"));
+                                        c1.setText(obj.getString("option1") + " " + results[0]+"%");
+                                        c2.setText(obj.getString("option2") + " " + results[1]+"%");
+                                        if((obj.get("option1Photo") != null)) {
+                                            ParseFile image = (ParseFile) obj.getParseFile("option1Photo");
+                                            loadImages(image, v1);
+                                        }
+                                        if((obj.get("option2Photo") != null)) {
+                                            ParseFile image = (ParseFile) obj.getParseFile("option2Photo");
+                                            loadImages(image, v2);
+                                        }
+                                    }
+
+                                } else {
+                                    //we have no images, so use the default template
+                                   // convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_results_view_test, parent, false);
+                                    convertView = (LinearLayout) inflater.inflate(R.layout.questions_results_view_test, null);
+                                    TextView q = (TextView)convertView.findViewById(R.id.question_results_text);
+                                    TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
+                                    TextView c2 = (TextView)convertView.findViewById(R.id.choice2_results_text);
+                                    int[] results = {0,0};
+                                    results = getProgressStats(obj.getInt("stats1"),obj.getInt("stats2"));
+                                    q.setText( obj.getString("question"));
+                                    c1.setText(obj.getString("option1") + " " + results[0]+"%");
+                                    c2.setText(obj.getString("option2") + " " + results[1]+"%");
+                                }
+
+                                //????
+                               /* LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.question_results_view, null);
                                 //at this point, we should have the new layout, so lets try to attach it
                                 tl1.removeView(tl1.getChildAt(0));
                                 tl3.removeView(tl3.getChildAt(0));
@@ -203,7 +307,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                 tl3.addView(layout);
                                 tl.refreshDrawableState();
                                 tl1.refreshDrawableState();
-                                // p.refreshDrawableState();
+                                    // p.refreshDrawableState();*/
                             } else {
                                 Log.d("score", "Error: " + e.getMessage());
                             }
@@ -271,8 +375,102 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                 int c2_votes = obj.getInt("stats1");
                                 String c1f = "Choice 1 got " + c2_votes + " votes";
                                 String c2f = "Choice 2 got " + old_votes + " votes";
+                                View convertView;
                                 //cool, now lets try to replace the existing linear layout with a new one
-                                LayoutInflater inflater;
+                                if( (obj.get("questionPhoto") != null) || (obj.get("option1Photo") != null) || (obj.get("option2Photo") != null)  ){
+            /*
+            In this case, we have at least one image. There are 3 templating options to choose from at this point:
+            1: No image question, image for one or more options
+            2: image question, no image options
+            3: image question and one or more image options
+             */
+                                    if(obj.get("questionPhoto") != null){
+                                        //then we know that the question has an image
+                                        if( (obj.get("option1Photo") != null) || (obj.get("option2Photo") != null) ){
+                                            //image options
+                                            //convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_result_more_images, parent, false);
+                                            convertView = (LinearLayout) inflater.inflate(R.layout.questions_result_more_images, null);
+                                            TextView q = (TextView)convertView.findViewById(R.id.question_results_text);
+                                            TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
+                                            TextView c2 = (TextView)convertView.findViewById(R.id.choice2_results_text);
+                                            ImageView v1 = (ImageView)convertView.findViewById(R.id.choice1_results_image);
+                                            ImageView v2 = (ImageView)convertView.findViewById(R.id.choice2_results_image);
+                                            ImageView q1 = (ImageView)convertView.findViewById(R.id.question_results_image);
+                                            int[] results = {0,0};
+                                            results = getProgressStats(obj.getInt("stats1"),obj.getInt("stats2"));
+                                            q.setText( obj.getString("question"));
+                                            c1.setText(obj.getString("option1") + " " + results[0]+"%");
+                                            c2.setText(obj.getString("option2") + " " + results[1]+"%");
+                                            if((obj.get("option1Photo") != null)) {
+                                                ParseFile image = (ParseFile) obj.getParseFile("option1Photo");
+                                                loadImages(image, v1);
+                                            }
+                                            if((obj.get("option2Photo") != null)) {
+                                                ParseFile image = (ParseFile) obj.getParseFile("option2Photo");
+                                                loadImages(image, v2);
+                                            }
+                                            if((obj.get("questionPhoto") != null)) {
+                                                ParseFile image = (ParseFile) obj.getParseFile("questionPhoto");
+                                                loadImages(image, q1);
+                                            }
+                                        }else{
+                                            //no image options
+                                            // convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_result_one_image, parent, false);
+                                            convertView = (LinearLayout) inflater.inflate(R.layout.questions_result_one_image, null);
+                                            TextView q = (TextView)convertView.findViewById(R.id.question_results_text);
+                                            TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
+                                            TextView c2 = (TextView)convertView.findViewById(R.id.choice2_results_text);
+                                            ImageView q1 = (ImageView)convertView.findViewById(R.id.question_results_image);
+                                            int[] results = {0,0};
+                                            results = getProgressStats(obj.getInt("stats1"),obj.getInt("stats2"));
+                                            q.setText( obj.getString("question"));
+                                            c1.setText(obj.getString("option1") + " " + results[0]+"%");
+                                            c2.setText(obj.getString("option2") + " " + results[1]+"%");
+                                            if((obj.get("questionPhoto") != null)) {
+                                                ParseFile image = (ParseFile) obj.getParseFile("questionPhoto");
+                                                loadImages(image, q1);
+                                            }
+                                        }
+                                    } else {
+                                        //no question image, but options image(s)
+                                        //convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_results_view_image, parent, false);
+                                        convertView = (LinearLayout) inflater.inflate(R.layout.questions_results_view_image, null);
+                                        TextView q = (TextView)convertView.findViewById(R.id.question_results_text);
+                                        TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
+                                        TextView c2 = (TextView)convertView.findViewById(R.id.choice2_results_text);
+                                        ImageView v1 = (ImageView)convertView.findViewById(R.id.choice1_results_image);
+                                        ImageView v2 = (ImageView)convertView.findViewById(R.id.choice2_results_image);
+
+
+                                        int[] results = {0,0};
+                                        results = getProgressStats(obj.getInt("stats1"),obj.getInt("stats2"));
+                                        q.setText( obj.getString("question"));
+                                        c1.setText(obj.getString("option1") + " " + results[0]+"%");
+                                        c2.setText(obj.getString("option2") + " " + results[1]+"%");
+                                        if((obj.get("option1Photo") != null)) {
+                                            ParseFile image = (ParseFile) obj.getParseFile("option1Photo");
+                                            loadImages(image, v1);
+                                        }
+                                        if((obj.get("option2Photo") != null)) {
+                                            ParseFile image = (ParseFile) obj.getParseFile("option2Photo");
+                                            loadImages(image, v2);
+                                        }
+                                    }
+
+                                } else {
+                                    //we have no images, so use the default template
+                                    // convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_results_view_test, parent, false);
+                                    convertView = (LinearLayout) inflater.inflate(R.layout.questions_results_view_test, null);
+                                    TextView q = (TextView)convertView.findViewById(R.id.question_results_text);
+                                    TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
+                                    TextView c2 = (TextView)convertView.findViewById(R.id.choice2_results_text);
+                                    int[] results = {0,0};
+                                    results = getProgressStats(obj.getInt("stats1"),obj.getInt("stats2"));
+                                    q.setText( obj.getString("question"));
+                                    c1.setText(obj.getString("option1") + " " + results[0]+"%");
+                                    c2.setText(obj.getString("option2") + " " + results[1]+"%");
+                                }
+                               /* LayoutInflater inflater;
                                 inflater = (LayoutInflater) j.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
                                 LinearLayout layout = (LinearLayout) inflater.inflate(R.layout.question_results_view, null);
@@ -295,7 +493,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                 tl3.addView(layout);
                                 tl.refreshDrawableState();
                                 tl1.refreshDrawableState();
-                                // p.refreshDrawableState();
+                                // p.refreshDrawableState();*/
                             } else {
                                 Log.d("score", "Error: " + e.getMessage());
                             }
@@ -337,7 +535,103 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
         //it means we've already voted on it and we need to display the results view.
         if ((votes.size() > 0) && is_found) {
             //here we are viewing results...so we need to differentiate whether or not it has an image. Check obj for this.
+            /*
 
+            NO BUTTONS, ALREADY VOTED ON. JUST FILTER BY IMAGES. This should be the same as for myqs.
+             */
+            //????
+            if( (obj.get("questionPhoto") != null) || (obj.get("option1Photo") != null) || (obj.get("option2Photo") != null)  ){
+            /*
+            In this case, we have at least one image. There are 3 templating options to choose from at this point:
+            1: No image question, image for one or more options
+            2: image question, no image options
+            3: image question and one or more image options
+             */
+                if(obj.get("questionPhoto") != null){
+                    //then we know that the question has an image
+                    if( (obj.get("option1Photo") != null) || (obj.get("option2Photo") != null) ){
+                        //image options
+                        convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_result_more_images, parent, false);
+                        TextView q = (TextView)convertView.findViewById(R.id.question_results_text);
+                        TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
+                        TextView c2 = (TextView)convertView.findViewById(R.id.choice2_results_text);
+                        ImageView v1 = (ImageView)convertView.findViewById(R.id.choice1_results_image);
+                        ImageView v2 = (ImageView)convertView.findViewById(R.id.choice2_results_image);
+                        ImageView q1 = (ImageView)convertView.findViewById(R.id.question_results_image);
+                        int[] results = {0,0};
+                        results = getProgressStats(obj.getInt("stats1"),obj.getInt("stats2"));
+                        q.setText( obj.getString("question"));
+                        c1.setText(obj.getString("option1") + " " + results[0]+"%");
+                        c2.setText(obj.getString("option2") + " " + results[1]+"%");
+                        if((obj.get("option1Photo") != null)) {
+                            ParseFile image = (ParseFile) obj.getParseFile("option1Photo");
+                            loadImages(image, v1);
+                        }
+                        if((obj.get("option2Photo") != null)) {
+                            ParseFile image = (ParseFile) obj.getParseFile("option2Photo");
+                            loadImages(image, v2);
+                        }
+                        if((obj.get("questionPhoto") != null)) {
+                            ParseFile image = (ParseFile) obj.getParseFile("questionPhoto");
+                            loadImages(image, q1);
+                        }
+                    }else{
+                        //no image options
+                        convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_result_one_image, parent, false);
+                        TextView q = (TextView)convertView.findViewById(R.id.question_results_text);
+                        TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
+                        TextView c2 = (TextView)convertView.findViewById(R.id.choice2_results_text);
+                        ImageView q1 = (ImageView)convertView.findViewById(R.id.question_results_image);
+                        int[] results = {0,0};
+                        results = getProgressStats(obj.getInt("stats1"),obj.getInt("stats2"));
+                        q.setText( obj.getString("question"));
+                        c1.setText(obj.getString("option1") + " " + results[0]+"%");
+                        c2.setText(obj.getString("option2") + " " + results[1]+"%");
+                        if((obj.get("questionPhoto") != null)) {
+                            ParseFile image = (ParseFile) obj.getParseFile("questionPhoto");
+                            loadImages(image, q1);
+                        }
+                    }
+                } else {
+                    //no question image, but options image(s)
+                    convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_results_view_image, parent, false);
+                    TextView q = (TextView)convertView.findViewById(R.id.question_results_text);
+                    TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
+                    TextView c2 = (TextView)convertView.findViewById(R.id.choice2_results_text);
+                    ImageView v1 = (ImageView)convertView.findViewById(R.id.choice1_results_image);
+                    ImageView v2 = (ImageView)convertView.findViewById(R.id.choice2_results_image);
+
+
+                    int[] results = {0,0};
+                    results = getProgressStats(obj.getInt("stats1"),obj.getInt("stats2"));
+                    q.setText( obj.getString("question"));
+                    c1.setText(obj.getString("option1") + " " + results[0]+"%");
+                    c2.setText(obj.getString("option2") + " " + results[1]+"%");
+                    if((obj.get("option1Photo") != null)) {
+                        ParseFile image = (ParseFile) obj.getParseFile("option1Photo");
+                        loadImages(image, v1);
+                    }
+                    if((obj.get("option2Photo") != null)) {
+                        ParseFile image = (ParseFile) obj.getParseFile("option2Photo");
+                        loadImages(image, v2);
+                    }
+                }
+
+            } else {
+                //we have no images, so use the default template
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_results_view_test, parent, false);
+                TextView q = (TextView)convertView.findViewById(R.id.question_results_text);
+                TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
+                TextView c2 = (TextView)convertView.findViewById(R.id.choice2_results_text);
+                int[] results = {0,0};
+                results = getProgressStats(obj.getInt("stats1"),obj.getInt("stats2"));
+                q.setText( obj.getString("question"));
+                c1.setText(obj.getString("option1") + " " + results[0]+"%");
+                c2.setText(obj.getString("option2") + " " + results[1]+"%");
+            }
+            //????
+            //***************************************************
+            /*
             if( (obj.get("questionPhoto") != null) || (obj.get("option1Photo") != null) || (obj.get("option2Photo") != null)  ){
                 //then we have at least one image
                 Toast.makeText(getContext(), "images",
@@ -346,8 +640,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
 
             } else {
                 //we have no images, so use the default template
-                Toast.makeText(getContext(), "No image",
-                        Toast.LENGTH_SHORT).show();
+
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_results_view_test, parent, false);
             }
 
@@ -374,25 +667,138 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
             p2.setProgress(results[1]);
             per1.setText(results[0]+"%");
             per2.setText(results[1]+"%");
-
-
+            */
+            //****************************************************
         } else {
             // This user has not yet voted on this question, so display buttons.
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.row_question, parent, false);
-            TextView question_text = (TextView) convertView.findViewById(R.id.textViewQuestionText);
-            Button choice1 = (Button) convertView.findViewById(R.id.buttonChoice1);
-            Button choice2 = (Button) convertView.findViewById(R.id.buttonChoice2);
-            ImageButton del = (ImageButton)convertView.findViewById(R.id.btn_delete);
-            View.OnClickListener my_del = new MyDeleteListener(obj,position);
-            del.setOnClickListener(my_del);
+            /*
 
-            View.OnClickListener my_test = new MyCustomListener(obj);
-            choice1.setOnClickListener(my_test);
-            choice2.setOnClickListener(my_test);
-            // Populate the data into the template view using the data object
-            question_text.setText(obj.getString("question"));
-            choice1.setText(obj.getString("option1"));
-            choice2.setText(obj.getString("option2"));
+            UPDATE THE UIs with buttons based on the format of the question.
+
+            1. Check if images are present. If not, just load the default question template
+            2. If images are present, then once again we have 3 options:
+            3. Image question, no images in options
+            4. Image question, images in options
+            5. No image question, images in options.
+
+             */
+
+            if( (obj.get("questionPhoto") != null) || (obj.get("option1Photo") != null) || (obj.get("option2Photo") != null)  ){
+                //Cases 2-5
+                if( (obj.get("questionPhoto") != null) ){
+                    //Then we have an image question
+                    if( (obj.get("option1Photo") != null) || (obj.get("option2Photo") != null) ){
+                        //Then we have question and option images
+                        convertView = LayoutInflater.from(getContext()).inflate(R.layout.row_question_image_q_options_qs, parent, false);
+                        TextView question_text = (TextView) convertView.findViewById(R.id.textViewQuestionText);
+                        Button choice1 = (Button) convertView.findViewById(R.id.buttonChoice1);
+                        Button choice2 = (Button) convertView.findViewById(R.id.buttonChoice2);
+                        // ImageButton del = (ImageButton)convertView.findViewById(R.id.btn_delete);
+                        // View.OnClickListener my_del = new MyDeleteListener(obj,position);
+                        // del.setOnClickListener(my_del);
+
+                        View.OnClickListener my_test = new MyCustomListener(obj);
+                        choice1.setOnClickListener(my_test);
+                        choice2.setOnClickListener(my_test);
+                        // Populate the data into the template view using the data object
+                        question_text.setText(obj.getString("question"));
+                        choice1.setText(obj.getString("option1"));
+                        choice2.setText(obj.getString("option2"));
+
+                        ImageView v1 = (ImageView)convertView.findViewById(R.id.choice1_results_image);
+                        ImageView v2 = (ImageView)convertView.findViewById(R.id.choice2_results_image);
+                        ImageView q1 = (ImageView)convertView.findViewById(R.id.question_results_image);
+
+                        if((obj.get("option1Photo") != null)) {
+                            ParseFile image = (ParseFile) obj.getParseFile("option1Photo");
+                            loadImages(image, v1);
+                        }
+                        if((obj.get("option2Photo") != null)) {
+                            ParseFile image = (ParseFile) obj.getParseFile("option2Photo");
+                            loadImages(image, v2);
+                        }
+                        if((obj.get("questionPhoto") != null)) {
+                            ParseFile image = (ParseFile) obj.getParseFile("questionPhoto");
+                            loadImages(image, q1);
+                        }
+                    } else {
+                        //It was just an image in the question
+                        convertView = LayoutInflater.from(getContext()).inflate(R.layout.row_question_image_q, parent, false);
+                        TextView question_text = (TextView) convertView.findViewById(R.id.textViewQuestionText);
+                        Button choice1 = (Button) convertView.findViewById(R.id.buttonChoice1);
+                        Button choice2 = (Button) convertView.findViewById(R.id.buttonChoice2);
+                        // ImageButton del = (ImageButton)convertView.findViewById(R.id.btn_delete);
+                        // View.OnClickListener my_del = new MyDeleteListener(obj,position);
+                        // del.setOnClickListener(my_del);
+
+                        View.OnClickListener my_test = new MyCustomListener(obj);
+                        choice1.setOnClickListener(my_test);
+                        choice2.setOnClickListener(my_test);
+                        // Populate the data into the template view using the data object
+                        question_text.setText(obj.getString("question"));
+                        choice1.setText(obj.getString("option1"));
+                        choice2.setText(obj.getString("option2"));
+
+                        ImageView q1 = (ImageView)convertView.findViewById(R.id.question_results_image);
+
+                        if((obj.get("questionPhoto") != null)) {
+                            ParseFile image = (ParseFile) obj.getParseFile("questionPhoto");
+                            loadImages(image, q1);
+                        }
+                    }
+                } else {
+                    //The question doesn't contain an image, but the options must
+                    convertView = LayoutInflater.from(getContext()).inflate(R.layout.row_questions_new_images, parent, false);
+                    TextView question_text = (TextView) convertView.findViewById(R.id.textViewQuestionText);
+                    Button choice1 = (Button) convertView.findViewById(R.id.buttonChoice1);
+                    Button choice2 = (Button) convertView.findViewById(R.id.buttonChoice2);
+                    // ImageButton del = (ImageButton)convertView.findViewById(R.id.btn_delete);
+                    // View.OnClickListener my_del = new MyDeleteListener(obj,position);
+                    // del.setOnClickListener(my_del);
+
+                    View.OnClickListener my_test = new MyCustomListener(obj);
+                    choice1.setOnClickListener(my_test);
+                    choice2.setOnClickListener(my_test);
+                    // Populate the data into the template view using the data object
+                    question_text.setText(obj.getString("question"));
+                    choice1.setText(obj.getString("option1"));
+                    choice2.setText(obj.getString("option2"));
+
+                    ImageView v1 = (ImageView)convertView.findViewById(R.id.choice1_results_image);
+                    ImageView v2 = (ImageView)convertView.findViewById(R.id.choice2_results_image);
+
+                    if((obj.get("option1Photo") != null)) {
+                        ParseFile image = (ParseFile) obj.getParseFile("option1Photo");
+                        loadImages(image, v1);
+                    }
+                    if((obj.get("option2Photo") != null)) {
+                        ParseFile image = (ParseFile) obj.getParseFile("option2Photo");
+                        loadImages(image, v2);
+                    }
+
+                }
+
+            } else {
+                //Cases 1
+
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.row_questions_new, parent, false);
+
+                TextView question_text = (TextView) convertView.findViewById(R.id.textViewQuestionText);
+                Button choice1 = (Button) convertView.findViewById(R.id.buttonChoice1);
+                Button choice2 = (Button) convertView.findViewById(R.id.buttonChoice2);
+               // ImageButton del = (ImageButton)convertView.findViewById(R.id.btn_delete);
+               // View.OnClickListener my_del = new MyDeleteListener(obj,position);
+               // del.setOnClickListener(my_del);
+
+                View.OnClickListener my_test = new MyCustomListener(obj);
+                choice1.setOnClickListener(my_test);
+                choice2.setOnClickListener(my_test);
+                // Populate the data into the template view using the data object
+                question_text.setText(obj.getString("question"));
+                choice1.setText(obj.getString("option1"));
+                choice2.setText(obj.getString("option2"));
+            }
+
         }
 
         return convertView;
@@ -408,4 +814,22 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
         results[1] = v2;
         return results;
     }
+    private void loadImages(ParseFile thumbnail, final ImageView img) {
+
+        if (thumbnail != null) {
+            thumbnail.getDataInBackground(new GetDataCallback() {
+                @Override
+                public void done(byte[] data, ParseException e) {
+                    if (e == null) {
+                        Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
+                        img.setImageBitmap(bmp);
+                    } else {
+                    }
+                }
+            });
+        } else {
+            Toast.makeText(getContext(), "Error with the image decoding",
+                    Toast.LENGTH_SHORT).show();
+        }
+    }// load image
 }
