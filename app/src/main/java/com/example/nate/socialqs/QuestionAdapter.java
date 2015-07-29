@@ -93,10 +93,10 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
     {
 
         ParseObject my_obj;
-        public MyCustomListener(ParseObject row) {
-            this.my_obj = row;
+        int position;
+        public MyCustomListener(ParseObject row, int pos) {
+            this.my_obj = row; this.position = pos;
         }
-
         @Override
         public void onClick(View v)
         {
@@ -174,17 +174,28 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                 View convertView;
 
 
+                                //We might be able to bypass a lot of this shit right fuckin here:
+                                j.setOnClickListener(null);
+                                //((Button)j).setText(my_obj.getString("option1") + "sdsdsd");
 
+                                ParseObject temp = master_list.get(position);
+                                int[] results = {0, 0};
+                                results = getProgressStats(obj.getInt("stats1")+1, obj.getInt("stats2"));
+                                temp.put("option1", my_obj.getString("option1") + " " + results[0] + "%");
+                                temp.put("option2", my_obj.getString("option2")+ " " + results[1]+"%");
+                                master_list.set(position,temp);
+                                //  master_list.remove(position);
+                                notifyDataSetChanged();
                                 /*
                                 * TODO: Same deal, determine the layout based on the obj parameter.
                                 * */
-                                if( (obj.get("questionPhoto") != null) || (obj.get("option1Photo") != null) || (obj.get("option2Photo") != null)  ){
+                                /*if( (obj.get("questionPhoto") != null) || (obj.get("option1Photo") != null) || (obj.get("option2Photo") != null)  ){
                                     /*
                                     In this case, we have at least one image. There are 3 templating options to choose from at this point:
                                     1: No image question, image for one or more options
                                     2: image question, no image options
                                     3: image question and one or more image options
-                                     */
+                                     *//*
                                     if(obj.get("questionPhoto") != null){
                                         //then we know that the question has an image
                                         if( (obj.get("option1Photo") != null) || (obj.get("option2Photo") != null) ){
@@ -194,7 +205,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                             ViewGroup parent = (ViewGroup)j.getParent();
                                             ViewGroup f1 = (ViewGroup)parent.getParent();
                                             ViewGroup f2 = (ViewGroup)f1.getParent();
-                                            f2.removeAllViews();
+                                            f2.removeAllViewsInLayout();
                                             f2.addView(convertView);
 
 
@@ -231,7 +242,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                             ViewGroup parent = (ViewGroup)j.getParent();
                                             ViewGroup f1 = (ViewGroup)parent.getParent();
                                             ViewGroup f2 = (ViewGroup)f1.getParent();
-                                            f2.removeAllViews();
+                                            f2.removeAllViewsInLayout();
                                             f2.addView(convertView);
                                             TextView q = (TextView)convertView.findViewById(R.id.question_results_text);
                                             TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
@@ -257,7 +268,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                         ViewGroup parent = (ViewGroup)j.getParent();
                                         ViewGroup f1 = (ViewGroup)parent.getParent();
                                         ViewGroup f2 = (ViewGroup)f1.getParent();
-                                        f2.removeAllViews();
+                                        f2.removeAllViewsInLayout();
                                         f2.addView(convertView);
                                         TextView q = (TextView)convertView.findViewById(R.id.question_results_text);
                                         TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
@@ -286,11 +297,13 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                 } else {
                                     //we have no images, so use the default template
                                    // convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_results_view_test, parent, false);
+
+                                    /*
                                     convertView = (LinearLayout) inflater.inflate(R.layout.questions_results_view_test, null);
                                     ViewGroup parent = (ViewGroup)j.getParent();
                                     ViewGroup f1 = (ViewGroup)parent.getParent();
                                     ViewGroup f2 = (ViewGroup)f1.getParent();
-                                    f2.removeAllViews();
+                                    f2.removeAllViewsInLayout();
                                     f2.addView(convertView);
                                     TextView q = (TextView)convertView.findViewById(R.id.question_results_text);
                                     TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
@@ -300,8 +313,19 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                     q.setText( obj.getString("question"));
                                     c1.setText(obj.getString("option1") + " " + old_votes +"%");
                                     c2.setText(obj.getString("option2") + " " + c2_votes + "%");
+                                    */
+                                 /*   j.setOnClickListener(null);
+                                    ((Button)j).setText(my_obj.getString("option1")+"sdsdsd");
+                                    j.refreshDrawableState();
+                                    ParseObject temp = master_list.get(position);
+                                    temp.put("option1","this is the shit");
+                                    master_list.set(position,temp);
+                                  //  master_list.remove(position);
+                                    notifyDataSetChanged();
+                                   // notifyDataSetInvalidated();
 
-                                }
+
+                                }*/
                             } else {
                                 Log.d("score", "Error: " + e.getMessage());
                             }
@@ -370,16 +394,29 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                 int c2_votes = obj.getInt("stats1");
                                 String c1f = "Choice 1 got " + c2_votes + " votes";
                                 String c2f = "Choice 2 got " + old_votes + " votes";
-                                View convertView;
+                                //We might be able to bypass a lot of this shit right fuckin here:
+                                j.setOnClickListener(null);
+                                //((Button)j).setText(my_obj.getString("option1") + "sdsdsd");
+
+                                //j.refreshDrawableState();
+                                ParseObject temp = master_list.get(position);
+                                int[] results = {0, 0};
+                                results = getProgressStats(obj.getInt("stats1"), obj.getInt("stats2")+1);
+                                temp.put("option1", my_obj.getString("option1") + " " + results[0] + "%");
+                                temp.put("option2", my_obj.getString("option2")+ " " + results[1]+"%");
+                                master_list.set(position, temp);
+                                //  master_list.remove(position);
+                                notifyDataSetChanged();
+                                //View convertView;
                                 //cool, now lets try to replace the existing linear layout with a new one
-                                if( (obj.get("questionPhoto") != null) || (obj.get("option1Photo") != null) || (obj.get("option2Photo") != null)  ){
+                                /*if( (obj.get("questionPhoto") != null) || (obj.get("option1Photo") != null) || (obj.get("option2Photo") != null)  ){
                                     /*
                                     In this case, we have at least one image. There are 3 templating options to choose from at this point:
                                     1: No image question, image for one or more options
                                     2: image question, no image options
                                     3: image question and one or more image options
                                      */
-                                    if(obj.get("questionPhoto") != null){
+                                  /*  if(obj.get("questionPhoto") != null){
                                         //then we know that the question has an image
                                         if( (obj.get("option1Photo") != null) || (obj.get("option2Photo") != null) ){
                                             //image options
@@ -388,7 +425,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                             ViewGroup parent = (ViewGroup)j.getParent();
                                             ViewGroup f1 = (ViewGroup)parent.getParent();
                                             ViewGroup f2 = (ViewGroup)f1.getParent();
-                                            f2.removeAllViews();
+                                            f2.removeAllViewsInLayout();
                                             f2.addView(convertView);
                                             TextView q = (TextView)convertView.findViewById(R.id.question_results_text);
                                             TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
@@ -421,7 +458,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                             ViewGroup parent = (ViewGroup)j.getParent();
                                             ViewGroup f1 = (ViewGroup)parent.getParent();
                                             ViewGroup f2 = (ViewGroup)f1.getParent();
-                                            f2.removeAllViews();
+                                            f2.removeAllViewsInLayout();
                                             f2.addView(convertView);
                                             TextView q = (TextView)convertView.findViewById(R.id.question_results_text);
                                             TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
@@ -445,7 +482,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                         ViewGroup parent = (ViewGroup)j.getParent();
                                         ViewGroup f1 = (ViewGroup)parent.getParent();
                                         ViewGroup f2 = (ViewGroup)f1.getParent();
-                                        f2.removeAllViews();
+                                        f2.removeAllViewsInLayout();
                                         f2.addView(convertView);
                                         TextView q = (TextView)convertView.findViewById(R.id.question_results_text);
                                         TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
@@ -477,7 +514,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                     ViewGroup parent = (ViewGroup)j.getParent();
                                     ViewGroup f1 = (ViewGroup)parent.getParent();
                                     ViewGroup f2 = (ViewGroup)f1.getParent();
-                                    f2.removeAllViews();
+                                    f2.removeAllViewsInLayout();
                                     f2.addView(convertView);
                                     TextView q = (TextView)convertView.findViewById(R.id.question_results_text);
                                     TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
@@ -488,7 +525,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                     c1.setText(obj.getString("option1") + " " + c2_votes+"%");
                                     c2.setText(obj.getString("option2") + " " + old_votes + "%");
 
-                                }
+                                }*/
 
                             } else {
                                 Log.d("score", "Error: " + e.getMessage());
@@ -693,7 +730,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                         // View.OnClickListener my_del = new MyDeleteListener(obj,position);
                         // del.setOnClickListener(my_del);
 
-                        View.OnClickListener my_test = new MyCustomListener(obj);
+                        View.OnClickListener my_test = new MyCustomListener(obj,position);
                         choice1.setOnClickListener(my_test);
                         choice2.setOnClickListener(my_test);
                         // Populate the data into the template view using the data object
@@ -727,7 +764,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                         // View.OnClickListener my_del = new MyDeleteListener(obj,position);
                         // del.setOnClickListener(my_del);
 
-                        View.OnClickListener my_test = new MyCustomListener(obj);
+                        View.OnClickListener my_test = new MyCustomListener(obj,position);
                         choice1.setOnClickListener(my_test);
                         choice2.setOnClickListener(my_test);
                         // Populate the data into the template view using the data object
@@ -752,7 +789,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                     // View.OnClickListener my_del = new MyDeleteListener(obj,position);
                     // del.setOnClickListener(my_del);
 
-                    View.OnClickListener my_test = new MyCustomListener(obj);
+                    View.OnClickListener my_test = new MyCustomListener(obj,position);
                     choice1.setOnClickListener(my_test);
                     choice2.setOnClickListener(my_test);
                     // Populate the data into the template view using the data object
@@ -786,7 +823,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                // View.OnClickListener my_del = new MyDeleteListener(obj,position);
                // del.setOnClickListener(my_del);
 
-                View.OnClickListener my_test = new MyCustomListener(obj);
+                View.OnClickListener my_test = new MyCustomListener(obj,position);
                 choice1.setOnClickListener(my_test);
                 choice2.setOnClickListener(my_test);
                 // Populate the data into the template view using the data object

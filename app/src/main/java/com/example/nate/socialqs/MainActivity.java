@@ -3,10 +3,15 @@ package com.example.nate.socialqs;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+
+import com.parse.ParseException;
+import com.parse.ParsePush;
+import com.parse.SaveCallback;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -22,7 +27,6 @@ public class MainActivity extends ActionBarActivity {
       /*
       TODO: CHECK FOR A LOGIN TOKEN TO SEE IF THE USER IS ALREADY LOGGED IN. BYPASS THE REST OF THIS SCREEN IF SO.
       */
-
         //find the buttons
         _loginBtn = (Button) findViewById(R.id.btn_login);
         _signupBtn = (Button) findViewById(R.id.btn_signup);
