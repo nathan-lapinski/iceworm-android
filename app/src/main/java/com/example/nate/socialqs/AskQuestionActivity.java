@@ -144,13 +144,16 @@ public class AskQuestionActivity extends ActionBarActivity {
                 if(file3 != null){
                     userQuestion.put("option2Photo",file3);
                 }
-                //userQuestion.put("privacyOptions",1);
 
+                /*
+                TODO: make #1 and #2 execute in the Parse cloud instead of on device
+                 */
                 userQuestion.saveInBackground(new SaveCallback() {
                     @Override
                     public void done(ParseException e) {
                         if (e == null) {
-
+                            //#1create a new entry in the votes table that
+                            //corresponds to this question
                             final ParseObject vote = new ParseObject("Votes");
                             vote.saveInBackground(new SaveCallback() {
                                 public void done(ParseException e) {
@@ -167,7 +170,9 @@ public class AskQuestionActivity extends ActionBarActivity {
                                     }
                                 }
                             });
-                            //not sure if questionObject needs to be saved and requeried first...
+                            //get your userId and add it there
+                            //then, get an array of userIds of groupies and add it there
+                            //#2Similarily, create a corresponding userqs entry.
                             ParseQuery<ParseObject> query = ParseQuery.getQuery("UserQs");
                             // query.whereNotEqualTo("objectId", ParseUser.getCurrentUser().get("uQId"));
                             query.findInBackground(new FindCallback<ParseObject>() {
@@ -195,6 +200,9 @@ public class AskQuestionActivity extends ActionBarActivity {
                         }
                     }
                 });
+
+                Toast.makeText(AskQuestionActivity.this, "Question Submitted",
+                        Toast.LENGTH_SHORT).show();
 
             }
         });
@@ -389,100 +397,4 @@ public class AskQuestionActivity extends ActionBarActivity {
 
 
     }
-
-
-    /*
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        try {
-
-
-            // When an Image is picked
-            if (requestCode == RESULT_LOAD_IMG && resultCode == RESULT_OK
-                    && null != data) {
-                // Get the Image from data
-                Toast.makeText(this, "This went off!",
-                        Toast.LENGTH_LONG).show();
-                Uri selectedImage = data.getData();
-                String[] filePathColumn = { MediaStore.Images.Media.DATA };
-
-                // Get the cursor
-                Cursor cursor = getContentResolver().query(selectedImage,
-                        filePathColumn, null, null, null);
-                // Move to first row
-                cursor.moveToFirst();
-
-                int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-                imgDecodableString = cursor.getString(columnIndex);
-                cursor.close();
-
-                //--------------------------
-                // Locate the image in res > drawable-hdpi
-                Bitmap bitmap = BitmapFactory.decodeFile(imgDecodableString);
-                // Convert it to byte
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                // Compress image to lower quality scale 1 - 100
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                byte[] image = stream.toByteArray();
-
-                // Create the ParseFile
-                ParseFile file = new ParseFile("asker.png", image);
-
-
-                // Upload the image into Parse Cloud
-              //  file.saveInBackground();
-
-                // Create a New Class called "ImageUpload" in Parse
-                ParseObject imgupload = new ParseObject("ImageUpload");
-
-                // Create a column named "ImageName" and set the string
-                imgupload.put("ImageName", "AndroidBegin Logo");
-
-                // Create a column named "ImageFile" and insert the image
-                imgupload.put("ImageFile", file);
-
-                // Create the class and the columns
-                //imgupload.saveInBackground();
-
-                //try to update the image that was passed via the intent
-                if(_b1_id > 0){
-                    setContentView(R.layout.activity_ask_question_test);
-                    ImageButton _clk = (ImageButton) findViewById(_b1_id);
-                    _clk.setImageBitmap(BitmapFactory.decodeFile(imgDecodableString));
-                    _b1_id = 0;
-                } else if(_b2_id > 0) {
-                    setContentView(R.layout.activity_ask_question_test);
-                    ImageButton _clk = (ImageButton) findViewById(_b2_id);
-                    _clk.setImageBitmap(BitmapFactory.decodeFile(imgDecodableString));
-                    _b2_id = 0;
-                } else if (_b3_id > 0) {
-                    setContentView(R.layout.activity_ask_question_test);
-                    ImageButton _clk = (ImageButton) findViewById(_b3_id);
-                    _clk.setImageBitmap(BitmapFactory.decodeFile(imgDecodableString));
-                    _b3_id = 0;
-                } else {
-                    //uh oh...
-                    Toast.makeText(AskQuestionActivity.this, "Error with the intent",
-                            Toast.LENGTH_SHORT).show();
-                }
-
-                // Show a simple toast message
-                Toast.makeText(AskQuestionActivity.this, "Image Uploaded",
-                        Toast.LENGTH_SHORT).show();
-
-                //--------------------------
-
-            } else {
-                Toast.makeText(this, "You haven't picked Image",
-                        Toast.LENGTH_LONG).show();
-            }
-        } catch (Exception e) {
-            //don't let them get here tho, it crashes the phone.
-            Toast.makeText(this, "Upload size is too large, please choose a smaller file.", Toast.LENGTH_LONG)
-                    .show();
-        }
-
-    }*/
-
 }

@@ -35,4 +35,6 @@
     <string name="title_activity_view_questions">ViewQuestionsActivity</string>
     <string name="title_activity_settings">SettingsActivity</string>
     <string name="title_activity_view_my_questions">ViewMyQuestionsActivity</string>
+    <string name="title_activity_facebook_test">FacebookTest</string>
+    <string name="facebook_app_id">867007226701100</string>
 </resources>

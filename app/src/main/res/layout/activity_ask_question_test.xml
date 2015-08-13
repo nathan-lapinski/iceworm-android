@@ -222,7 +222,7 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:layout_gravity="center"
-        android:background="#ffffffff"
+        android:background="#639FBA"
         android:layout_weight="8">
 
         <ImageButton

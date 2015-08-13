@@ -34,7 +34,7 @@ public class MainActivityLogin extends ActionBarActivity {
         _username = ( EditText ) findViewById(R.id.fld_username);
         _password = ( EditText ) findViewById(R.id.fld_pwd);
         //Parse.initialize(this, "unu1viESNa3YMwTEYtG0ZOMzCF2IZXLkPsOTUdjj", "tqp6GFOoP3vhGcHKigZRomZFwSETwQj6uOAiSssA");
-        Parse.initialize(this, "7aEu2aiPHAun7HWnN42hWJ4eQuZueBiHZoGq7GZb", "FU38Qh4hHo0LDGLAQP8PKB8wtjzwhPFGArpwqj7t");
+        //Parse.initialize(this, "7aEu2aiPHAun7HWnN42hWJ4eQuZueBiHZoGq7GZb", "FU38Qh4hHo0LDGLAQP8PKB8wtjzwhPFGArpwqj7t");
         /*Testing push notifications*/
         ParsePush.subscribeInBackground("", new SaveCallback() {
             @Override
