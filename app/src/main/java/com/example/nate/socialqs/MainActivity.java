@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.facebook.FacebookSdk;
 import com.parse.LogInCallback;
 import com.parse.Parse;
+import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParsePush;
@@ -46,14 +47,17 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main); //load up the proper xml screen
 
-      /*
-      TODO: CHECK FOR A LOGIN TOKEN TO SEE IF THE USER IS ALREADY LOGGED IN. BYPASS THE REST OF THIS SCREEN IF SO.
-      */
-
-
+        /*
+        Initialize all of the things
+         */
+        Parse.enableLocalDatastore(getApplicationContext());
         FacebookSdk.sdkInitialize(getApplicationContext());
-        Parse.initialize(this, "7aEu2aiPHAun7HWnN42hWJ4eQuZueBiHZoGq7GZb", "FU38Qh4hHo0LDGLAQP8PKB8wtjzwhPFGArpwqj7t");
+        Parse.initialize(this, "RMtJAmKZBf5qwRZ9UvbZmTOETF2xZv9FSgYpXrFw", "TZXgbmdUVzHuKRh7z1U3luPO43EDvCwreeNNPMKk");
         ParseFacebookUtils.initialize(this);
+        ParseUser.enableAutomaticUser();
+        ParseACL defaultACL = new ParseACL();
+        ParseACL.setDefaultACL(defaultACL, true);
+
         //find the buttons
 
         try {
@@ -73,11 +77,11 @@ public class MainActivity extends ActionBarActivity {
 
 
 
-        ParseUser currentUser = ParseUser.getCurrentUser();
+        /*ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser != null) {
             Intent intent = new Intent(MainActivity.this, AskQuestionActivity.class);
             startActivity(intent);
-        } else {
+        } else {*/
 
 
             _loginBtn = (Button) findViewById(R.id.btn_login);
@@ -111,7 +115,7 @@ public class MainActivity extends ActionBarActivity {
                 }
 
             });
-        }//end else
+    //    }//end else
 
 
     }//end onCreate

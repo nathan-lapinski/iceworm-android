@@ -1,7 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/splashsmaller"
+    android:background="@drawable/splash3"
     tools:context="com.example.nate.socialqs.SettingsActivity"
     android:orientation="vertical">
 
@@ -34,8 +34,8 @@
         android:layout_height="match_parent"
         android:gravity="center"
         android:layout_gravity="center"
-        android:layout_weight="8"
-        android:background="#ffffff">
+        android:background="#639FBA"
+        android:layout_weight="8">
 
         <ImageButton
             android:layout_width="wrap_content"
@@ -44,8 +44,8 @@
             android:src="@drawable/ask"
             android:adjustViewBounds="false"
             android:layout_gravity="center_vertical"
-            android:background="#ffffffff"
-            android:layout_marginRight="60dp" />
+            android:layout_marginRight="60dp"
+            android:background="@android:color/transparent"/>
 
         <ImageButton
             android:layout_width="wrap_content"
@@ -53,7 +53,7 @@
             android:id="@+id/image_button_incoming"
             android:src="@drawable/incoming"
             android:layout_gravity="center_vertical"
-            android:background="#ffffffff"
+            android:background="@android:color/transparent"
             android:layout_marginRight="60dp" />
 
         <ImageButton
@@ -62,7 +62,7 @@
             android:id="@+id/image_button_outgoing"
             android:src="@drawable/outgoing"
             android:layout_gravity="center_vertical"
-            android:background="#ffffffff"
+            android:background="@android:color/transparent"
             android:layout_marginRight="60dp" />
 
         <ImageButton
@@ -71,6 +71,6 @@
             android:id="@+id/image_button_settings"
             android:src="@drawable/settings"
             android:layout_gravity="center_vertical"
-            android:background="#ffffffff" />
+            android:background="@android:color/transparent" />
     </LinearLayout>
 </LinearLayout>

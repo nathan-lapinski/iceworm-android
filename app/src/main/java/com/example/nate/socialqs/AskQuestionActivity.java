@@ -37,38 +37,57 @@ import java.util.List;
 
 
 public class AskQuestionActivity extends ActionBarActivity {
+    /*
+    TODO:
+    1. (major) Update AskQuestion to use the new database model
+    2. (major) Update photo options to allow the user to take a photo with their phone's camera if it's present on the device, as well as uploading a photo from the gallery
+     */
 
+    //main ask question buttons
     Button _submit;
     Button _cancel;
     Button _groupies;
     Button _privacy;
+    //used for adding images
+    //TODO: use better creative for these images
     ImageButton _img_btn_q;
     ImageButton _img_btn_one;
     ImageButton _img_btn_two;
 
+    //used for holding user input regarding the question and the options
     EditText _question;
     EditText _choice1;
     EditText _choice2;
 
-    int _b1_id;
-    int _b2_id;
-    int _b3_id;
+    //internal use only. Used for tracking whether or not an image file has been uploaded
+    int _b1_id; //for q
+    int _b2_id; //for op1
+    int _b3_id; //for op2
 
+    //these will hold the actual image files, or will be null
     ParseFile file1;
     ParseFile file2;
     ParseFile file3;
+
+    //This is used when choosing a photo from the gallery. Leave it alone for now.
+    private static int RESULT_LOAD_IMAGE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ask_question_test);
-        /*Inflate the menu -- put this in a function at some point*/
+
+        /*Inflate the menu that runs along the bottom of the screen
+        *
+        TODO: Abstract this shit into a function since it shows up in most of our activities.
+        *
+         */
         ImageButton i_ask = (ImageButton) findViewById(R.id.image_button_ask);
         ImageButton i_in = (ImageButton) findViewById(R.id.image_button_incoming);
         ImageButton i_out = (ImageButton) findViewById(R.id.image_button_outgoing);
         ImageButton i_set = (ImageButton) findViewById(R.id.image_button_settings);
         //Assign the click functionality
-        //i_ask is active
+        //i_ask is active, so don't give it a listener.
         i_in.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -90,7 +109,10 @@ public class AskQuestionActivity extends ActionBarActivity {
                 startActivity(intent);
             }
         });
-        /*****************/
+        /**********************
+         *
+         * Move into the main codez
+         * **********************/
         _question = (EditText) findViewById(R.id.fld_question_body);
         _choice1 = (EditText) findViewById(R.id.fld_choice1);
         _choice2 = (EditText) findViewById(R.id.fld_choice2);
@@ -102,6 +124,13 @@ public class AskQuestionActivity extends ActionBarActivity {
         _img_btn_one = (ImageButton) findViewById(R.id.img_btn_one);
         _img_btn_two = (ImageButton) findViewById(R.id.img_btn_two);
 
+        /*
+        This button handles the task of submitting a user's question
+        TODO: Refactor all of this shit. But namely:
+        1. Make sure that we are using the new database model properly
+        2. Make sure that questions are first getting cached into local storage via pinInBackground. This is related to #1
+        3. See if/where cloud code can be used
+         */
         _submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -127,14 +156,15 @@ public class AskQuestionActivity extends ActionBarActivity {
                     startActivity(intent);
                 }
 
-            //    userQuestion.put("asker",currentUser.getUsername());
                 userQuestion.put("question", q);
                 userQuestion.put("option1", c1);
                 userQuestion.put("option2", c2);
                 userQuestion.put("stats1",0);
                 userQuestion.put("stats2",0);
-                userQuestion.put("askername",currentUser.getUsername());
+                userQuestion.put("asker",ParseUser.getCurrentUser());//store the actual user object
                 userQuestion.put("askerId",currentUser.getObjectId());
+                userQuestion.put("askerDeleted",false);
+
                 if(file1 != null){
                     userQuestion.put("questionPhoto", file1);
                 }
@@ -152,50 +182,29 @@ public class AskQuestionActivity extends ActionBarActivity {
                     @Override
                     public void done(ParseException e) {
                         if (e == null) {
-                            //#1create a new entry in the votes table that
-                            //corresponds to this question
-                            final ParseObject vote = new ParseObject("Votes");
-                            vote.saveInBackground(new SaveCallback() {
+                            //#1 Create the join
+                            ParseObject userJoin = new ParseObject("QJoin");
+                            userJoin.put("asker",ParseUser.getCurrentUser());
+                            userJoin.put("to",ParseUser.getCurrentUser());
+                            userJoin.put("from",ParseUser.getCurrentUser());
+                            userJoin.put("question",userQuestion);
+
+                            userJoin.saveInBackground(new SaveCallback() {
                                 public void done(ParseException e) {
                                     if (e == null) {
-                                        //find the user..?
-                                        userQuestion.put("votesId", vote.getObjectId());
-                                        userQuestion.saveInBackground();
                                         //start the success activity, put this in a callback
                                         Intent intent = new Intent(AskQuestionActivity.this, AskQuestionActivity.class);
                                         startActivity(intent);
 
                                     } else {
-                                        //fail
-                                    }
-                                }
-                            });
-                            //get your userId and add it there
-                            //then, get an array of userIds of groupies and add it there
-                            //#2Similarily, create a corresponding userqs entry.
-                            ParseQuery<ParseObject> query = ParseQuery.getQuery("UserQs");
-                            // query.whereNotEqualTo("objectId", ParseUser.getCurrentUser().get("uQId"));
-                            query.findInBackground(new FindCallback<ParseObject>() {
-                                public void done(List<ParseObject> scoreList, ParseException e) {
-                                    if (e == null) {
-                                        for (int i = 0; i < scoreList.size(); i++) {
-                                            if (scoreList.get(i).getObjectId().equals(ParseUser.getCurrentUser().get("uQId"))) {
-                                                scoreList.get(i).addUnique("myQsId", userQuestion.getObjectId());
-                                                scoreList.get(i).saveInBackground();
-                                            } else {
-                                                scoreList.get(i).addUnique("theirQsId", userQuestion.getObjectId());
-                                                scoreList.get(i).saveInBackground();
-                                            }
-                                        }
-
-                                    } else {
-                                        Log.d("score", "Error: " + e.getMessage());
+                                        Toast.makeText(getApplicationContext(), "Error creating Qjoin: " + e,
+                                                Toast.LENGTH_LONG).show();
                                     }
                                 }
                             });
 
                         } else {
-                            Toast.makeText(getApplicationContext(), "Error Creating User: " + e,
+                            Toast.makeText(getApplicationContext(), "Error Asking Question: " + e,
                                     Toast.LENGTH_LONG).show();
                         }
                     }
@@ -207,6 +216,11 @@ public class AskQuestionActivity extends ActionBarActivity {
             }
         });
 
+        /*
+        This should clear out the user text and any images
+        TODO: Once groupies are integrated, make sure that this updates a group approptiately.
+        It probably doesn't make sense to burn the group just because someone nixed the Q?
+         */
         _cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -217,6 +231,9 @@ public class AskQuestionActivity extends ActionBarActivity {
             }
         });
 
+        /*
+        TODO: Make all of this shit work.
+         */
         _groupies.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -225,6 +242,9 @@ public class AskQuestionActivity extends ActionBarActivity {
             }
         });
 
+        /*
+        TODO: Eventually, figure out how to do all of this shit.
+         */
         _privacy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -234,6 +254,10 @@ public class AskQuestionActivity extends ActionBarActivity {
 
         });
 
+        /*
+        This shit is used for uploading images.
+        TODO: Talk to Weezy to figure out how this is currently being done with thumbnails and high res images
+         */
         _img_btn_q.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -283,8 +307,11 @@ public class AskQuestionActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    //-----------------
-    private static int RESULT_LOAD_IMAGE = 1;
+
+    /*
+    This is used along with a couple of other function for pulling an image from the gallery
+    TODO: update this shit to use the phone's camera as well
+     */
     public void loadImagefromGallery(View view, int k){
         Intent i = new Intent(
                 Intent.ACTION_PICK,
@@ -292,6 +319,11 @@ public class AskQuestionActivity extends ActionBarActivity {
 
         startActivityForResult(i, RESULT_LOAD_IMAGE);
     }
+
+    //used in conjunction with the above function to pull an image from the gallery/camera
+    /*
+    TODO: Refactor the shit out of this shit
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

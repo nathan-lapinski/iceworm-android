@@ -14,8 +14,8 @@
         android:layout_margin="8dp">
 
         <ImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="75dp"
+            android:layout_height="75dp"
             android:id="@+id/imageView"
             android:src="@drawable/profile" />
 
@@ -56,4 +56,8 @@
             android:background="#555555"
             android:layout_marginBottom="8dp" />
     </LinearLayout>
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></TableLayout>
 </LinearLayout>

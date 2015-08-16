@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="@drawable/splashsmaller"
+    android:background="@drawable/splash3"
     android:orientation="vertical">
 
     <LinearLayout
@@ -29,7 +29,8 @@
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:text="What is your Q?"
                     android:id="@+id/ask_textView"
-                    android:textSize="24dp" />
+                    android:textSize="24dp"
+                    android:textColor="#000000" />
 
                 <LinearLayout
                     android:orientation="horizontal"
@@ -50,7 +51,8 @@
                             android:layout_marginTop="10dp"
                             android:alpha="0.7"
                             android:hint="Enter Q"
-                            android:layout_weight="1" />
+                            android:layout_weight="1"
+                            android:textColor="#000000" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -65,7 +67,8 @@
                             android:layout_height="fill_parent"
                             android:id="@+id/img_btn_question"
                             android:src="@drawable/circle_add"
-                            android:layout_gravity="center" />
+                            android:layout_gravity="center"
+                            android:background="@android:color/transparent" />
                     </LinearLayout>
 
                 </LinearLayout>
@@ -84,7 +87,8 @@
                     android:text="What are the options?"
                     android:id="@+id/textView2"
                     android:textSize="24dp"
-                    android:layout_marginTop="10dp" />
+                    android:layout_marginTop="10dp"
+                    android:textColor="#000000" />
 
                 <LinearLayout
                     android:orientation="vertical"
@@ -105,14 +109,18 @@
                             android:layout_marginTop="12dp"
                             android:alpha="0.7"
                             android:hint="Enter Option 1"
-                            android:layout_weight="1" />
+                            android:layout_weight="1"
+                            android:textColor="#000000"
+                            android:singleLine="false" />
 
                         <ImageButton
                             android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
                             android:id="@+id/img_btn_one"
                             android:src="@drawable/circle_add"
-                            android:layout_weight="5" />
+                            android:layout_weight="5"
+                            android:background="@android:color/transparent"
+                            android:layout_gravity="center_vertical" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -129,15 +137,18 @@
                             android:layout_marginTop="12dp"
                             android:alpha="0.7"
                             android:hint="Enter Option 2"
-                            android:singleLine="true"
-                            android:layout_weight="1" />
+                            android:singleLine="false"
+                            android:layout_weight="1"
+                            android:textColor="#000000" />
 
                         <ImageButton
                             android:layout_width="fill_parent"
                             android:layout_height="wrap_content"
                             android:id="@+id/img_btn_two"
                             android:src="@drawable/circle_add"
-                            android:layout_weight="5" />
+                            android:layout_weight="5"
+                            android:background="@android:color/transparent"
+                            android:layout_gravity="center_vertical" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -170,7 +181,8 @@
                         android:text="CANCEL"
                         android:id="@+id/btn_ask_cancel"
                         android:alpha="0.7"
-                        android:background="#ffffff" />
+                        android:background="#ffffff"
+                        android:textColor="#000000" />
 
                     <Button
                         android:layout_width="120dp"
@@ -178,7 +190,8 @@
                         android:text="SUBMIT"
                         android:id="@+id/btn_ask"
                         android:alpha="0.7"
-                        android:background="#ffffff" />
+                        android:background="#ffffff"
+                        android:textColor="#000000" />
 
                 </LinearLayout>
             </LinearLayout>
@@ -201,7 +214,8 @@
                         android:text="GROUPIES"
                         android:id="@+id/btn_ask_groupies"
                         android:alpha="0.7"
-                        android:background="#ffffff" />
+                        android:background="#ffffff"
+                        android:textColor="#000000" />
 
                     <Button
                         android:layout_width="120dp"
@@ -209,7 +223,8 @@
                         android:text="PRIVACY"
                         android:id="@+id/btn_ask_privacy"
                         android:background="#ffffff"
-                        android:alpha="0.7" />
+                        android:alpha="0.7"
+                        android:textColor="#000000" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -232,8 +247,8 @@
             android:src="@drawable/ask"
             android:adjustViewBounds="false"
             android:layout_gravity="center_vertical"
-            android:background="#ffffffff"
-            android:layout_marginRight="60dp" />
+            android:layout_marginRight="60dp"
+            android:background="@android:color/transparent"/>
 
         <ImageButton
             android:layout_width="wrap_content"
@@ -241,7 +256,7 @@
             android:id="@+id/image_button_incoming"
             android:src="@drawable/incoming"
             android:layout_gravity="center_vertical"
-            android:background="#ffffffff"
+            android:background="@android:color/transparent"
             android:layout_marginRight="60dp" />
 
         <ImageButton
@@ -250,7 +265,7 @@
             android:id="@+id/image_button_outgoing"
             android:src="@drawable/outgoing"
             android:layout_gravity="center_vertical"
-            android:background="#ffffffff"
+            android:background="@android:color/transparent"
             android:layout_marginRight="60dp" />
 
         <ImageButton
@@ -259,7 +274,7 @@
             android:id="@+id/image_button_settings"
             android:src="@drawable/settings"
             android:layout_gravity="center_vertical"
-            android:background="#ffffffff" />
+            android:background="@android:color/transparent" />
     </LinearLayout>
 
 </LinearLayout>
