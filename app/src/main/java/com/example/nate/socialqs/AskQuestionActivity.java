@@ -39,6 +39,8 @@ import java.util.List;
 public class AskQuestionActivity extends ActionBarActivity {
     /*
     TODO:
+    0!!: We can now access the current groupies! The cloud will handle populating the join table for us, so write cloud code to take the groupies
+    and populate the join on submit. Then reset that groupie object.
     1. (major) Update AskQuestion to use the new database model
     2. (major) Update photo options to allow the user to take a photo with their phone's camera if it's present on the device, as well as uploading a photo from the gallery
      */
@@ -237,8 +239,10 @@ public class AskQuestionActivity extends ActionBarActivity {
         _groupies.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Group functionality will be available in a future release",
-                        Toast.LENGTH_LONG).show();
+                //Make sure to juggle the intent stack properly here, so that we don't nuke
+                //the current askquestion activity
+                Intent intent = new Intent(AskQuestionActivity.this, GroupiesActivity.class);
+                startActivity(intent);
             }
         });
 

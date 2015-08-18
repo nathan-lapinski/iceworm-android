@@ -53,6 +53,10 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
         this.master_list = data;
     }
 
+    /*
+    This listener is used for deleting questions from the user's qs view
+    TODO: Figure out a way to always make swipe to delete work, and refactor this delete button to work with the new db
+     */
     public class MyDeleteListener implements View.OnClickListener
     {
         final ParseObject my_obj;
@@ -88,7 +92,9 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
 
         }
     }
-    /*77777*/
+    /*
+    * This click handler is used for registering votes.
+    * */
     public class MyCustomListener implements View.OnClickListener
     {
 
@@ -103,10 +109,6 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
             final View j = v;
             switch(v.getId()){
                 case R.id.buttonChoice1:
-
-
-
-
                     ParseQuery<ParseObject> query = ParseQuery.getQuery("SocialQs");
                     //query.whereEqualTo("question",q_text);
                     query.whereEqualTo("question",my_obj.get("question"));
@@ -276,39 +278,26 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
         }
 
     };
-    ////////////////////
+    ////////////////////end click listener for votes
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent){
-        final ParseObject obj = getItem(position);
+        final ParseObject obJoin = getItem(position);
+        final ParseObject obj = (ParseObject)obJoin.get("question");
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.row_question, parent, false);
         }
 
-        //this gets the list of votes, if they exist
-        ArrayList<String> votes = (ArrayList<String>) obj.get("temp_votes_array");
-
-        boolean is_found = false;
-
-
-        for(int i = 0; i < votes.size(); i++){
-
-            if(votes.get(i).equals(obj.getObjectId())){
-                is_found = true;
-
-            }
-        }
-
-        //now we need to look through that array (if it is > 0) and see if this object id is in there. If so,
-        //it means we've already voted on it and we need to display the results view.
-        if ((votes.size() > 0) && is_found) {
-            //here we are viewing results...so we need to differentiate whether or not it has an image. Check obj for this.
+        //For each join object we've received, check to see if it has it's vote property set or not.
+        if (obJoin.get("vote") != null) {
+            //They have already voted on this question
+            // here we are viewing results...so we need to differentiate whether or not it has an image. Check obj for this.
             /*
-
-            NO BUTTONS, ALREADY VOTED ON. JUST FILTER BY IMAGES. This should be the same as for myqs.
+            TODO: may need to figure out how to extract this from the local data store at some point.
+            TODO: Also, how do we handle updating this to reflect other people who have voted on it?
              */
-            //????
+
             if( (obj.get("questionPhoto") != null) || (obj.get("option1Photo") != null) || (obj.get("option2Photo") != null)  ){
             /*
             In this case, we have at least one image. There are 3 templating options to choose from at this point:
@@ -398,46 +387,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                 c1.setText(obj.getString("option1") + " " + results[0]+"%");
                 c2.setText(obj.getString("option2") + " " + results[1]+"%");
             }
-            //????
-            //***************************************************
-            /*
-            if( (obj.get("questionPhoto") != null) || (obj.get("option1Photo") != null) || (obj.get("option2Photo") != null)  ){
-                //then we have at least one image
-                Toast.makeText(getContext(), "images",
-                        Toast.LENGTH_SHORT).show();
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_results_view_image, parent, false);
 
-            } else {
-                //we have no images, so use the default template
-
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_results_view_test, parent, false);
-            }
-
-          //  convertView = LayoutInflater.from(getContext()).inflate(R.layout.question_results_view, parent, false);
-
-            //load the progress bar view here
-            //insert the values for the view here
-            TextView q = (TextView) convertView.findViewById(R.id.question_results_text);
-            TextView c1 = (TextView) convertView.findViewById(R.id.choice1_results_text);
-            TextView c2 = (TextView) convertView.findViewById(R.id.choice2_results_text);
-            ProgressBar p1 = (ProgressBar) convertView.findViewById(R.id.choice1_results_progress);
-            ProgressBar p2 = (ProgressBar) convertView.findViewById(R.id.choice2_results_progress);
-            TextView per1 = (TextView)convertView.findViewById(R.id.choice1_percent);
-            TextView per2 = (TextView)convertView.findViewById(R.id.choice2_percent);
-            ImageButton del = (ImageButton)convertView.findViewById(R.id.btn_delete);
-            View.OnClickListener my_del = new MyDeleteListener(obj,position);
-            del.setOnClickListener(my_del);
-            q.setText(obj.getString("question"));
-            c1.setText(obj.getString("option1"));
-            c2.setText(obj.getString("option2"));
-            int[] results = {0, 0};
-            results = getProgressStats(obj.getInt("stats1"), obj.getInt("stats2"));
-            p1.setProgress(results[0]);
-            p2.setProgress(results[1]);
-            per1.setText(results[0]+"%");
-            per2.setText(results[1]+"%");
-            */
-            //****************************************************
         } else {
             // This user has not yet voted on this question, so display buttons.
             /*

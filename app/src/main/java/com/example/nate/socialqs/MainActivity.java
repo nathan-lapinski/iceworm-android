@@ -27,6 +27,7 @@ import com.parse.SaveCallback;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /*
@@ -42,6 +43,9 @@ public class MainActivity extends ActionBarActivity {
     Button _loginBtn;
     Button _signupBtn;
     Button _facebookBtn;
+
+    //testing for global groupies
+    public static ArrayList<HashMap<String,GroupiesActivity.GroupiesObject>> myGroupies = new ArrayList<HashMap<String,GroupiesActivity.GroupiesObject>>();
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
