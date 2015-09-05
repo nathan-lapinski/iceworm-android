@@ -26,7 +26,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
+/*
+This activity is responsible for pulling down QJoins from the cloud, and passing them
+off to QuestionAdapter for display.
+ */
 public class ViewQuestionsActivity extends ActionBarActivity {
 
     @Override
@@ -70,35 +73,30 @@ public class ViewQuestionsActivity extends ActionBarActivity {
          *
          * ********/
 
-        //Check to see if the user is currently logged in...not sure why this is here, as this
-        //should already have been checked a long time ago.
-        final ParseUser currentUser = ParseUser.getCurrentUser();
-        if (currentUser != null) {
 
-        } else {
-            // show the signup or login screen
-            Toast.makeText(getApplicationContext(), "User logged out?",
-                    Toast.LENGTH_LONG).show();
-        }
-
-
-        /*
-        Thing are very different now. We query the QJoin table with a where key that searches for
-        'to' == currentUser obj. Pulling that into an ArrayList will give us all of the
-        questions that have been asked to this user. Then, we can further filter these
-        by looking for the 'vote' property on the objects. Null means that they haven't voted
-         on that question yet. 1 and 2 both represent which option the user chose when they
-         voted.
-         */
+        String currentUser = ParseUser.getCurrentUser().getUsername();
         ParseQuery<ParseObject> vote_query = ParseQuery.getQuery("QJoin");
-        vote_query.whereEqualTo("to",ParseUser.getCurrentUser());
+        vote_query.include("question");
+        vote_query.whereEqualTo("to", currentUser );
+        vote_query.whereNotEqualTo("sender", currentUser);
 
         vote_query.findInBackground(new FindCallback<ParseObject>() {
             public void done(List<ParseObject> resList, ParseException e) {
-                if(e == null){
-                    QuestionAdapter adapter = new QuestionAdapter(ViewQuestionsActivity.this, resList);
-                    ListView listView = (ListView) findViewById(R.id.questionList);
-                    listView.setAdapter(adapter);
+                if (e == null) {
+                    Toast.makeText(getApplicationContext(), "Found " + resList.size() + " questions for this user",
+                            Toast.LENGTH_LONG).show();
+                            if(resList.size() > 0) {
+                                QuestionAdapter adapter = new QuestionAdapter(ViewQuestionsActivity.this, resList);
+                                //Now, create a listview from the R.id.questionList and use it to display the resList data
+                                ListView listView = (ListView) findViewById(R.id.questionList);
+                                //inside of the adapted, we will say how we want the data do be displayed in the questionList layout
+                                listView.setAdapter(adapter);
+                            } else {
+                                Toast.makeText(getApplicationContext(), "Found " + resList.size() + " questions for this user",
+                                        Toast.LENGTH_LONG).show();
+                            }
+
+
                 } else {
                     //There has been an error
                     Toast.makeText(getApplicationContext(), "Error accessing join table",
@@ -106,7 +104,6 @@ public class ViewQuestionsActivity extends ActionBarActivity {
                 }
             }
         });
-
     }
 
     @Override

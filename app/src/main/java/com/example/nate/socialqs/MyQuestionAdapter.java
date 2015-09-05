@@ -80,7 +80,8 @@ public class MyQuestionAdapter extends ArrayAdapter<ParseObject> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent){
-        ParseObject obj = getItem(position);
+        final ParseObject obJoin = getItem(position);
+        final ParseObject obj = (ParseObject)obJoin.get("question");
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.question_results_view, parent, false);

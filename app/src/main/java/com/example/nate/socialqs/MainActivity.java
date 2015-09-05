@@ -54,7 +54,7 @@ public class MainActivity extends ActionBarActivity {
         /*
         Initialize all of the things
          */
-        Parse.enableLocalDatastore(getApplicationContext());
+     //   Parse.enableLocalDatastore(getApplicationContext());
         FacebookSdk.sdkInitialize(getApplicationContext());
         Parse.initialize(this, "RMtJAmKZBf5qwRZ9UvbZmTOETF2xZv9FSgYpXrFw", "TZXgbmdUVzHuKRh7z1U3luPO43EDvCwreeNNPMKk");
         ParseFacebookUtils.initialize(this);

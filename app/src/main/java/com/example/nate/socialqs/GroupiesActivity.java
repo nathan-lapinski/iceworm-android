@@ -57,7 +57,7 @@ public class GroupiesActivity extends ActionBarActivity {
                                     HashMap<String,GroupiesObject> tempObj = new HashMap<String, GroupiesObject>();
                                     ParseObject v1 = names.get(i).get("userObject");
                                     GroupiesObject tempGroupie = new GroupiesObject(v1.getString("username"),0,(String)v1.getObjectId(),"SocialQs");
-                                    tempObj.put("user"+i,tempGroupie);
+                                    tempObj.put("userData",tempGroupie);
                                     MainActivity.myGroupies.add(tempObj);
                                     Toast.makeText(GroupiesActivity.this, "Could be: " + v1.get("username"),
                                             Toast.LENGTH_SHORT).show();

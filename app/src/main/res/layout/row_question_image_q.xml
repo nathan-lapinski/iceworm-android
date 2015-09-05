@@ -14,8 +14,8 @@
         android:layout_margin="8dp">
 
         <ImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:id="@+id/imageView"
             android:src="@drawable/profile" />
 
@@ -34,7 +34,8 @@
                 android:layout_gravity="center"
                 android:gravity="center_vertical|center_horizontal"
                 android:textSize="15dp"
-                android:layout_weight="1.06" />
+                android:layout_weight="1.06"
+                android:textColor="#000000" />
 
             <ImageView
                 android:layout_width="60dp"
@@ -52,7 +53,7 @@
 
         <Button
             android:layout_width="fill_parent"
-            android:layout_height="60dp"
+            android:layout_height="45dp"
             android:text="New Text"
             android:id="@+id/buttonChoice1"
             android:gravity="center_vertical|center_horizontal"
@@ -62,7 +63,7 @@
 
         <Button
             android:layout_width="fill_parent"
-            android:layout_height="60dp"
+            android:layout_height="45dp"
             android:text="New Text"
             android:id="@+id/buttonChoice2"
             android:gravity="center_vertical|center_horizontal"

@@ -39,7 +39,7 @@ public class MyGroupiesAdapter extends ArrayAdapter<HashMap<String,GroupiesActiv
         }
         //simply display the user name for now
         TextView tt = (TextView) convertView.findViewById(R.id.textViewQuestionText);
-        tt.setText(gObj.get("user0").getName());
+        tt.setText(gObj.get("userData").getName()); //userData should return a GroupiesObject.
         View.OnClickListener my_test = new MyCustomListener(gObj,position);
         tt.setOnClickListener(my_test);
         return convertView;

@@ -100,8 +100,10 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
 
         ParseObject my_obj;
         int position;
-        public MyCustomListener(ParseObject row, int pos) {
-            this.my_obj = row; this.position = pos;
+        View master_view;
+        ViewGroup master_parent;
+        public MyCustomListener(ParseObject row, int pos, View m,ViewGroup p) {
+            this.my_obj = row; this.position = pos; this.master_view = m; this.master_parent = p;
         }
         @Override
         public void onClick(View v)
@@ -109,60 +111,47 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
             final View j = v;
             switch(v.getId()){
                 case R.id.buttonChoice1:
+                    /*
+                    A click has just occured, signaling the users intent to vote. We need to
+                    update the vote count on this QJoin, and get the UI updating properly
+                    Currently, the vote update is working, but the UI update is busted
+                    TODO: Make the ui update work. Try reinflating into the parent viwgroup?
+                     */
                     ParseQuery<ParseObject> query = ParseQuery.getQuery("SocialQs");
-                    //query.whereEqualTo("question",q_text);
-                    query.whereEqualTo("question",my_obj.get("question"));
+                    query.whereEqualTo("question", my_obj.get("question"));
                     query.findInBackground(new FindCallback<ParseObject>() {
                         public void done(List<ParseObject> scoreList, ParseException e) {
                             if (e == null) {
-                                //business him!!
                                 ParseObject obj = scoreList.get(0); //only one question should be returned. This is the question obj, so we can get it's id to put into the vote table.
                                 //this does break if two or more people ask literally the same question..how this handles forwarding is unknown...
+                                //update the votes and send it to the server
                                 int old_votes = obj.getInt("stats1");
                                 obj.put("stats1", ++old_votes);
                                 obj.saveInBackground();
-
-                                //make some async calls to update the db properly
-                                String votes_id = obj.getString("votesId");
-                                ParseQuery<ParseObject> q2 = ParseQuery.getQuery("Votes");
-                                q2.whereEqualTo("objectId",votes_id);
+                                //now lets grab the qjoin that corresponds to this question and this user
+                                ParseQuery<ParseObject> q2 = ParseQuery.getQuery("QJoin");
+                                // q2.whereEqualTo("question",obj.getObjectId());
+                                q2.include("question");
+                                q2.whereEqualTo("to", ParseUser.getCurrentUser().getUsername());
                                 q2.findInBackground(new FindCallback<ParseObject>() {
                                     public void done(List<ParseObject> scoreList, ParseException e) {
-                                        if (e == null){
-                                           ArrayList<String> x =  (ArrayList<String>) scoreList.get(0).get("option1VoterName");
-                                           if(x == null){
-                                               scoreList.get(0).addAllUnique("option1VoterName",Arrays.asList(ParseUser.getCurrentUser().get("username")));
-                                           } else {
-                                               scoreList.get(0).addAllUnique("option1VoterName",Arrays.asList(ParseUser.getCurrentUser().get("username")));
-                                           }
-                                            scoreList.get(0).saveInBackground();
+                                        if (e == null) {
+                                            for (int i = 0; i < scoreList.size(); i++) {
+                                                ParseObject tq = (ParseObject) scoreList.get(i).get("question");
+                                                if (tq.getObjectId().equals(my_obj.getObjectId())) {
+                                                    scoreList.get(i).put("vote", 1);
+                                                    scoreList.get(i).saveInBackground();
+                                                }
+                                            }
+
                                         } else {
-                                            //fail
+                                            Toast.makeText(getContext(), "we're fucked " + e,
+                                                    Toast.LENGTH_SHORT).show();
                                         }
                                     }
 
                                 }); // end the asyn call to update the votes
                                 //The Votes table should be updated correctly at this point
-
-                                //Now, we need to update the userQs table to that this user knows that they have voted on this particular question.
-                                //So, get this question's id, get this user's qId, and then in that userQ row, add this questions id to that column
-                                final String q_id = obj.getObjectId();
-                                String userq_id = ParseUser.getCurrentUser().get("uQId").toString(); //curious what this is??
-                                ParseQuery<ParseObject> q3 = ParseQuery.getQuery("UserQs");
-                                q3.whereEqualTo("objectId",userq_id);
-                                q3.findInBackground(new FindCallback<ParseObject>() {
-                                    public void done(List<ParseObject> scoreList, ParseException e) {
-                                        if(e == null){
-                                            ParseObject x = scoreList.get(0);
-                                            x.addAllUnique("votedOn1Id",Arrays.asList(q_id));
-                                            x.saveInBackground();
-                                        } else {
-                                            //failure
-                                        }
-                                    }
-                                });
-
-
                                 //From here, this should all be UI stuff independent of the DB update. We should also
                                 //figure out a better way of batching these db updates.
                                 //let's pull down the scores for this question and display them dynamically in textviews.
@@ -170,26 +159,51 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                 int c2_votes = obj.getInt("stats2");
                                 String c1f = "Choice 2 got " + c2_votes + " votes";
                                 String c2f = "Choice 1 got " + old_votes + " votes";
-
-
-                                //We might be able to bypass a lot of this shit right fuckin here:
+                                //make it so the user can only vote/click once.
                                 j.setOnClickListener(null);
-                                //((Button)j).setText(my_obj.getString("option1") + "sdsdsd");
+                                String currText = ((Button)j).getText().toString();
+                                currText += old_votes;
+                                ((Button)j).setText(currText);
+                                ((Button)j).setBackgroundDrawable(getContext().getResources().getDrawable(R.drawable.custom_progressbar));
 
+                                /*
                                 ParseObject temp = master_list.get(position);
                                 int[] results = {0, 0};
                                 results = getProgressStats(obj.getInt("stats1")+1, obj.getInt("stats2"));
                                 temp.put("option1", my_obj.getString("option1") + " " + results[0] + "%");
-                                temp.put("option2", my_obj.getString("option2")+ " " + results[1]+"%");
-                                master_list.set(position,temp);
+                                temp.put("option2", my_obj.getString("option2") + " " + results[1] + "%");
+                                master_list.set(position, temp);
+                                //ViewGroup p1 = (ViewGroup)j.getParent();
 
-                                notifyDataSetChanged();
+                                LayoutInflater vi = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                View special = vi.inflate(R.layout.questions_results_view_test,null);
+
+                               // TextView textView = (TextView)special.findViewById(R.id.question_results_text);
+                                //textView.setText("#WINNING");
+
+                                ViewGroup insertPoint = (ViewGroup)master_parent.findViewById(R.id.aim_here);
+                                insertPoint.addView(special, 0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
+                                */
+                                //master_view.refreshDrawableState();
+
+
+                                //you need to create a new button if you want to go this route. Good luck styling it.
+                                //I'd try replacing the view with an existing xml if possible
+                                //j.refreshDrawableState();
+
+                               // notifyDataSetChanged();
                             } else {
                                 Log.d("score", "Error: " + e.getMessage());
                             }
                         }
                     });
+                    Toast.makeText(getContext(), "Parent id is: "+master_parent.getId()+" and view id is: "+master_view.getId(),
+                            Toast.LENGTH_SHORT).show();
+
                     break;
+
+                //---------------------
+                //======================
                 case R.id.buttonChoice2:
                     ParseQuery<ParseObject> query2 = ParseQuery.getQuery("SocialQs");
                    // query2.whereEqualTo("question",q_text);
@@ -204,45 +218,32 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                 obj.put("stats2", ++old_votes);
                                 obj.saveInBackground();
 
-                                //make some async calls to update the db properly
-                                String votes_id = obj.getString("votesId");
-                                ParseQuery<ParseObject> q2 = ParseQuery.getQuery("Votes");
-                                q2.whereEqualTo("objectId",votes_id);
+                                //now lets grab the qjoin that corresponds to this question and this user
+                                ParseQuery<ParseObject> q2 = ParseQuery.getQuery("QJoin");
+
+                                // q2.whereEqualTo("question",obj.getObjectId());
+                                q2.include("question");
+                                q2.whereEqualTo("to", ParseUser.getCurrentUser().getUsername());
                                 q2.findInBackground(new FindCallback<ParseObject>() {
                                     public void done(List<ParseObject> scoreList, ParseException e) {
-                                        if (e == null){
-                                            ArrayList<String> x =  (ArrayList<String>) scoreList.get(0).get("option2VoterName");
-                                            if(x == null){
-                                                scoreList.get(0).addAllUnique("option2VoterName",Arrays.asList(ParseUser.getCurrentUser().get("username")));
-                                            } else {
-                                                scoreList.get(0).addAllUnique("option2VoterName",Arrays.asList(ParseUser.getCurrentUser().get("username")));
+                                        if (e == null) {
+                                            for (int i = 0; i < scoreList.size(); i++) {
+                                                ParseObject tq = (ParseObject) scoreList.get(i).get("question");
+                                                if (tq.getObjectId().equals(my_obj.getObjectId())) {
+                                                    scoreList.get(i).put("vote", 2);
+                                                    scoreList.get(i).saveInBackground();
+                                                }
                                             }
-                                            scoreList.get(0).saveInBackground();
+
                                         } else {
-                                            //fail
+                                            Toast.makeText(getContext(), "we're fucked " + e,
+                                                    Toast.LENGTH_SHORT).show();
                                         }
                                     }
 
                                 }); // end the asyn call to update the votes
-                                //The Votes table should be updated correctly at this point
 
-                                //Now, we need to update the userQs table to that this user knows that they have voted on this particular question.
-                                //So, get this question's id, get this user's qId, and then in that userQ row, add this questions id to that column
-                                final String q_id = obj.getObjectId();
-                                String userq_id = ParseUser.getCurrentUser().get("uQId").toString(); //curious what this is??
-                                ParseQuery<ParseObject> q3 = ParseQuery.getQuery("UserQs");
-                                q3.whereEqualTo("objectId",userq_id);
-                                q3.findInBackground(new FindCallback<ParseObject>() {
-                                    public void done(List<ParseObject> scoreList, ParseException e) {
-                                        if (e == null) {
-                                            ParseObject x = scoreList.get(0);
-                                            x.addAllUnique("votedOn2Id", Arrays.asList(q_id));
-                                            x.saveInBackground();
-                                        } else {
-                                            //failure
-                                        }
-                                    }
-                                });
+
 
 
                                 //From here, this should all be UI stuff independent of the DB update. We should also
@@ -253,7 +254,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                 String c1f = "Choice 1 got " + c2_votes + " votes";
                                 String c2f = "Choice 2 got " + old_votes + " votes";
                                 //We might be able to bypass a lot of this shit right fuckin here:
-                                j.setOnClickListener(null);
+                            /*    j.setOnClickListener(null);
                                 //((Button)j).setText(my_obj.getString("option1") + "sdsdsd");
 
                                 //j.refreshDrawableState();
@@ -264,7 +265,14 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                 temp.put("option2", my_obj.getString("option2")+ " " + results[1]+"%");
                                 master_list.set(position, temp);
 
-                                notifyDataSetChanged();
+
+                                notifyDataSetChanged();*/
+
+                                j.setOnClickListener(null);
+                                String currText = ((Button)j).getText().toString();
+                                currText += old_votes;
+                                ((Button)j).setText(currText);
+                                ((Button)j).setBackgroundDrawable(getContext().getResources().getDrawable(R.drawable.custom_progressbar));
                             } else {
                                 Log.d("score", "Error: " + e.getMessage());
                             }
@@ -278,25 +286,29 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
         }
 
     };
-    ////////////////////end click listener for votes
 
+    //This is what handles the images from the ViewQuestions activity.
+    //We are displaying correctly, but updating the ui onclick is still borked.
+    //HACK: Simply reload the activity on vote...don't do this.
     @Override
     public View getView(int position, View convertView, ViewGroup parent){
-        final ParseObject obJoin = getItem(position);
-        final ParseObject obj = (ParseObject)obJoin.get("question");
+        final ParseObject obJoin = getItem(position); //QJoin
+        final ParseObject obj = (ParseObject)obJoin.get("question"); //Should be a SocialQ
+
         // Check if an existing view is being reused, otherwise inflate the view
+        //this probably is not necessary
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.row_question, parent, false);
         }
-
         //For each join object we've received, check to see if it has it's vote property set or not.
-        if (obJoin.get("vote") != null) {
+        if (obJoin.get("vote") != null && (obJoin.getInt("vote") !=  0)) {
             //They have already voted on this question
             // here we are viewing results...so we need to differentiate whether or not it has an image. Check obj for this.
             /*
             TODO: may need to figure out how to extract this from the local data store at some point.
             TODO: Also, how do we handle updating this to reflect other people who have voted on it?
              */
+
 
             if( (obj.get("questionPhoto") != null) || (obj.get("option1Photo") != null) || (obj.get("option2Photo") != null)  ){
             /*
@@ -416,7 +428,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                         // View.OnClickListener my_del = new MyDeleteListener(obj,position);
                         // del.setOnClickListener(my_del);
 
-                        View.OnClickListener my_test = new MyCustomListener(obj,position);
+                        View.OnClickListener my_test = new MyCustomListener(obj,position,convertView,parent);
                         choice1.setOnClickListener(my_test);
                         choice2.setOnClickListener(my_test);
                         // Populate the data into the template view using the data object
@@ -450,7 +462,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                         // View.OnClickListener my_del = new MyDeleteListener(obj,position);
                         // del.setOnClickListener(my_del);
 
-                        View.OnClickListener my_test = new MyCustomListener(obj,position);
+                        View.OnClickListener my_test = new MyCustomListener(obj,position,convertView,parent);
                         choice1.setOnClickListener(my_test);
                         choice2.setOnClickListener(my_test);
                         // Populate the data into the template view using the data object
@@ -475,7 +487,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                     // View.OnClickListener my_del = new MyDeleteListener(obj,position);
                     // del.setOnClickListener(my_del);
 
-                    View.OnClickListener my_test = new MyCustomListener(obj,position);
+                    View.OnClickListener my_test = new MyCustomListener(obj,position,convertView,parent);
                     choice1.setOnClickListener(my_test);
                     choice2.setOnClickListener(my_test);
                     // Populate the data into the template view using the data object
@@ -509,7 +521,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                // View.OnClickListener my_del = new MyDeleteListener(obj,position);
                // del.setOnClickListener(my_del);
 
-                View.OnClickListener my_test = new MyCustomListener(obj,position);
+                View.OnClickListener my_test = new MyCustomListener(obj,position,convertView,parent);
                 choice1.setOnClickListener(my_test);
                 choice2.setOnClickListener(my_test);
                 // Populate the data into the template view using the data object
@@ -523,6 +535,10 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
         return convertView;
     }
 
+
+    /*
+    Used for normalizing vote results.
+     */
     private int[] getProgressStats(int choice_1_votes, int choice_2_votes){
         int[] results = {0,0}; //set both results to zero, initially.
         //Normalize the results.
@@ -533,6 +549,9 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
         results[1] = v2;
         return results;
     }
+    /*
+    Used for pulling/decoding an image from a parsefile
+     */
     private void loadImages(ParseFile thumbnail, final ImageView img) {
 
         if (thumbnail != null) {
