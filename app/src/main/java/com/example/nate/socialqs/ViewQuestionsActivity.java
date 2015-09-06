@@ -1,9 +1,12 @@
 package com.example.nate.socialqs;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -25,6 +28,8 @@ import com.parse.ParseUser;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import android.view.Menu;
+import android.view.MenuItem;
 
 /*
 This activity is responsible for pulling down QJoins from the cloud, and passing them
@@ -79,17 +84,105 @@ public class ViewQuestionsActivity extends ActionBarActivity {
         vote_query.include("question");
         vote_query.whereEqualTo("to", currentUser );
         vote_query.whereNotEqualTo("sender", currentUser);
+        vote_query.whereNotEqualTo("askeeDeleted",true);
 
         vote_query.findInBackground(new FindCallback<ParseObject>() {
-            public void done(List<ParseObject> resList, ParseException e) {
+            public void done(final List<ParseObject> resList, ParseException e) {
                 if (e == null) {
                     Toast.makeText(getApplicationContext(), "Found " + resList.size() + " questions for this user",
                             Toast.LENGTH_LONG).show();
                             if(resList.size() > 0) {
-                                QuestionAdapter adapter = new QuestionAdapter(ViewQuestionsActivity.this, resList);
+                                //These are the new slide del codes
+                                SwipeMenuCreator creator = new SwipeMenuCreator() {
+
+                                    @Override
+                                    public void create(SwipeMenu menu) {
+                                        // create "open" item
+                                        SwipeMenuItem openItem = new SwipeMenuItem(
+                                                getApplicationContext());
+                                        // set item background
+                                        openItem.setBackground(new ColorDrawable(Color.rgb(0xC9, 0xC9,
+                                                0xCE)));
+                                        // set item width
+                                        openItem.setWidth(dp2px(90));
+                                        // set item title
+                                        openItem.setTitle("Open");
+                                        // set item title fontsize
+                                        openItem.setTitleSize(18);
+                                        // set item title font color
+                                        openItem.setTitleColor(Color.WHITE);
+                                        // add to menu
+                                        menu.addMenuItem(openItem);
+
+                                        // create "delete" item
+                                        SwipeMenuItem deleteItem = new SwipeMenuItem(
+                                                getApplicationContext());
+                                        // set item background
+                                        deleteItem.setBackground(new ColorDrawable(Color.rgb(0xF9,
+                                                0x3F, 0x25)));
+                                        // set item width
+                                        deleteItem.setWidth(dp2px(90));
+                                        // set a icon
+                                        deleteItem.setIcon(R.drawable.ic_delete);
+                                        // add to menu
+                                        menu.addMenuItem(deleteItem);
+                                    }
+                                };
+
+                                //
+                                final QuestionAdapter adapter = new QuestionAdapter(ViewQuestionsActivity.this, resList);
                                 //Now, create a listview from the R.id.questionList and use it to display the resList data
-                                ListView listView = (ListView) findViewById(R.id.questionList);
+                                //ListView listView = (ListView) findViewById(R.id.questionList);
+                                SwipeMenuListView listView = (SwipeMenuListView) findViewById(R.id.listView);
+
+                                // set creator
+                                listView.setMenuCreator(creator);
+                                listView.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
+                                    @Override
+                                    public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
+                                        switch (index) {
+                                            case 0:
+                                                // open
+                                                break;
+                                            case 1:
+                                                // delete
+                                                //hit the server
+                                                ParseObject delQj = resList.get(position); //QJoin
+                                                delQj.put("askeeDeleted",true);
+                                                delQj.saveInBackground();
+                                                resList.remove(position);
+                                                adapter.notifyDataSetChanged();
+                                                break;
+                                        }
+                                        // false : close the menu; true : not close the menu
+                                        return false;
+                                    }
+                                });
                                 //inside of the adapted, we will say how we want the data do be displayed in the questionList layout
+                                // set SwipeListener
+                                listView.setOnSwipeListener(new SwipeMenuListView.OnSwipeListener() {
+
+                                    @Override
+                                    public void onSwipeStart(int position) {
+                                        // swipe start
+                                    }
+
+                                    @Override
+                                    public void onSwipeEnd(int position) {
+                                        // swipe end
+                                    }
+                                });
+
+                                // set MenuStateChangeListener
+                                listView.setOnMenuStateChangeListener(new SwipeMenuListView.OnMenuStateChangeListener() {
+                                    @Override
+                                    public void onMenuOpen(int position) {
+                                    }
+
+                                    @Override
+                                    public void onMenuClose(int position) {
+                                    }
+                                });
                                 listView.setAdapter(adapter);
                             } else {
                                 Toast.makeText(getApplicationContext(), "Found " + resList.size() + " questions for this user",
@@ -126,5 +219,10 @@ public class ViewQuestionsActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private int dp2px(int dp) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp,
+                getResources().getDisplayMetrics());
     }
 }

@@ -205,6 +205,7 @@ public class AskQuestionActivity extends ActionBarActivity {
                             userJoin.put("sender",ParseUser.getCurrentUser().getUsername());
                             userJoin.put("question",userQuestion);
                             userJoin.put("vote",0);
+                            userJoin.put("askeeDeleted",false);
                             userJoin.setACL(acl);
                             userJoin.saveInBackground(new SaveCallback() {
                                 public void done(ParseException e) {
@@ -281,6 +282,7 @@ public class AskQuestionActivity extends ActionBarActivity {
                                 gJoin.put("vote",0);
                                 gJoin.put("sender", ParseUser.getCurrentUser().getUsername());
                                 gJoin.put("question",userQuestion);
+                                gJoin.put("askeeDeleted",false);
                                 gJoin.setACL(acl);
                                 gJoin.saveInBackground(new SaveCallback() {
                                     @Override
