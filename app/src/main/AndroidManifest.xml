@@ -121,12 +121,19 @@
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-        <provider android:authorities="com.facebook.app.FacebookContentProvider867007226701100"
+
+        <provider
             android:name="com.facebook.FacebookContentProvider"
+            android:authorities="com.facebook.app.FacebookContentProvider867007226701100"
             android:exported="true" />
+
         <activity
             android:name=".GroupiesActivity"
             android:label="@string/title_activity_groupies" >
+        </activity>
+        <activity
+            android:name=".ViewVotesActivity"
+            android:label="@string/title_activity_view_votes" >
         </activity>
     </application>
 

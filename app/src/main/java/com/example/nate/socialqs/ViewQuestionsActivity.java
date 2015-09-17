@@ -142,7 +142,12 @@ public class ViewQuestionsActivity extends ActionBarActivity {
                                     public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
                                         switch (index) {
                                             case 0:
-                                                // open
+                                                Intent intent = new Intent(ViewQuestionsActivity.this, ViewVotesActivity.class);
+                                                Bundle bundle = new Bundle();
+                                                ParseObject tmpQ = (ParseObject)resList.get(position).get("question");
+                                                bundle.putString("questionId", tmpQ.getObjectId());
+                                                intent.putExtras(bundle);
+                                                startActivity(intent);
                                                 break;
                                             case 1:
                                                 // delete

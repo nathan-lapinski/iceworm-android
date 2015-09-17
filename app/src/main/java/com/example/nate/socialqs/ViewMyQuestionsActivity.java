@@ -1,9 +1,12 @@
 package com.example.nate.socialqs;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -67,15 +70,112 @@ public class ViewMyQuestionsActivity extends ActionBarActivity {
                     Toast.LENGTH_LONG).show();
         }
         String currUser = ParseUser.getCurrentUser().getUsername();
-        ParseQuery<ParseObject> vote_query = ParseQuery.getQuery("QJoin");
+        /*ParseQuery<ParseObject> vote_query = ParseQuery.getQuery("QJoin");
         vote_query.include("question");
         vote_query.whereEqualTo("sender", currUser);
-        vote_query.whereEqualTo("to",currUser);
+        vote_query.whereEqualTo("to",currUser);*/
+        ParseQuery<ParseObject> vote_query = ParseQuery.getQuery("SocialQs");
+        vote_query.whereEqualTo("asker",ParseUser.getCurrentUser());
+        vote_query.whereNotEqualTo("askerDeleted",true);
         vote_query.findInBackground(new FindCallback<ParseObject>() {
-            public void done(List<ParseObject> resList, ParseException e) {
+            public void done(final List<ParseObject> resList, ParseException e) {
                 if (e == null) {
-                    MyQuestionAdapter adapter = new MyQuestionAdapter(ViewMyQuestionsActivity.this, resList);
-                    ListView listView = (ListView) findViewById(R.id.questionList2);
+                    //deleted
+                    SwipeMenuCreator creator = new SwipeMenuCreator() {
+
+                        @Override
+                        public void create(SwipeMenu menu) {
+                            // create "open" item
+                            SwipeMenuItem openItem = new SwipeMenuItem(
+                                    getApplicationContext());
+                            // set item background
+                            openItem.setBackground(new ColorDrawable(Color.rgb(0xC9, 0xC9,
+                                    0xCE)));
+                            // set item width
+                            openItem.setWidth(dp2px(90));
+                            // set item title
+                            openItem.setTitle("Open");
+                            // set item title fontsize
+                            openItem.setTitleSize(18);
+                            // set item title font color
+                            openItem.setTitleColor(Color.WHITE);
+                            // add to menu
+                            menu.addMenuItem(openItem);
+
+                            // create "delete" item
+                            SwipeMenuItem deleteItem = new SwipeMenuItem(
+                                    getApplicationContext());
+                            // set item background
+                            deleteItem.setBackground(new ColorDrawable(Color.rgb(0xF9,
+                                    0x3F, 0x25)));
+                            // set item width
+                            deleteItem.setWidth(dp2px(90));
+                            // set a icon
+                            deleteItem.setIcon(R.drawable.ic_delete);
+                            // add to menu
+                            menu.addMenuItem(deleteItem);
+                        }
+                    };
+                    //Now, create a listview from the R.id.questionList and use it to display the resList data
+                    //ListView listView = (ListView) findViewById(R.id.questionList);
+                    //
+                    final MyQuestionAdapter adapter = new MyQuestionAdapter(ViewMyQuestionsActivity.this, resList);
+                    //ListView listView = (ListView) findViewById(R.id.questionList2);
+                    SwipeMenuListView listView = (SwipeMenuListView) findViewById(R.id.questionList2);
+                    // set creator
+                    listView.setMenuCreator(creator);
+                    listView.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
+                            switch (index) {
+                                case 0:
+                                    // open
+                                    //spawn the ViewVotesActivity...pass the SocialQs id in the intent?
+                                    Intent intent = new Intent(ViewMyQuestionsActivity.this, ViewVotesActivity.class);
+                                    Bundle bundle = new Bundle();
+                                    bundle.putString("questionId",resList.get(position).getObjectId());
+                                    intent.putExtras(bundle);
+                                    startActivity(intent);
+                                    break;
+                                case 1:
+                                    // delete
+                                    //hit the server
+                                    ParseObject sQ = resList.get(position); //QJoin
+                                    sQ.put("askerDeleted",true);
+                                    sQ.saveInBackground();
+                                    resList.remove(position);
+                                    adapter.notifyDataSetChanged();
+                                    break;
+                            }
+                            // false : close the menu; true : not close the menu
+                            return false;
+                        }
+                    });
+                    //inside of the adapted, we will say how we want the data do be displayed in the questionList layout
+                    // set SwipeListener
+                    listView.setOnSwipeListener(new SwipeMenuListView.OnSwipeListener() {
+
+                        @Override
+                        public void onSwipeStart(int position) {
+                            // swipe start
+                        }
+
+                        @Override
+                        public void onSwipeEnd(int position) {
+                            // swipe end
+                        }
+                    });
+
+                    // set MenuStateChangeListener
+                    listView.setOnMenuStateChangeListener(new SwipeMenuListView.OnMenuStateChangeListener() {
+                        @Override
+                        public void onMenuOpen(int position) {
+                        }
+
+                        @Override
+                        public void onMenuClose(int position) {
+                        }
+                    });
                     listView.setAdapter(adapter);
 
                 } else {
@@ -107,5 +207,10 @@ public class ViewMyQuestionsActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private int dp2px(int dp) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp,
+                getResources().getDisplayMetrics());
     }
 }
