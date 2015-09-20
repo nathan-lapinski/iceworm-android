@@ -115,7 +115,9 @@ public class MainActivity extends ActionBarActivity {
             _facebookBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    onLoginUserClicked();
+               //     onLoginUserClicked();
+                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                    startActivity(intent);
                 }
 
             });

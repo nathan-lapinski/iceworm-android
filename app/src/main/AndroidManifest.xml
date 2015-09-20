@@ -135,6 +135,14 @@
             android:name=".ViewVotesActivity"
             android:label="@string/title_activity_view_votes" >
         </activity>
+        <activity
+            android:name=".LoginActivity"
+            android:label="@string/title_activity_login" >
+        </activity>
+        <activity
+            android:name=".UserDetailsActivity"
+            android:label="@string/title_activity_user_details" >
+        </activity>
     </application>
 
 </manifest>

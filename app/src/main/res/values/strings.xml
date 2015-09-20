@@ -39,4 +39,6 @@
     <string name="facebook_app_id">867007226701100</string>
     <string name="title_activity_groupies">GroupiesActivity</string>
     <string name="title_activity_view_votes">ViewVotesActivity</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="title_activity_user_details">UserDetailsActivity</string>
 </resources>
