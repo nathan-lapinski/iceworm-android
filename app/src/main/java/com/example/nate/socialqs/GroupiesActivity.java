@@ -11,11 +11,19 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphRequestBatch;
+import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
 import com.parse.FunctionCallback;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,6 +50,8 @@ public class GroupiesActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 //make sure that the user has actually typed in a search query
+
+                /*
                 String searchQuery = _search.getText().toString();
                 if( searchQuery != null && searchQuery != ""){
                     ParseUser cur = ParseUser.getCurrentUser();
@@ -71,7 +81,26 @@ public class GroupiesActivity extends ActionBarActivity {
                             ListView listView = (ListView) findViewById(R.id.questionList2);
                             listView.setAdapter(adapter);
                         }
-                    });
+                    });*/
+                    //TODO: Pull facebook friends and display them all here
+                if(true){
+                //Hit the graph api to pull down all of this users friends
+                    new GraphRequest(
+                            AccessToken.getCurrentAccessToken(),
+                            "/me/friends?fields=name,id,picture&limit=1000",
+                            null,
+                            HttpMethod.GET,
+                            new GraphRequest.Callback() {
+                                public void onCompleted(GraphResponse response) {
+                                    /* handle the result */
+                                    //JSONObject d = response.getJSONObject();
+                                  //  JSONObject a  = d.getJSONObject("data");
+                                    Toast.makeText(getApplicationContext(), "mayde it: " + response,
+                                            Toast.LENGTH_LONG).show();
+                                }
+                            }
+                    ).executeAsync();
+
                 }else{
                     //issue a warning saying that search queries cannot be empty
                     Toast.makeText(getApplicationContext(), "Search queries cannot be empty.",

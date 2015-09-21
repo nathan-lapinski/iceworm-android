@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,6 +42,17 @@ public class UserDetailsActivity extends Activity {
         userGenderView = (TextView) findViewById(R.id.userGender);
         userEmailView = (TextView) findViewById(R.id.userEmail);
 
+        //test
+        Button askButton;
+        askButton = (Button)findViewById(R.id.goToAsk);
+        askButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(UserDetailsActivity.this, AskQuestionActivity.class);
+                startActivity(intent);
+            }
+        });
+        //
 
         //Fetch Facebook user info if it is logged
         ParseUser currentUser = ParseUser.getCurrentUser();

@@ -101,4 +101,10 @@
         android:paddingBottom="@dimen/com_facebook_share_button_padding_bottom"
         android:onClick="onLogoutClick"/>
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="100dp"
+        android:id="@+id/goToAsk"/>
 </LinearLayout>

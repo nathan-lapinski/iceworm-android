@@ -1,5 +1,7 @@
 package com.example.nate.socialqs;
 
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -27,6 +29,7 @@ import com.parse.SaveCallback;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -40,18 +43,17 @@ import java.util.List;
 
 public class MainActivity extends ActionBarActivity {
 
-    Button _loginBtn;
-    Button _signupBtn;
-    Button _facebookBtn;
-
     //testing for global groupies
     public static ArrayList<HashMap<String,GroupiesActivity.GroupiesObject>> myGroupies = new ArrayList<HashMap<String,GroupiesActivity.GroupiesObject>>();
+    private Dialog progressDialog;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main); //load up the proper xml screen
 
         /*
+        TODO: Move all of this into a bootstrap activity.
         Initialize all of the things
          */
      //   Parse.enableLocalDatastore(getApplicationContext());
@@ -81,48 +83,12 @@ public class MainActivity extends ActionBarActivity {
 
 
 
-        /*ParseUser currentUser = ParseUser.getCurrentUser();
-        if (currentUser != null) {
-            Intent intent = new Intent(MainActivity.this, AskQuestionActivity.class);
-            startActivity(intent);
-        } else {*/
-
-
-            _loginBtn = (Button) findViewById(R.id.btn_login);
-            _signupBtn = (Button) findViewById(R.id.btn_signup);
-            _facebookBtn = (Button) findViewById(R.id.btn_facebook);
-
-            //assign click listeners for these buttons to proceed to the proper screens
-            _loginBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    Intent intent = new Intent(MainActivity.this, MainActivityLogin.class);
-                    startActivity(intent);
-                }
-
-            });
-
-            _signupBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    Intent intent = new Intent(MainActivity.this, MainActivitySignup.class);
-                    startActivity(intent);
-                }
-
-            });
-            _facebookBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-               //     onLoginUserClicked();
-                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                    startActivity(intent);
-                }
-
-            });
-    //    }//end else
-
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        if((currentUser != null) && ParseFacebookUtils.isLinked(currentUser)){
+            //Go directly to the user info activity
+            //TODO: This is part of the FB tutorial. Proceed to the AskQuestions activity
+            showUserDetailsActivity();
+        }
 
     }//end onCreate
 
@@ -138,6 +104,22 @@ public class MainActivity extends ActionBarActivity {
         ParseFacebookUtils.onActivityResult(requestCode, resultCode, data);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    /*
     private void onLoginUserClicked ()
     {
         final List<String> permissions = new ArrayList<String>();
@@ -151,17 +133,45 @@ public class MainActivity extends ActionBarActivity {
                             Toast.LENGTH_LONG).show();
                     Log.d("MyApp", "Uh oh. The user cancelled the Facebook login.");
                 } else if (user.isNew()) {
-                    Toast.makeText(getApplicationContext(), "New user?",Toast.LENGTH_LONG).show();
-                            Log.d("MyApp", "User signed up and logged in through Facebook!");
+                    Toast.makeText(getApplicationContext(), "New user?", Toast.LENGTH_LONG).show();
+                    Log.d("MyApp", "User signed up and logged in through Facebook!");
                     Intent intent = new Intent(MainActivity.this, AskQuestionActivity.class);
                     startActivity(intent);
                 } else {
-                    Toast.makeText(getApplicationContext(), "uhhhh?",Toast.LENGTH_LONG).show();
-                            Log.d("MyApp", "User logged in through Facebook!");
+                    Toast.makeText(getApplicationContext(), "uhhhh?", Toast.LENGTH_LONG).show();
+                    Log.d("MyApp", "User logged in through Facebook!");
                     Intent intent = new Intent(MainActivity.this, AskQuestionActivity.class);
                     startActivity(intent);
                 }
             }
         });
+    }*/
+
+    public void onLoginClick(View v) {
+        progressDialog = ProgressDialog.show(MainActivity.this, "", "Logging in...", true);
+
+        List<String> permissions = Arrays.asList("public_profile", "email", "user_friends");
+        // NOTE: for extended permissions, like "user_about_me", your app must be reviewed by the Facebook team
+        // (https://developers.facebook.com/docs/facebook-login/permissions/)
+
+        ParseFacebookUtils.logInWithReadPermissionsInBackground(this, permissions, new LogInCallback() {
+            @Override
+            public void done(ParseUser user, ParseException err) {
+                progressDialog.dismiss();
+                if (user == null) {
+                    Log.d("socialQsFacebook", "Uh oh. The user cancelled the Facebook login.");
+                } else if (user.isNew()) {
+                    Log.d("socialQsFacebook", "User signed up and logged in through Facebook!");
+                    showUserDetailsActivity();
+                } else {
+                    Log.d("socialQsFacebook", "User logged in through Facebook!");
+                    showUserDetailsActivity();
+                }
+            }
+        });
+    }
+    private void showUserDetailsActivity() {
+        Intent intent = new Intent(this, UserDetailsActivity.class);
+        startActivity(intent);
     }
 }

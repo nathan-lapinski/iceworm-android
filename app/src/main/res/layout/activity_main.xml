@@ -1,45 +1,39 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity"
     android:background="@drawable/splash3"
-    >
+    android:orientation="vertical">
 
-        <Button
-            android:id="@+id/btn_login"
-            android:layout_width="290dp"
-            android:layout_height="wrap_content"
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Welcome to SocialQs"
+        android:id="@+id/textView4"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="100dp" />
 
-            android:text="Sign In"
-            android:background="#3A9ABC"
-            android:gravity="center"
-            android:layout_marginTop="161dp"
-            android:layout_centerHorizontal="true"
-            />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="150dp"
 
-        <Button
-            android:id="@+id/btn_signup"
-            android:layout_width="290dp"
-            android:layout_height="wrap_content"
-            android:text="Create Account"
-            android:background="#555555"
-            android:layout_below="@+id/btn_login"
-            android:gravity="center"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="10dp"
-            />
+        android:text="@string/com_facebook_loginview_log_in_button"
+        android:textColor="@color/com_facebook_share_button_text_color"
+        android:textSize="@dimen/com_facebook_share_button_text_size"
+        android:textStyle="bold"
 
-        <Button
-            android:layout_height="wrap_content"
-            android:text="Login with Facebook"
-            android:layout_width="290dp"
-            android:layout_below="@+id/btn_signup"
-            android:gravity="center"
-            android:id="@+id/btn_facebook"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="10dp"
-            android:background="#3B5998"/>
+        android:background="@drawable/com_facebook_button_background"
+        android:drawableLeft="@drawable/com_facebook_button_icon"
+        android:drawablePadding="@dimen/com_facebook_share_button_compound_drawable_padding"
+        android:paddingLeft="@dimen/com_facebook_share_button_padding_left"
+        android:paddingTop="@dimen/com_facebook_share_button_padding_top"
+        android:paddingRight="@dimen/com_facebook_share_button_padding_right"
+        android:paddingBottom="@dimen/com_facebook_share_button_padding_bottom"
+        android:onClick="onLoginClick"/>
 
-</RelativeLayout>
+</LinearLayout>
