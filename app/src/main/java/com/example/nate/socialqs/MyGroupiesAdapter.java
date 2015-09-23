@@ -1,11 +1,15 @@
 package com.example.nate.socialqs;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -15,6 +19,7 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -40,6 +45,15 @@ public class MyGroupiesAdapter extends ArrayAdapter<HashMap<String,GroupiesActiv
         //simply display the user name for now
         TextView tt = (TextView) convertView.findViewById(R.id.textViewQuestionText);
         tt.setText(gObj.get("userData").getName()); //userData should return a GroupiesObject.
+        ImageView ii = (ImageView) convertView.findViewById(R.id.imageView2);
+        //ii.setImageBitmap(gObj.get("userData").getProfilePic());
+        new DownloadImageTask((ImageView) convertView.findViewById(R.id.imageView2))
+                .execute(gObj.get("userData").getProfilePic());
+        try {
+            Thread.sleep(1000);
+        }catch(InterruptedException e){
+
+        }
         View.OnClickListener my_test = new MyCustomListener(gObj,position);
         tt.setOnClickListener(my_test);
         return convertView;
@@ -62,5 +76,31 @@ public class MyGroupiesAdapter extends ArrayAdapter<HashMap<String,GroupiesActiv
         }
 
     };
+
+    //For pulling down fb images directly
+    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+        ImageView bmImage;
+
+        public DownloadImageTask(ImageView bmImage) {
+            this.bmImage = bmImage;
+        }
+
+        protected Bitmap doInBackground(String... urls) {
+            String urldisplay = urls[0];
+            Bitmap mIcon11 = null;
+            try {
+                InputStream in = new java.net.URL(urldisplay).openStream();
+                mIcon11 = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+            }
+            return mIcon11;
+        }
+
+        protected void onPostExecute(Bitmap result) {
+            bmImage.setImageBitmap(result);
+        }
+    }
 
 }

@@ -1,6 +1,9 @@
 package com.example.nate.socialqs;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -27,6 +31,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -107,12 +113,61 @@ public class GroupiesActivity extends ActionBarActivity {
                                             //get your values
                                             String pic = pPic.getString("picture");
                                             JSONObject pics = pPic.getJSONObject("picture");
+                                            final String uName  = pPic.getString("name");
                                             JSONObject datum = pics.getJSONObject("data");
-                                            String ur = datum.getString("url");
-                                            Toast.makeText(getApplicationContext(), "Pic " + i + " " + ur,
+                                            final String ur = datum.getString("url");
+                                            HashMap<String,GroupiesObject> tempObj = new HashMap<String, GroupiesObject>();
+                                            GroupiesObject tempGroupie = new GroupiesObject(uName,0,"objecid","facebook",ur);
+                                            tempObj.put("userData",tempGroupie);
+                                            MainActivity.myGroupies.add(tempObj);
+                                            MyGroupiesAdapter adapter = new MyGroupiesAdapter(GroupiesActivity.this, MainActivity.myGroupies);
+                                            ListView listView = (ListView) findViewById(R.id.questionList2);
+                                            listView.setAdapter(adapter);
+                                            /*Toast.makeText(getApplicationContext(), "Pic " + i + " " + ur,
                                                     Toast.LENGTH_LONG).show();
+
+                                            new DownloadImageTask((ImageView) findViewById(R.id.testView))
+                                                    .execute(ur);*/
+                                            //...
+                                            //Bitmap profilePicture = pullImageFromFacebook(ur);
+
+                                            //Let's try this...
+
+
+                                           /* new AsyncTask<Void, Void, Void>() {
+                                                Bitmap bmp;
+                                                @Override
+                                                protected Void doInBackground(Void... params) {
+                                                    try {
+                                                        InputStream in = new URL(ur).openStream();
+                                                        bmp = BitmapFactory.decodeStream(in);
+                                                    } catch (Exception e) {
+                                                        // log error
+                                                    }
+                                                    return null;
+                                                }
+
+                                                @Override
+                                                protected void onPostExecute(Void result) {
+                                                    if (bmp != null){
+                                                        //Create the object and write it to the adapter
+                                                        HashMap<String,GroupiesObject> tempObj = new HashMap<String, GroupiesObject>();
+                                                        GroupiesObject tempGroupie = new GroupiesObject("the username",0,"objecid","facebook",bmp);
+                                                        tempObj.put("userData",tempGroupie);
+                                                        MainActivity.myGroupies.add(tempObj);
+                                                    }else{
+                                                        Toast.makeText(getApplicationContext(), "Everything is broken...",
+                                                                Toast.LENGTH_LONG).show();
+                                                    }
+
+                                                }
+
+                                            }.execute();*/
+                                            //:::::::
+
                                             Log.d("pic",ur);
                                         }
+
                                     }catch(JSONException e){
                                         Toast.makeText(getApplicationContext(), "LOSING THE GAME " + e,
                                                 Toast.LENGTH_LONG).show();
@@ -164,17 +219,34 @@ public class GroupiesActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public Bitmap pullImageFromFacebook(String url){
+        String urldisplay = url;
+        Bitmap mIcon11 = null;
+        try {
+            InputStream in = new java.net.URL(urldisplay).openStream();
+            mIcon11 = BitmapFactory.decodeStream(in);
+        } catch (Exception e) {
+           // Log.e("Error", e.getMessage());
+           // e.printStackTrace();
+            Toast.makeText(getApplicationContext(), ""+e,
+                    Toast.LENGTH_LONG).show();
+        }
+        return mIcon11;
+    }
+
     public class GroupiesObject {
         private String name;
         private int isSelected;
         private String id;
         private String type;
+        private String profilePic;
 
-        public GroupiesObject(String n, int s, String i, String t){
+        public GroupiesObject(String n, int s, String i, String t, String b){
             this.name = n;
             this.isSelected = s;
             this.id = i;
             this.type = t;
+            this.profilePic = b;
         }
 
         public String getName(){
@@ -191,6 +263,34 @@ public class GroupiesActivity extends ActionBarActivity {
 
         public String getType(){
             return type;
+        }
+
+        public String getProfilePic() {return profilePic;}
+    }
+
+    //For pulling down fb images directly
+    private class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+        ImageView bmImage;
+
+        public DownloadImageTask(ImageView bmImage) {
+            this.bmImage = bmImage;
+        }
+
+        protected Bitmap doInBackground(String... urls) {
+            String urldisplay = urls[0];
+            Bitmap mIcon11 = null;
+            try {
+                InputStream in = new java.net.URL(urldisplay).openStream();
+                mIcon11 = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+            }
+            return mIcon11;
+        }
+
+        protected void onPostExecute(Bitmap result) {
+            bmImage.setImageBitmap(result);
         }
     }
 }
