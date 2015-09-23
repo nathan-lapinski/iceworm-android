@@ -3,6 +3,7 @@ package com.example.nate.socialqs;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,6 +24,7 @@ import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -87,16 +89,34 @@ public class GroupiesActivity extends ActionBarActivity {
                 //Hit the graph api to pull down all of this users friends
                     new GraphRequest(
                             AccessToken.getCurrentAccessToken(),
-                            "/me/friends?fields=name,id,picture&limit=1000",
+                            "/me/taggable_friends",
                             null,
                             HttpMethod.GET,
                             new GraphRequest.Callback() {
                                 public void onCompleted(GraphResponse response) {
                                     /* handle the result */
-                                    //JSONObject d = response.getJSONObject();
-                                  //  JSONObject a  = d.getJSONObject("data");
-                                    Toast.makeText(getApplicationContext(), "mayde it: " + response,
-                                            Toast.LENGTH_LONG).show();
+
+                                    //let's try to handle this and extract the name and profile pic:
+                                    try {
+
+                                        JSONArray data = response.getJSONObject().getJSONArray("data");
+                                        for(int i = 0; i < data.length(); i++){
+                                            //check the exact format here. things get a bit janky with the response object and it might actually
+                                            //be a picture attr that we need to look at.
+                                            JSONObject pPic = data.getJSONObject(i);
+                                            //get your values
+                                            String pic = pPic.getString("picture");
+                                            JSONObject pics = pPic.getJSONObject("picture");
+                                            JSONObject datum = pics.getJSONObject("data");
+                                            String ur = datum.getString("url");
+                                            Toast.makeText(getApplicationContext(), "Pic " + i + " " + ur,
+                                                    Toast.LENGTH_LONG).show();
+                                            Log.d("pic",ur);
+                                        }
+                                    }catch(JSONException e){
+                                        Toast.makeText(getApplicationContext(), "LOSING THE GAME " + e,
+                                                Toast.LENGTH_LONG).show();
+                                    }
                                 }
                             }
                     ).executeAsync();

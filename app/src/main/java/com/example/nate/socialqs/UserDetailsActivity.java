@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
 import com.facebook.login.widget.ProfilePictureView;
 import com.parse.ParseUser;
 
@@ -59,6 +60,7 @@ public class UserDetailsActivity extends Activity {
         if ((currentUser != null) && currentUser.isAuthenticated()) {
             makeMeRequest();
         }
+
     }
 
     @Override
