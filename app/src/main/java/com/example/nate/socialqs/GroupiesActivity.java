@@ -7,13 +7,16 @@ import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.AccessToken;
@@ -52,8 +55,20 @@ public class GroupiesActivity extends ActionBarActivity {
          */
         _search = (EditText)findViewById(R.id.userSearchText);
         _submit = (Button)findViewById(R.id.buttonSearch);
-        _trueSubmit = (Button)findViewById(R.id.buttonSubmit);
+       // _trueSubmit = (Button)findViewById(R.id.buttonSubmit);
 
+        _search.setOnEditorActionListener(new EditText.OnEditorActionListener(){
+            @Override
+        public boolean onEditorAction(TextView v, int actionId, KeyEvent event){
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    //TODO: perform the filters and update the view
+                    Toast.makeText(GroupiesActivity.this, "IT HAZ WORKED",
+                            Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+                return false;
+            }
+        });
         _submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -183,15 +198,6 @@ public class GroupiesActivity extends ActionBarActivity {
                 }
             }
         });
-        _trueSubmit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Send the goupies list in an intent to the AskActivity?? Or just
-                //let it access it globally and then nukek it?
-                onBackPressed();
-            }
-        });
-        //uhhh
         MyGroupiesAdapter adapter = new MyGroupiesAdapter(GroupiesActivity.this, MainActivity.myGroupies);
         ListView listView = (ListView) findViewById(R.id.questionList2);
         listView.setAdapter(adapter);
@@ -217,6 +223,11 @@ public class GroupiesActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void onDoneClick(View v){
+        //return to the ask questions view, as the groupies have been selected
+        onBackPressed();
     }
 
     public Bitmap pullImageFromFacebook(String url){

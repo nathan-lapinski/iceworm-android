@@ -9,37 +9,63 @@
         android:layout_width="fill_parent"
         android:layout_weight="1"
         android:orientation="vertical">
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
 
-        <TextView
-            android:layout_width="fill_parent"
-            android:layout_height="20dp"
-            android:text="Search for a new user"
-            android:id="@+id/textView3"
-            android:textColor="#000000" />
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="#52899f">
 
-        <EditText
-            android:layout_width="fill_parent"
-            android:layout_height="40dp"
-            android:id="@+id/userSearchText"
-            android:background="#ffffff"
-            android:alpha="0.8"
-            android:layout_marginTop="20dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="done"
+                android:id="@+id/textView3"
+                android:onClick="onDoneClick"/>
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Find New User"
-            android:id="@+id/buttonSearch" />
+            <ImageView
+                android:layout_width="75dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/imageView6"
+                android:src="@drawable/logosquare"
+                android:layout_gravity="center" />
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Submit Groupies"
-            android:id="@+id/buttonSubmit" />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/imageView7"
+                android:src="@drawable/addgroup" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="#cccccc">
+
+            <EditText
+                android:layout_width="280dp"
+                android:layout_height="40dp"
+                android:id="@+id/userSearchText"
+                android:background="#ffffff"
+                android:alpha="0.8"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_gravity="center"
+                android:inputType="text"
+                android:singleLine="true"
+                android:imeOptions="actionDone"
+                android:textColor="#000000" />
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Find New User"
+                android:id="@+id/buttonSearch" />
+        </LinearLayout>
+
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -48,7 +74,8 @@
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="300dp">
+            android:layout_height="300dp"
+            android:layout_weight="1">
             <ListView
                 android:id="@+id/questionList2"
                 android:layout_width="match_parent"
