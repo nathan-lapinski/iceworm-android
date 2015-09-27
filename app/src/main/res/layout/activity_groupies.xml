@@ -22,20 +22,25 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="done"
                 android:id="@+id/textView3"
-                android:onClick="onDoneClick"/>
+                android:onClick="onDoneClick"
+                android:layout_gravity="center|left"
+                android:layout_weight="1"
+                android:layout_marginLeft="20dp" />
 
             <ImageView
                 android:layout_width="75dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/imageView6"
                 android:src="@drawable/logosquare"
-                android:layout_gravity="center" />
+                android:layout_gravity="center"
+                android:layout_weight="1" />
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/imageView7"
-                android:src="@drawable/addgroup" />
+                android:src="@drawable/addgroup"
+                android:layout_weight="1" />
 
         </LinearLayout>
 
@@ -59,11 +64,13 @@
                 android:imeOptions="actionDone"
                 android:textColor="#000000" />
 
-            <Button
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Find New User"
-                android:id="@+id/buttonSearch" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="cancel"
+                android:id="@+id/textView5"
+                android:layout_gravity="center" />
         </LinearLayout>
 
         <ImageView
@@ -81,62 +88,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" >
             </ListView>
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_weight="8"
-        android:background="#ffffffff"
-        android:alpha="0.8">
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:layout_gravity="center"
-            android:background="#639FBA"
-            android:layout_weight="8">
-
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/image_button_ask"
-                android:src="@drawable/ask"
-                android:adjustViewBounds="false"
-                android:layout_gravity="center_vertical"
-                android:layout_marginRight="60dp"
-                android:background="@android:color/transparent"/>
-
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/image_button_incoming"
-                android:src="@drawable/incoming"
-                android:layout_gravity="center_vertical"
-                android:background="@android:color/transparent"
-                android:layout_marginRight="60dp" />
-
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/image_button_outgoing"
-                android:src="@drawable/outgoing"
-                android:layout_gravity="center_vertical"
-                android:background="@android:color/transparent"
-                android:layout_marginRight="60dp" />
-
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/image_button_settings"
-                android:src="@drawable/settings"
-                android:layout_gravity="center_vertical"
-                android:background="@android:color/transparent" />
         </LinearLayout>
 
     </LinearLayout>

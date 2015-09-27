@@ -46,6 +46,7 @@ public class GroupiesActivity extends ActionBarActivity {
     EditText _search;
     Button _trueSubmit;
     public static ArrayList<HashMap<String,GroupiesObject>> myCurrentGroupies = new ArrayList<HashMap<String,GroupiesObject>>();
+    public static ArrayList<GroupiesObject> mySearchGroupies = new ArrayList<GroupiesObject>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,151 +55,80 @@ public class GroupiesActivity extends ActionBarActivity {
         Link up the edittext and the button so that we can search for what the user has typed
          */
         _search = (EditText)findViewById(R.id.userSearchText);
-        _submit = (Button)findViewById(R.id.buttonSearch);
-       // _trueSubmit = (Button)findViewById(R.id.buttonSubmit);
-
         _search.setOnEditorActionListener(new EditText.OnEditorActionListener(){
             @Override
         public boolean onEditorAction(TextView v, int actionId, KeyEvent event){
                 if (actionId == EditorInfo.IME_ACTION_DONE) {
                     //TODO: perform the filters and update the view
-                    Toast.makeText(GroupiesActivity.this, "IT HAZ WORKED",
-                            Toast.LENGTH_SHORT).show();
+                    String searchText = v.getText().toString();
+                    if(!searchText.equals(null)){
+                        //filter the groupies based on first name
+                        for(int i = 0; i < MainActivity.myGroupies.size(); i++){
+                            if(MainActivity.myGroupies.get(i).get("userData").getName().toLowerCase().contains(searchText.toLowerCase())){
+                                mySearchGroupies.add(MainActivity.myGroupies.get(i).get("userData"));
+                            }
+                        }
+                        Toast.makeText(getApplicationContext(), "Found: "+mySearchGroupies.size(),
+                                Toast.LENGTH_LONG).show();
+                    }
                     return true;
                 }
                 return false;
             }
         });
-        _submit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //make sure that the user has actually typed in a search query
-
-                /*
-                String searchQuery = _search.getText().toString();
-                if( searchQuery != null && searchQuery != ""){
-                    ParseUser cur = ParseUser.getCurrentUser();
-                    final String my_uname = cur.getString("username");
-                    HashMap<String, Object> params = new HashMap<String, Object>();
-                    params.put("userString", searchQuery);
-                    params.put("currentUser", my_uname);
-                    //hit the cloud to find the user, or user suggestions
-                    ParseCloud.callFunctionInBackground("findNewUser", params, new FunctionCallback<ArrayList<HashMap<String,ParseObject>>>() {
-                        public void done(ArrayList<HashMap<String, ParseObject>> names, ParseException e) {
-                            if (e == null) {
-                                for (int i = 0; i < names.size(); i++) {
-                                    HashMap<String,GroupiesObject> tempObj = new HashMap<String, GroupiesObject>();
-                                    ParseObject v1 = names.get(i).get("userObject");
-                                    GroupiesObject tempGroupie = new GroupiesObject(v1.getString("username"),0,(String)v1.getObjectId(),"SocialQs");
-                                    tempObj.put("userData",tempGroupie);
-                                    MainActivity.myGroupies.add(tempObj);
-                                    Toast.makeText(GroupiesActivity.this, "Could be: " + v1.get("username"),
-                                            Toast.LENGTH_SHORT).show();
-                                }
-                            } else {
-                                Toast.makeText(GroupiesActivity.this, "Err" + e,
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                            //update the ui
-                            MyGroupiesAdapter adapter = new MyGroupiesAdapter(GroupiesActivity.this, MainActivity.myGroupies);
-                            ListView listView = (ListView) findViewById(R.id.questionList2);
-                            listView.setAdapter(adapter);
-                        }
-                    });*/
-                    //TODO: Pull facebook friends and display them all here
-                if(true){
-                //Hit the graph api to pull down all of this users friends
-                    new GraphRequest(
-                            AccessToken.getCurrentAccessToken(),
-                            "/me/taggable_friends",
-                            null,
-                            HttpMethod.GET,
-                            new GraphRequest.Callback() {
-                                public void onCompleted(GraphResponse response) {
+        //TODO: Add this graphrequest somewhere else if possible...
+        //this will require you to pull and store the images locally. Otherwise good luck updating
+        //the non-existing listview
+        //TODO: Pull facebook friends and display them all here
+       /* if(true){
+            //Hit the graph api to pull down all of this users friends
+            new GraphRequest(
+                    AccessToken.getCurrentAccessToken(),
+                    "/me/taggable_friends",
+                    null,
+                    HttpMethod.GET,
+                    new GraphRequest.Callback() {
+                        public void onCompleted(GraphResponse response) {
                                     /* handle the result */
 
-                                    //let's try to handle this and extract the name and profile pic:
-                                    try {
+                            //let's try to handle this and extract the name and profile pic:
+           /*                 try {
 
-                                        JSONArray data = response.getJSONObject().getJSONArray("data");
-                                        for(int i = 0; i < data.length(); i++){
-                                            //check the exact format here. things get a bit janky with the response object and it might actually
-                                            //be a picture attr that we need to look at.
-                                            JSONObject pPic = data.getJSONObject(i);
-                                            //get your values
-                                            String pic = pPic.getString("picture");
-                                            JSONObject pics = pPic.getJSONObject("picture");
-                                            final String uName  = pPic.getString("name");
-                                            JSONObject datum = pics.getJSONObject("data");
-                                            final String ur = datum.getString("url");
-                                            HashMap<String,GroupiesObject> tempObj = new HashMap<String, GroupiesObject>();
-                                            GroupiesObject tempGroupie = new GroupiesObject(uName,0,"objecid","facebook",ur);
-                                            tempObj.put("userData",tempGroupie);
-                                            MainActivity.myGroupies.add(tempObj);
-                                            MyGroupiesAdapter adapter = new MyGroupiesAdapter(GroupiesActivity.this, MainActivity.myGroupies);
-                                            ListView listView = (ListView) findViewById(R.id.questionList2);
-                                            listView.setAdapter(adapter);
-                                            /*Toast.makeText(getApplicationContext(), "Pic " + i + " " + ur,
-                                                    Toast.LENGTH_LONG).show();
-
-                                            new DownloadImageTask((ImageView) findViewById(R.id.testView))
-                                                    .execute(ur);*/
-                                            //...
-                                            //Bitmap profilePicture = pullImageFromFacebook(ur);
-
-                                            //Let's try this...
-
-
-                                           /* new AsyncTask<Void, Void, Void>() {
-                                                Bitmap bmp;
-                                                @Override
-                                                protected Void doInBackground(Void... params) {
-                                                    try {
-                                                        InputStream in = new URL(ur).openStream();
-                                                        bmp = BitmapFactory.decodeStream(in);
-                                                    } catch (Exception e) {
-                                                        // log error
-                                                    }
-                                                    return null;
-                                                }
-
-                                                @Override
-                                                protected void onPostExecute(Void result) {
-                                                    if (bmp != null){
-                                                        //Create the object and write it to the adapter
-                                                        HashMap<String,GroupiesObject> tempObj = new HashMap<String, GroupiesObject>();
-                                                        GroupiesObject tempGroupie = new GroupiesObject("the username",0,"objecid","facebook",bmp);
-                                                        tempObj.put("userData",tempGroupie);
-                                                        MainActivity.myGroupies.add(tempObj);
-                                                    }else{
-                                                        Toast.makeText(getApplicationContext(), "Everything is broken...",
-                                                                Toast.LENGTH_LONG).show();
-                                                    }
-
-                                                }
-
-                                            }.execute();*/
-                                            //:::::::
-
-                                            Log.d("pic",ur);
-                                        }
-
-                                    }catch(JSONException e){
-                                        Toast.makeText(getApplicationContext(), "LOSING THE GAME " + e,
-                                                Toast.LENGTH_LONG).show();
-                                    }
+                                JSONArray data = response.getJSONObject().getJSONArray("data");
+                                for(int i = 0; i < data.length(); i++){
+                                    //check the exact format here. things get a bit janky with the response object and it might actually
+                                    //be a picture attr that we need to look at.
+                                    JSONObject pPic = data.getJSONObject(i);
+                                    //get your values
+                                    String pic = pPic.getString("picture");
+                                    JSONObject pics = pPic.getJSONObject("picture");
+                                    final String uName  = pPic.getString("name");
+                                    JSONObject datum = pics.getJSONObject("data");
+                                    final String ur = datum.getString("url");
+                                    HashMap<String,GroupiesObject> tempObj = new HashMap<String, GroupiesObject>();
+                                    GroupiesObject tempGroupie = new GroupiesObject(uName,0,"objecid","facebook",ur);
+                                    tempObj.put("userData",tempGroupie);
+                                    MainActivity.myGroupies.add(tempObj);
+                                    MyGroupiesAdapter adapter = new MyGroupiesAdapter(GroupiesActivity.this, MainActivity.myGroupies);
+                                    ListView listView = (ListView) findViewById(R.id.questionList2);
+                                    listView.setAdapter(adapter);
                                 }
-                            }
-                    ).executeAsync();
 
-                }else{
-                    //issue a warning saying that search queries cannot be empty
-                    Toast.makeText(getApplicationContext(), "Search queries cannot be empty.",
-                            Toast.LENGTH_LONG).show();
-                }
-            }
-        });
-        MyGroupiesAdapter adapter = new MyGroupiesAdapter(GroupiesActivity.this, MainActivity.myGroupies);
+                            }catch(JSONException e){
+                                Toast.makeText(getApplicationContext(), "LOSING THE GAME " + e,
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    }
+            ).executeAsync();
+
+        }else{
+            //issue a warning saying that search queries cannot be empty
+            Toast.makeText(getApplicationContext(), "Search queries cannot be empty.",
+                    Toast.LENGTH_LONG).show();
+        }*/
+        //MyGroupiesAdapter adapter = new MyGroupiesAdapter(GroupiesActivity.this, MainActivity.myGroupies);
+        MyGroupiesAdapter adapter = new MyGroupiesAdapter(GroupiesActivity.this, MainActivity.facebookData);
         ListView listView = (ListView) findViewById(R.id.questionList2);
         listView.setAdapter(adapter);
     }
@@ -245,12 +175,13 @@ public class GroupiesActivity extends ActionBarActivity {
         return mIcon11;
     }
 
-    public class GroupiesObject {
+    public static class GroupiesObject {
         private String name;
         private int isSelected;
         private String id;
         private String type;
         private String profilePic;
+        private Bitmap profileBitmap;
 
         public GroupiesObject(String n, int s, String i, String t, String b){
             this.name = n;
@@ -258,6 +189,14 @@ public class GroupiesActivity extends ActionBarActivity {
             this.id = i;
             this.type = t;
             this.profilePic = b;
+        }
+
+        public GroupiesObject(String n, int s, String i, String t, Bitmap b){
+            this.name = n;
+            this.isSelected = s;
+            this.id = i;
+            this.type = t;
+            this.profileBitmap = b;
         }
 
         public String getName(){
@@ -277,6 +216,8 @@ public class GroupiesActivity extends ActionBarActivity {
         }
 
         public String getProfilePic() {return profilePic;}
+
+        public Bitmap getBitmap() {return profileBitmap;}
     }
 
     //For pulling down fb images directly

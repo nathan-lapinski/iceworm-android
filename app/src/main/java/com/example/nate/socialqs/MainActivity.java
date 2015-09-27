@@ -6,6 +6,11 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.media.Image;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Base64;
@@ -14,9 +19,18 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.Toast;
 
+import com.facebook.AccessToken;
 import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 import com.parse.LogInCallback;
 import com.parse.Parse;
 import com.parse.ParseACL;
@@ -26,6 +40,11 @@ import com.parse.ParsePush;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -45,6 +64,7 @@ public class MainActivity extends ActionBarActivity {
 
     //testing for global groupies
     public static ArrayList<HashMap<String,GroupiesActivity.GroupiesObject>> myGroupies = new ArrayList<HashMap<String,GroupiesActivity.GroupiesObject>>();
+    public static ArrayList<HashMap<String,GroupiesActivity.GroupiesObject>> facebookData = new ArrayList<HashMap<String,GroupiesActivity.GroupiesObject>>();
     private Dialog progressDialog;
 
     @Override
@@ -63,6 +83,9 @@ public class MainActivity extends ActionBarActivity {
         ParseUser.enableAutomaticUser();
         ParseACL defaultACL = new ParseACL();
         ParseACL.setDefaultACL(defaultACL, true);
+        //image loader??
+        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext()).build();
+        ImageLoader.getInstance().init(config);
 
         //find the buttons
 
@@ -81,7 +104,52 @@ public class MainActivity extends ActionBarActivity {
 
         }
 
+        //let's pull the facebook data
+        new GraphRequest(
+                AccessToken.getCurrentAccessToken(),
+                "/me/taggable_friends",
+                null,
+                HttpMethod.GET,
+                new GraphRequest.Callback() {
+                    public void onCompleted(GraphResponse response) {
+                                    /* handle the result */
 
+                        //let's try to handle this and extract the name and profile pic:
+                        try {
+
+                            JSONArray data = response.getJSONObject().getJSONArray("data");
+                            for(int i = 0; i < data.length(); i++){
+                                JSONObject pPic = data.getJSONObject(i);
+                                //get your values
+                                String pic = pPic.getString("picture");
+                                JSONObject pics = pPic.getJSONObject("picture");
+                                final String uName  = pPic.getString("name");
+                                JSONObject datum = pics.getJSONObject("data");
+                                final String ur = datum.getString("url");
+
+                                //maven
+                                ImageLoader imageLoader = ImageLoader.getInstance();
+                                imageLoader.loadImage(ur, new SimpleImageLoadingListener() {
+                                    @Override
+                                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                                        // Do whatever you want with Bitmap
+                                        HashMap<String,GroupiesActivity.GroupiesObject> tempObj = new HashMap<String, GroupiesActivity.GroupiesObject>();
+                                        GroupiesActivity.GroupiesObject tempGroupie = new GroupiesActivity.GroupiesObject(uName,0,"objecid","facebook",loadedImage);
+                                        tempObj.put("userData",tempGroupie);
+                                        facebookData.add(tempObj);
+                                    }
+                                });
+                                //nevam
+                            }
+
+                        }catch(JSONException e){
+                            Toast.makeText(getApplicationContext(), "LOSING THE GAME " + e,
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }
+        ).executeAsync();
+        //::::
 
         ParseUser currentUser = ParseUser.getCurrentUser();
         if((currentUser != null) && ParseFacebookUtils.isLinked(currentUser)){
@@ -173,5 +241,31 @@ public class MainActivity extends ActionBarActivity {
     private void showUserDetailsActivity() {
         Intent intent = new Intent(this, UserDetailsActivity.class);
         startActivity(intent);
+    }
+
+    //custom code for returning a Bitmap from a URL
+    public static class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+        Bitmap bmImage;
+
+        public DownloadImageTask(Bitmap bmImage) {
+            this.bmImage = bmImage;
+        }
+
+        protected Bitmap doInBackground(String... urls) {
+            String urldisplay = urls[0];
+            Bitmap mIcon11 = null;
+            try {
+                InputStream in = new java.net.URL(urldisplay).openStream();
+                mIcon11 = BitmapFactory.decodeStream(in);
+            } catch (Exception e) {
+                Log.e("Error", e.getMessage());
+                e.printStackTrace();
+            }
+            return mIcon11;
+        }
+
+        protected void onPostExecute(Bitmap result) {
+            bmImage = result;
+        }
     }
 }
