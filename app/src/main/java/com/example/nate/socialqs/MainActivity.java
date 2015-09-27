@@ -187,34 +187,6 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /*
-    private void onLoginUserClicked ()
-    {
-        final List<String> permissions = new ArrayList<String>();
-
-        ParseFacebookUtils.logInWithReadPermissionsInBackground(this, permissions, new LogInCallback() {
-            @Override
-            public void done(ParseUser user, ParseException err) {
-                user = ParseUser.getCurrentUser();
-                if (user == null) {
-                    Toast.makeText(getApplicationContext(), "User logged out?",
-                            Toast.LENGTH_LONG).show();
-                    Log.d("MyApp", "Uh oh. The user cancelled the Facebook login.");
-                } else if (user.isNew()) {
-                    Toast.makeText(getApplicationContext(), "New user?", Toast.LENGTH_LONG).show();
-                    Log.d("MyApp", "User signed up and logged in through Facebook!");
-                    Intent intent = new Intent(MainActivity.this, AskQuestionActivity.class);
-                    startActivity(intent);
-                } else {
-                    Toast.makeText(getApplicationContext(), "uhhhh?", Toast.LENGTH_LONG).show();
-                    Log.d("MyApp", "User logged in through Facebook!");
-                    Intent intent = new Intent(MainActivity.this, AskQuestionActivity.class);
-                    startActivity(intent);
-                }
-            }
-        });
-    }*/
-
     public void onLoginClick(View v) {
         progressDialog = ProgressDialog.show(MainActivity.this, "", "Logging in...", true);
 

@@ -76,58 +76,6 @@ public class GroupiesActivity extends ActionBarActivity {
                 return false;
             }
         });
-        //TODO: Add this graphrequest somewhere else if possible...
-        //this will require you to pull and store the images locally. Otherwise good luck updating
-        //the non-existing listview
-        //TODO: Pull facebook friends and display them all here
-       /* if(true){
-            //Hit the graph api to pull down all of this users friends
-            new GraphRequest(
-                    AccessToken.getCurrentAccessToken(),
-                    "/me/taggable_friends",
-                    null,
-                    HttpMethod.GET,
-                    new GraphRequest.Callback() {
-                        public void onCompleted(GraphResponse response) {
-                                    /* handle the result */
-
-                            //let's try to handle this and extract the name and profile pic:
-           /*                 try {
-
-                                JSONArray data = response.getJSONObject().getJSONArray("data");
-                                for(int i = 0; i < data.length(); i++){
-                                    //check the exact format here. things get a bit janky with the response object and it might actually
-                                    //be a picture attr that we need to look at.
-                                    JSONObject pPic = data.getJSONObject(i);
-                                    //get your values
-                                    String pic = pPic.getString("picture");
-                                    JSONObject pics = pPic.getJSONObject("picture");
-                                    final String uName  = pPic.getString("name");
-                                    JSONObject datum = pics.getJSONObject("data");
-                                    final String ur = datum.getString("url");
-                                    HashMap<String,GroupiesObject> tempObj = new HashMap<String, GroupiesObject>();
-                                    GroupiesObject tempGroupie = new GroupiesObject(uName,0,"objecid","facebook",ur);
-                                    tempObj.put("userData",tempGroupie);
-                                    MainActivity.myGroupies.add(tempObj);
-                                    MyGroupiesAdapter adapter = new MyGroupiesAdapter(GroupiesActivity.this, MainActivity.myGroupies);
-                                    ListView listView = (ListView) findViewById(R.id.questionList2);
-                                    listView.setAdapter(adapter);
-                                }
-
-                            }catch(JSONException e){
-                                Toast.makeText(getApplicationContext(), "LOSING THE GAME " + e,
-                                        Toast.LENGTH_LONG).show();
-                            }
-                        }
-                    }
-            ).executeAsync();
-
-        }else{
-            //issue a warning saying that search queries cannot be empty
-            Toast.makeText(getApplicationContext(), "Search queries cannot be empty.",
-                    Toast.LENGTH_LONG).show();
-        }*/
-        //MyGroupiesAdapter adapter = new MyGroupiesAdapter(GroupiesActivity.this, MainActivity.myGroupies);
         MyGroupiesAdapter adapter = new MyGroupiesAdapter(GroupiesActivity.this, MainActivity.facebookData);
         ListView listView = (ListView) findViewById(R.id.questionList2);
         listView.setAdapter(adapter);
@@ -167,8 +115,6 @@ public class GroupiesActivity extends ActionBarActivity {
             InputStream in = new java.net.URL(urldisplay).openStream();
             mIcon11 = BitmapFactory.decodeStream(in);
         } catch (Exception e) {
-           // Log.e("Error", e.getMessage());
-           // e.printStackTrace();
             Toast.makeText(getApplicationContext(), ""+e,
                     Toast.LENGTH_LONG).show();
         }

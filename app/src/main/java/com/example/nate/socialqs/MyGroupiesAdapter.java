@@ -47,14 +47,6 @@ public class MyGroupiesAdapter extends ArrayAdapter<HashMap<String,GroupiesActiv
         tt.setText(gObj.get("userData").getName()); //userData should return a GroupiesObject.
         ImageView ii = (ImageView) convertView.findViewById(R.id.imageView2);
         ii.setImageBitmap(gObj.get("userData").getBitmap());
-        //ii.setImageBitmap(gObj.get("userData").getProfilePic());
-      /*  new DownloadImageTask((ImageView) convertView.findViewById(R.id.imageView2))
-                .execute(gObj.get("userData").getProfilePic());
-        try {
-            Thread.sleep(1000);
-        }catch(InterruptedException e){
-
-        }*/
         View.OnClickListener my_test = new MyCustomListener(gObj,position);
         tt.setOnClickListener(my_test);
         return convertView;
