@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -42,41 +43,52 @@ public class ViewQuestionsActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_questions);
 
-        /*
-        Set up the bottom menu. Again, make this shit modular
-         */
-        /*Inflate the menu -- put this in a function at some point*/
-        ImageButton i_ask = (ImageButton) findViewById(R.id.image_button_ask);
-        ImageButton i_in = (ImageButton) findViewById(R.id.image_button_incoming);
-        ImageButton i_out = (ImageButton) findViewById(R.id.image_button_outgoing);
-        ImageButton i_set = (ImageButton) findViewById(R.id.image_button_settings);
-        //Assign the click functionality
-        //i_ask is active
-        i_ask.setOnClickListener(new View.OnClickListener() {
+
+        /*Inflate the top menu*/
+        ImageView ask = (ImageView) findViewById(R.id.ask);
+        ask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ViewQuestionsActivity.this, AskQuestionActivity.class);
                 startActivity(intent);
             }
         });
-        i_in.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(ViewQuestionsActivity.this, ViewMyQuestionsActivity.class);
-                startActivity(intent);
-            }
-        });
-        i_set.setOnClickListener(new View.OnClickListener() {
+        ImageView settings = (ImageView) findViewById(R.id.settings);
+        settings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(ViewQuestionsActivity.this, SettingsActivity.class);
                 startActivity(intent);
             }
         });
-        /*********
-         *
-         *
-         * ********/
+        /**/
+        /*
+        Set up the bottom menu. Again, make this shit modular
+         */
+        /*Inflate the bottom menu -- put this in a function at some point*/
+        ImageView my = (ImageView) findViewById(R.id.myQs);
+        ImageView their = (ImageView) findViewById(R.id.theirQs);
+        ImageView global = (ImageView) findViewById(R.id.global);
+        //Assign the click functionality
+        //i_ask is active
+        my.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ViewQuestionsActivity.this, ViewMyQuestionsActivity.class);
+                startActivity(intent);
+            }
+        });
+        global.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "Global Qs Coming Soon!",
+                        Toast.LENGTH_LONG).show();
+                //TODO: Implement global Qs
+                // Intent intent = new Intent(ViewMyQuestionsActivity.this, SettingsActivity.class);
+                // startActivity(intent);
+            }
+        });
+        /*****************/
 
 
         String currentUser = ParseUser.getCurrentUser().getUsername();
