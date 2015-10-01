@@ -19,6 +19,8 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import org.w3c.dom.Text;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,10 +33,12 @@ import java.util.List;
 public class MyGroupiesAdapter extends ArrayAdapter<HashMap<String,GroupiesActivity.GroupiesObject>>{
     private LayoutInflater inflater;
     List<HashMap<String,GroupiesActivity.GroupiesObject>> master_list;
-    public MyGroupiesAdapter(Activity activity, List<HashMap<String,GroupiesActivity.GroupiesObject>> data){
+    View toggle_view;
+    public MyGroupiesAdapter(Activity activity, List<HashMap<String,GroupiesActivity.GroupiesObject>> data, View masterRef){
         super(activity, R.layout.row_question, data);
         inflater = activity.getWindow().getLayoutInflater();
         this.master_list = data;
+        this.toggle_view = masterRef;
     }
     @Override
     public View getView(int position, View convertView, ViewGroup parent){
@@ -47,7 +51,7 @@ public class MyGroupiesAdapter extends ArrayAdapter<HashMap<String,GroupiesActiv
         tt.setText(gObj.get("userData").getName()); //userData should return a GroupiesObject.
         ImageView ii = (ImageView) convertView.findViewById(R.id.imageView2);
         ii.setImageBitmap(gObj.get("userData").getBitmap());
-        View.OnClickListener my_test = new MyCustomListener(gObj,position);
+        View.OnClickListener my_test = new MyCustomListener(gObj,position,this.toggle_view);
         tt.setOnClickListener(my_test);
         return convertView;
     }
@@ -56,8 +60,9 @@ public class MyGroupiesAdapter extends ArrayAdapter<HashMap<String,GroupiesActiv
     {
         HashMap<String,GroupiesActivity.GroupiesObject> my_obj;
         int position;
-        public MyCustomListener(HashMap<String,GroupiesActivity.GroupiesObject> row, int pos) {
-            this.my_obj = row; this.position = pos;
+        View invisible_touch;
+        public MyCustomListener(HashMap<String,GroupiesActivity.GroupiesObject> row, int pos, View invisibleTouch) {
+            this.my_obj = row; this.position = pos; this.invisible_touch = invisibleTouch;
         }
         @Override
         public void onClick(View v)
@@ -66,6 +71,10 @@ public class MyGroupiesAdapter extends ArrayAdapter<HashMap<String,GroupiesActiv
             GroupiesActivity.myCurrentGroupies.add(my_obj);
             Toast.makeText(getContext(), "Added it, list now has: "+GroupiesActivity.myCurrentGroupies.size()+" groupies",
                     Toast.LENGTH_LONG).show();
+            this.invisible_touch.setVisibility(View.VISIBLE);
+            TextView hole = (TextView)this.invisible_touch.findViewById(R.id.groupiesTextView);
+            String tmp = hole.getText().toString();
+            hole.setText(tmp + my_obj.get("userData").getName() + " ");
         }
 
     };

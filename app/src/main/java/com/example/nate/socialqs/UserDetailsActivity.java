@@ -49,7 +49,7 @@ public class UserDetailsActivity extends Activity {
         askButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(UserDetailsActivity.this, AskQuestionActivity.class);
+                Intent intent = new Intent(UserDetailsActivity.this, ViewMyQuestionsActivity.class);
                 startActivity(intent);
             }
         });

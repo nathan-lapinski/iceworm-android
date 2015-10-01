@@ -121,6 +121,7 @@ public class MainActivity extends ActionBarActivity {
                             for(int i = 0; i < data.length(); i++){
                                 JSONObject pPic = data.getJSONObject(i);
                                 //get your values
+
                                 String pic = pPic.getString("picture");
                                 JSONObject pics = pPic.getJSONObject("picture");
                                 final String uName  = pPic.getString("name");

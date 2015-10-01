@@ -1,9 +1,41 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/splash3"
+    android:background="#d3d3d3"
     tools:context="com.example.nate.socialqs.ViewQuestionsActivity"
     android:orientation="vertical">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#52899f">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ask"
+            android:src="@drawable/ask"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical" />
+
+        <ImageView
+            android:layout_width="75dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView6"
+            android:src="@drawable/logosquare"
+            android:layout_gravity="center"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/settings"
+            android:layout_weight="1"
+            android:src="@drawable/settings" />
+
+    </LinearLayout>
+
 
     <LinearLayout android:layout_height="fill_parent"
         android:layout_width="fill_parent"
@@ -26,7 +58,7 @@
         android:orientation="horizontal"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:layout_weight="8"
+        android:layout_weight="5"
         android:background="#ffffffff"
         android:alpha="0.8">
 
@@ -36,44 +68,29 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:layout_gravity="center"
-            android:background="#639FBA"
+            android:background="#ffffff"
             android:layout_weight="8">
 
-            <ImageButton
+            <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/image_button_ask"
-                android:src="@drawable/ask"
-                android:adjustViewBounds="false"
-                android:layout_gravity="center_vertical"
-                android:layout_marginRight="60dp"
-                android:background="@android:color/transparent"/>
+                android:id="@+id/myQs"
+                android:src="@drawable/myqs"
+                android:layout_weight="1" />
 
-            <ImageButton
+            <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/image_button_incoming"
-                android:src="@drawable/incoming"
-                android:layout_gravity="center_vertical"
-                android:background="@android:color/transparent"
-                android:layout_marginRight="60dp" />
+                android:id="@+id/theirQs"
+                android:src="@drawable/theirqs"
+                android:layout_weight="1" />
 
-            <ImageButton
+            <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/image_button_outgoing"
-                android:src="@drawable/outgoing"
-                android:layout_gravity="center_vertical"
-                android:background="@android:color/transparent"
-                android:layout_marginRight="60dp" />
-
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/image_button_settings"
-                android:src="@drawable/settings"
-                android:layout_gravity="center_vertical"
-                android:background="@android:color/transparent" />
+                android:id="@+id/global"
+                android:src="@drawable/global"
+                android:layout_weight="1" />
         </LinearLayout>
 
     </LinearLayout>

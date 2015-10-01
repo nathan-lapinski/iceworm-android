@@ -59,9 +59,9 @@ public class AskQuestionActivity extends ActionBarActivity {
     Button _privacy;
     //used for adding images
     //TODO: use better creative for these images
-    ImageButton _img_btn_q;
-    ImageButton _img_btn_one;
-    ImageButton _img_btn_two;
+    ImageView _img_btn_q;
+    ImageView _img_btn_one;
+    ImageView _img_btn_two;
 
     //used for holding user input regarding the question and the options
     EditText _question;
@@ -87,52 +87,23 @@ public class AskQuestionActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ask_question_test);
 
-        /*Inflate the menu that runs along the bottom of the screen
-        *
-        TODO: Abstract this shit into a function since it shows up in most of our activities.
-        *
-         */
-        ImageButton i_ask = (ImageButton) findViewById(R.id.image_button_ask);
-        ImageButton i_in = (ImageButton) findViewById(R.id.image_button_incoming);
-        ImageButton i_out = (ImageButton) findViewById(R.id.image_button_outgoing);
-        ImageButton i_set = (ImageButton) findViewById(R.id.image_button_settings);
-        //Assign the click functionality
-        //i_ask is active, so don't give it a listener.
-        i_in.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(AskQuestionActivity.this, ViewMyQuestionsActivity.class);
-                startActivity(intent);
-            }
-        });
-        i_out.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(AskQuestionActivity.this, ViewQuestionsActivity.class);
-                startActivity(intent);
-            }
-        });
-        i_set.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(AskQuestionActivity.this, SettingsActivity.class);
-                startActivity(intent);
-            }
-        });
-        /**********************
-         *
-         * Move into the main codez
-         * **********************/
         _question = (EditText) findViewById(R.id.fld_question_body);
         _choice1 = (EditText) findViewById(R.id.fld_choice1);
         _choice2 = (EditText) findViewById(R.id.fld_choice2);
         _submit = (Button) findViewById(R.id.btn_ask);
         _cancel = (Button) findViewById(R.id.btn_ask_cancel);
-        _groupies = (Button) findViewById(R.id.btn_ask_groupies);
-        _privacy = (Button) findViewById(R.id.btn_ask_privacy);
-        _img_btn_q = (ImageButton) findViewById(R.id.img_btn_question);
-        _img_btn_one = (ImageButton) findViewById(R.id.img_btn_one);
-        _img_btn_two = (ImageButton) findViewById(R.id.img_btn_two);
+        _img_btn_q = (ImageView) findViewById(R.id.img_btn_question);
+        _img_btn_one = (ImageView) findViewById(R.id.img_btn_one);
+        _img_btn_two = (ImageView) findViewById(R.id.img_btn_two);
+
+        Button back = (Button) findViewById(R.id.back);
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
+
 
         /*
         This button handles the task of submitting a user's question
@@ -325,30 +296,6 @@ public class AskQuestionActivity extends ActionBarActivity {
             }
         });
 
-        /*
-        TODO: Make all of this shit work.
-         */
-        _groupies.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Make sure to juggle the intent stack properly here, so that we don't nuke
-                //the current askquestion activity
-                Intent intent = new Intent(AskQuestionActivity.this, GroupiesActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        /*
-        TODO: Eventually, figure out how to do all of this shit.
-         */
-        _privacy.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Privacy settings will be available in a future release",
-                        Toast.LENGTH_LONG).show();
-            }
-
-        });
 
         /*
         This shit is used for uploading images.
@@ -381,12 +328,12 @@ public class AskQuestionActivity extends ActionBarActivity {
 
     }
 
-    @Override
+/*    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_ask_question, menu);
         return true;
-    }
+    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

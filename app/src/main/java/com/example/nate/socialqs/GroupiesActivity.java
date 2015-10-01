@@ -11,6 +11,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
@@ -45,6 +46,8 @@ public class GroupiesActivity extends ActionBarActivity {
     Button _submit;
     EditText _search;
     Button _trueSubmit;
+    ImageView _createGroup;
+    ImageView _clearGroup;
     public static ArrayList<HashMap<String,GroupiesObject>> myCurrentGroupies = new ArrayList<HashMap<String,GroupiesObject>>();
     public static ArrayList<GroupiesObject> mySearchGroupies = new ArrayList<GroupiesObject>();
     @Override
@@ -76,7 +79,26 @@ public class GroupiesActivity extends ActionBarActivity {
                 return false;
             }
         });
-        MyGroupiesAdapter adapter = new MyGroupiesAdapter(GroupiesActivity.this, MainActivity.facebookData);
+        _createGroup = (ImageView)findViewById(R.id.createGroupButton);
+        _createGroup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //TODO: launch the createGroup activity? Fragment??
+                Intent intent = new Intent(GroupiesActivity.this, CreateGroupActivity.class);
+                startActivity(intent);
+            }
+        });
+        _clearGroup = (ImageView)findViewById(R.id.clearGroupButton);
+        _clearGroup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //TODO: launch the createGroup activity? Fragment??
+                myCurrentGroupies.clear();
+                TextView hole = (TextView)findViewById(R.id.groupiesTextView);
+                hole.setText("");
+            }
+        });
+        MyGroupiesAdapter adapter = new MyGroupiesAdapter(GroupiesActivity.this, MainActivity.facebookData,(View)findViewById(R.id.invisibleLayout));
         ListView listView = (ListView) findViewById(R.id.questionList2);
         listView.setAdapter(adapter);
     }
