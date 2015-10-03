@@ -55,14 +55,13 @@ public class AskQuestionActivity extends ActionBarActivity {
     //main ask question buttons
     Button _submit;
     Button _cancel;
-    Button _groupies;
     Button _privacy;
     //used for adding images
     //TODO: use better creative for these images
     ImageView _img_btn_q;
     ImageView _img_btn_one;
     ImageView _img_btn_two;
-
+    ImageView _groupies;
     //used for holding user input regarding the question and the options
     EditText _question;
     EditText _choice1;
@@ -104,7 +103,14 @@ public class AskQuestionActivity extends ActionBarActivity {
             }
         });
 
-
+        _groupies = (ImageView)findViewById(R.id.groupies);
+        _groupies.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(AskQuestionActivity.this, GroupiesActivity.class);
+                startActivity(intent);
+            }
+        });
         /*
         This button handles the task of submitting a user's question
         TODO: Refactor all of this shit. But namely:
@@ -247,7 +253,7 @@ public class AskQuestionActivity extends ActionBarActivity {
                                // if("ee".equals(GroupiesActivity.myCurrentGroupies.get(i).get("userData").getName())) {
                                  //   Toast.makeText(getApplicationContext(), "Fucked it",
                                    //         Toast.LENGTH_LONG).show();
-                                    gJoin.put("to", GroupiesActivity.myCurrentGroupies.get(i).get("userData").getName());
+                                    gJoin.put("to", GroupiesActivity.myCurrentGroupies.get(i).get("userData").getId());
                                 //}
                                 gJoin.put("from",ParseUser.getCurrentUser());
                                 gJoin.put("vote",0);

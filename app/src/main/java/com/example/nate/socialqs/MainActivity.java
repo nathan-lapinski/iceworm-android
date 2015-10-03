@@ -65,6 +65,7 @@ public class MainActivity extends ActionBarActivity {
     //testing for global groupies
     public static ArrayList<HashMap<String,GroupiesActivity.GroupiesObject>> myGroupies = new ArrayList<HashMap<String,GroupiesActivity.GroupiesObject>>();
     public static ArrayList<HashMap<String,GroupiesActivity.GroupiesObject>> facebookData = new ArrayList<HashMap<String,GroupiesActivity.GroupiesObject>>();
+    public static ArrayList<HashMap<String,MainActivity.StupidClass>> facebookIds = new ArrayList<HashMap<String,MainActivity.StupidClass>>(); //used for  holding ids that we pull from /me/friends
     private Dialog progressDialog;
 
     @Override
@@ -76,7 +77,8 @@ public class MainActivity extends ActionBarActivity {
         TODO: Move all of this into a bootstrap activity.
         Initialize all of the things
          */
-     //   Parse.enableLocalDatastore(getApplicationContext());
+        //Parse.enableLocalDatastore(getApplicationContext());
+       // ParseCrashReporting.enable(getApplicationContext());
         FacebookSdk.sdkInitialize(getApplicationContext());
         Parse.initialize(this, "RMtJAmKZBf5qwRZ9UvbZmTOETF2xZv9FSgYpXrFw", "TZXgbmdUVzHuKRh7z1U3luPO43EDvCwreeNNPMKk");
         ParseFacebookUtils.initialize(this);
@@ -107,6 +109,37 @@ public class MainActivity extends ActionBarActivity {
         //let's pull the facebook data
         new GraphRequest(
                 AccessToken.getCurrentAccessToken(),
+                "/me/friends",
+                null,
+                HttpMethod.GET,
+                new GraphRequest.Callback() {
+                    public void onCompleted(GraphResponse response) {
+                                    /* handle the result */
+
+                        //let's try to handle this and extract the name and profile pic:
+                        try {
+                           JSONArray data = response.getJSONObject().getJSONArray("data");
+                            for(int i = 0; i < data.length(); i++) {
+                                JSONObject vals = data.getJSONObject(i);
+                                String id = vals.getString("id");
+                                String name = vals.getString("name");
+                                StupidClass stupie = new StupidClass(name,id);
+                                HashMap<String,StupidClass> temp = new HashMap<String, StupidClass>();
+                                temp.put("userData",stupie);
+                                facebookIds.add(temp);
+                            }
+
+                        }catch(JSONException e){
+                            Toast.makeText(getApplicationContext(), "LOSING THE GAME " + e,
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    }
+                }
+        ).executeAsync();
+        //::::
+        //get from taggable as well
+        new GraphRequest(
+                AccessToken.getCurrentAccessToken(),
                 "/me/taggable_friends",
                 null,
                 HttpMethod.GET,
@@ -118,10 +151,10 @@ public class MainActivity extends ActionBarActivity {
                         try {
 
                             JSONArray data = response.getJSONObject().getJSONArray("data");
-                            for(int i = 0; i < data.length(); i++){
+                            for(int i = 0; i < data.length(); i++) {
                                 JSONObject pPic = data.getJSONObject(i);
-                                //get your values
-
+                                String id = pPic.getString("id");
+                                Log.d("DS",""+pPic);
                                 String pic = pPic.getString("picture");
                                 JSONObject pics = pPic.getJSONObject("picture");
                                 final String uName  = pPic.getString("name");
@@ -150,11 +183,42 @@ public class MainActivity extends ActionBarActivity {
                     }
                 }
         ).executeAsync();
-        //::::
+        //;;;;;;;;;;;;;;;;;;
 
-        ParseUser currentUser = ParseUser.getCurrentUser();
+
+        final ParseUser currentUser = ParseUser.getCurrentUser();
         if((currentUser != null) && ParseFacebookUtils.isLinked(currentUser)){
             //Go directly to the user info activity
+            //First time only, execute a graph request to collect the users id if it is not already present
+            //in the database
+            if(currentUser.getString("facebookId") == null ){
+                //hit the db and store this
+                new GraphRequest(
+                        AccessToken.getCurrentAccessToken(),
+                        "/me",
+                        null,
+                        HttpMethod.GET,
+                        new GraphRequest.Callback() {
+                            public void onCompleted(GraphResponse response) {
+                                    /* handle the result */
+
+                                //let's try to handle this and extract the name and profile pic:
+                                try {
+
+                                    JSONObject data = response.getJSONObject();
+                                    String fbId = data.getString("id");
+                                    currentUser.put("facebookId",fbId);
+                                    currentUser.saveInBackground();
+
+                                }catch(JSONException e){
+                                    Toast.makeText(getApplicationContext(), "LOSING THE GAME " + e,
+                                            Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        }
+                ).executeAsync();
+            }
+            //>><><<><><><><><><><><><><><><><><><>><><<
             //TODO: This is part of the FB tutorial. Proceed to the AskQuestions activity
             showUserDetailsActivity();
         }
@@ -239,6 +303,21 @@ public class MainActivity extends ActionBarActivity {
 
         protected void onPostExecute(Bitmap result) {
             bmImage = result;
+        }
+    }
+
+    public static class StupidClass{
+        String name;
+        String id;
+        public StupidClass(String n, String i){
+            this.name = n;
+            this.id = i;
+        }
+        public String getName(){
+            return this.name;
+        }
+        public String getId(){
+            return this.id;
         }
     }
 }

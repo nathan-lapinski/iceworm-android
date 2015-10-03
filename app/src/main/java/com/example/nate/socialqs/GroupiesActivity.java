@@ -98,7 +98,33 @@ public class GroupiesActivity extends ActionBarActivity {
                 hole.setText("");
             }
         });
-        MyGroupiesAdapter adapter = new MyGroupiesAdapter(GroupiesActivity.this, MainActivity.facebookData,(View)findViewById(R.id.invisibleLayout));
+
+        ImageView _addGroup = (ImageView) findViewById(R.id.addGroup);
+        _addGroup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //TODO: Give a list of groups in a new activity for now :(
+                Intent intent = new Intent(GroupiesActivity.this, SelectGroupActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        //Prepare the facebook data by merging the two lists
+        ArrayList<HashMap<String,GroupiesActivity.GroupiesObject>> facebookFinal = new ArrayList<HashMap<String,GroupiesActivity.GroupiesObject>>();
+        for(int i = 0; i < MainActivity.facebookIds.size(); i++){
+            MainActivity.StupidClass stupie = MainActivity.facebookIds.get(i).get("userData");
+            String name = stupie.getName();
+            String id = stupie.getId();
+            for(int j = 0; j < MainActivity.facebookData.size(); j++){
+                if(name.equals(MainActivity.facebookData.get(j).get("userData").getName())){
+                    MainActivity.facebookData.get(j).get("userData").setId(id);
+                    HashMap<String, GroupiesActivity.GroupiesObject> tmp = new HashMap<String, GroupiesObject>();
+                    tmp.put("userData",MainActivity.facebookData.get(j).get("userData"));
+                    facebookFinal.add(tmp);
+                }
+            }
+        }
+        MyGroupiesAdapter adapter = new MyGroupiesAdapter(GroupiesActivity.this, facebookFinal,(View)findViewById(R.id.invisibleLayout));
         ListView listView = (ListView) findViewById(R.id.questionList2);
         listView.setAdapter(adapter);
     }
@@ -123,6 +149,17 @@ public class GroupiesActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        Toast.makeText(getApplicationContext(), "We're back!",
+                Toast.LENGTH_LONG).show();
+        for(int i = 0; i < GroupiesActivity.myCurrentGroupies.size(); i++){
+            Toast.makeText(getApplicationContext(), ""+GroupiesActivity.myCurrentGroupies.get(i).get("userData").getName(),
+                    Toast.LENGTH_LONG).show();
+        }
     }
 
     public void onDoneClick(View v){
@@ -167,6 +204,12 @@ public class GroupiesActivity extends ActionBarActivity {
             this.profileBitmap = b;
         }
 
+        //used for populating a groupie from a group join
+        public GroupiesObject(String fId, String name){
+            this.id = fId;
+            this.name = name;
+        }
+
         public String getName(){
             return name;
         }
@@ -186,6 +229,10 @@ public class GroupiesActivity extends ActionBarActivity {
         public String getProfilePic() {return profilePic;}
 
         public Bitmap getBitmap() {return profileBitmap;}
+
+        public void setId(String id){
+            this.id = id;
+        }
     }
 
     //For pulling down fb images directly

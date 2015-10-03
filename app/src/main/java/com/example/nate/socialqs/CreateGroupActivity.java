@@ -66,9 +66,10 @@ public class CreateGroupActivity extends ActionBarActivity {
                                     for(int i = 0; i < GroupiesActivity.myCurrentGroupies.size(); i++){
                                         ParseObject tempGroup = new ParseObject("GroupJoin");
                                         tempGroup.put("groupName",groupName);
-                                        //tempGroup.put("facebookId",);
+                                        tempGroup.put("facebookId",GroupiesActivity.myCurrentGroupies.get(i).get("userData").getId());
                                         tempGroup.put("name",GroupiesActivity.myCurrentGroupies.get(i).get("userData").getName());
                                         tempGroup.put("owner",ParseUser.getCurrentUser());
+                                        tempGroup.saveInBackground();
                                     }
                                 } else {
                                     Toast.makeText(CreateGroupActivity.this, "Not",
@@ -76,6 +77,14 @@ public class CreateGroupActivity extends ActionBarActivity {
                                     currentRow.addAllUnique("myGroups", Arrays.asList(groupName));
                                     currentRow.saveInBackground();
                                     //begin creating the groupJoin entries for this one
+                                    for(int i = 0; i < GroupiesActivity.myCurrentGroupies.size(); i++){
+                                        ParseObject tempGroup = new ParseObject("GroupJoin");
+                                        tempGroup.put("groupName",groupName);
+                                        tempGroup.put("facebookId",GroupiesActivity.myCurrentGroupies.get(i).get("userData").getId());
+                                        tempGroup.put("name",GroupiesActivity.myCurrentGroupies.get(i).get("userData").getName());
+                                        tempGroup.put("owner",ParseUser.getCurrentUser());
+                                        tempGroup.saveInBackground();
+                                    }
                                 }
                             } else {
                                 // error
