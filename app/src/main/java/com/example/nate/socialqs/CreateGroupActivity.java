@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.parse.FindCallback;
+import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -48,16 +49,18 @@ public class CreateGroupActivity extends ActionBarActivity {
                 name = (EditText)findViewById(R.id.groupNameText);
                 final String groupName = name.getText().toString();
                 if(groupName != null && !groupName.isEmpty()){
+                    final ParseACL acl = new ParseACL();
+                    acl.setPublicReadAccess(true);
+                    acl.setPublicWriteAccess(true);
                     //update the database
                     ParseQuery<ParseObject> query = ParseQuery.getQuery("_User");
                     query.whereEqualTo("objectId",ParseUser.getCurrentUser().getObjectId());
                     query.findInBackground(new FindCallback<ParseObject>() {
                         public void done(List<ParseObject> objects, ParseException e) {
+                            //TODO: Pop out of these automatically after a group is selected.
                             if (e == null) {
                                 ParseObject currentRow = objects.get(0);
                                 if(currentRow.get("myGroups") != null){
-                                    Toast.makeText(CreateGroupActivity.this, "live",
-                                            Toast.LENGTH_SHORT).show();
                                     //myGroups exists, so business it
                                     //check to see if this group name already exists for this user though!
                                     currentRow.addAllUnique("myGroups", Arrays.asList(groupName));
@@ -69,11 +72,10 @@ public class CreateGroupActivity extends ActionBarActivity {
                                         tempGroup.put("facebookId",GroupiesActivity.myCurrentGroupies.get(i).get("userData").getId());
                                         tempGroup.put("name",GroupiesActivity.myCurrentGroupies.get(i).get("userData").getName());
                                         tempGroup.put("owner",ParseUser.getCurrentUser());
+                                        tempGroup.setACL(acl);
                                         tempGroup.saveInBackground();
                                     }
                                 } else {
-                                    Toast.makeText(CreateGroupActivity.this, "Not",
-                                            Toast.LENGTH_SHORT).show();
                                     currentRow.addAllUnique("myGroups", Arrays.asList(groupName));
                                     currentRow.saveInBackground();
                                     //begin creating the groupJoin entries for this one
@@ -83,6 +85,7 @@ public class CreateGroupActivity extends ActionBarActivity {
                                         tempGroup.put("facebookId",GroupiesActivity.myCurrentGroupies.get(i).get("userData").getId());
                                         tempGroup.put("name",GroupiesActivity.myCurrentGroupies.get(i).get("userData").getName());
                                         tempGroup.put("owner",ParseUser.getCurrentUser());
+                                        tempGroup.setACL(acl);
                                         tempGroup.saveInBackground();
                                     }
                                 }

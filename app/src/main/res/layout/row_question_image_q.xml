@@ -4,14 +4,16 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:background="#ffffff"
-    android:alpha="0.8">
+    android:alpha="0.8"
+    android:id="@+id/containerView">
 
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp">
+        android:layout_margin="8dp"
+        android:id="@+id/upperContainer">
 
         <ImageView
             android:layout_width="50dp"
@@ -49,7 +51,8 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="8dp">
+        android:layout_margin="8dp"
+        android:id="@+id/lowerContainer">
 
         <Button
             android:layout_width="fill_parent"

@@ -154,7 +154,6 @@ public class AskQuestionActivity extends ActionBarActivity {
                 userQuestion.put("stats2",0);
                 userQuestion.put("asker",ParseUser.getCurrentUser());//store the actual user object
                 userQuestion.put("askerId",currentUser.getObjectId());
-                userQuestion.put("askerDeleted",false);
                 userQuestion.setACL(acl);
 
                 if(file1 != null){
@@ -177,68 +176,17 @@ public class AskQuestionActivity extends ActionBarActivity {
                             //#1 Create the join
                             ParseObject userJoin = new ParseObject("QJoin");
                             userJoin.put("asker",ParseUser.getCurrentUser());
-                            userJoin.put("to",ParseUser.getCurrentUser().getUsername());
+                            userJoin.put("to",ParseUser.getCurrentUser().getString("facebookId"));
                             userJoin.put("from",ParseUser.getCurrentUser());
-                            userJoin.put("sender",ParseUser.getCurrentUser().getUsername());
+                           // userJoin.put("sender",ParseUser.getCurrentUser().getUsername());
                             userJoin.put("question",userQuestion);
                             userJoin.put("vote",0);
-                            userJoin.put("askeeDeleted",false);
+                            userJoin.put("deleted",false);
                             userJoin.setACL(acl);
                             userJoin.saveInBackground(new SaveCallback() {
                                 public void done(ParseException e) {
                                     if (e == null) {
-                                        //Let's write some client side code for this until the goddamned server side shit gets figured out
-                                        /*for(int i = 0; i < GroupiesActivity.myCurrentGroupies.size(); i++){
-                                            //create a new join object and send that bitch up
-                                            ParseObject gJoin = new ParseObject("QJoin");
-                                            gJoin.put("asker",ParseUser.getCurrentUser());
-                                            if("ee".equals(GroupiesActivity.myCurrentGroupies.get(i).get("userData").getName())) {
-                                                Toast.makeText(getApplicationContext(), "Fucked it",
-                                                        Toast.LENGTH_LONG).show();
-                                                gJoin.put("to", GroupiesActivity.myCurrentGroupies.get(i).get("userData").getName());
-                                            }
-                                            gJoin.put("from",ParseUser.getCurrentUser());
-                                            gJoin.put("vote",0);
-                                            gJoin.put("sender", ParseUser.getCurrentUser().getUsername());
-                                            gJoin.put("question",userQuestion);
-                                            gJoin.saveInBackground(new SaveCallback() {
-                                                @Override
-                                                public void done(ParseException e) {
-                                                    if(e == null){
-                                                        Toast.makeText(getApplicationContext(), "Gott it",
-                                                                Toast.LENGTH_LONG).show();
-                                                    } else {
-                                                        Toast.makeText(getApplicationContext(), "Error creating join: " + e,
-                                                                Toast.LENGTH_LONG).show();
-                                                    }
-                                                }
-                                            });
-                                        }*/
-                                        //let's go ahead and update the groupies. I also don't think that we need a new activity here, just
-                                        //clear out the groupies and the text fields. Although iOs is sending users to their myQs screen...
-                                       /* ParseUser cur = ParseUser.getCurrentUser();
-                                       // HashMap<String, GroupiesCloudWrapper> params = new HashMap<String, GroupiesCloudWrapper>();
-                                        //GroupiesCloudWrapper tempWrap = new GroupiesCloudWrapper(ParseUser.getCurrentUser(),userQuestion,GroupiesActivity.myCurrentGroupies);
-                                        HashMap<String,String> params = new HashMap<String,String>();
-                                        params.put("userId", (String) ParseUser.getCurrentUser().getObjectId());
-                                        params.put("questionId", (String) userQuestion.getObjectId());
-                                        for(int i = 0; i < GroupiesActivity.myCurrentGroupies.size();i++){
-                                            params.put("user"+i,GroupiesActivity.myCurrentGroupies.get(i).get("userData").getName());
-                                        }
-                                        params.put("count",String.valueOf(GroupiesActivity.myCurrentGroupies.size()));
-                                        //hit the cloud to find the user, or user suggestions
-                                        ParseCloud.callFunctionInBackground("askToGroupies", params, new FunctionCallback<String>() {
-                                            public void done(String names, ParseException e) {
-                                                if (e == null) {
-                                                    Toast.makeText(AskQuestionActivity.this, "nah man, mad people was frontin",
-                                                            Toast.LENGTH_SHORT).show();
-                                                } else {
-                                                    Toast.makeText(AskQuestionActivity.this, "shitshitshit" + e,
-                                                            Toast.LENGTH_SHORT).show();
-                                                }
-                                            }
-                                        });*/
-                                        //
+                                        //TODO: Something here?
 
                                     } else {
                                         Toast.makeText(getApplicationContext(), "Error creating Qjoin: " + e,
@@ -250,30 +198,29 @@ public class AskQuestionActivity extends ActionBarActivity {
                                 //create a new join object and send that bitch up
                                 ParseObject gJoin = new ParseObject("QJoin");
                                 gJoin.put("asker",ParseUser.getCurrentUser());
-                               // if("ee".equals(GroupiesActivity.myCurrentGroupies.get(i).get("userData").getName())) {
-                                 //   Toast.makeText(getApplicationContext(), "Fucked it",
-                                   //         Toast.LENGTH_LONG).show();
-                                    gJoin.put("to", GroupiesActivity.myCurrentGroupies.get(i).get("userData").getId());
-                                //}
+                                gJoin.put("to", GroupiesActivity.myCurrentGroupies.get(i).get("userData").getId());
                                 gJoin.put("from",ParseUser.getCurrentUser());
                                 gJoin.put("vote",0);
-                                gJoin.put("sender", ParseUser.getCurrentUser().getUsername());
+                              //  gJoin.put("sender", ParseUser.getCurrentUser().getUsername());
                                 gJoin.put("question",userQuestion);
-                                gJoin.put("askeeDeleted",false);
+                                gJoin.put("deleted",false);
                                 gJoin.setACL(acl);
                                 gJoin.saveInBackground(new SaveCallback() {
                                     @Override
                                     public void done(ParseException e) {
                                         if(e == null){
-                                            Toast.makeText(getApplicationContext(), "Gott it",
-                                                    Toast.LENGTH_LONG).show();
+                                            //Toast.makeText(getApplicationContext(), "Gott it",
+                                              //      Toast.LENGTH_LONG).show();
                                         } else {
-                                            Toast.makeText(getApplicationContext(), "Error creating join: " + e,
-                                                    Toast.LENGTH_LONG).show();
+                                            //Toast.makeText(getApplicationContext(), "Error creating join: " + e,
+                                              //      Toast.LENGTH_LONG).show();
                                         }
                                     }
                                 });
                             }
+                            //at this point, the q is asked. so clear the current groupies
+                            GroupiesActivity.myCurrentGroupies.clear();
+                            //TODO: Write a function that updates the ui here as well
                         } else {
                             Toast.makeText(getApplicationContext(), "Error Asking Question: " + e,
                                     Toast.LENGTH_LONG).show();
@@ -297,6 +244,8 @@ public class AskQuestionActivity extends ActionBarActivity {
             public void onClick(View v) {
                 Toast.makeText(getApplicationContext(), "Question Cancelled",
                         Toast.LENGTH_LONG).show();
+                GroupiesActivity.myCurrentGroupies.clear();
+                //TODO: Use the ui function from above here
                 Intent intent = new Intent(AskQuestionActivity.this, AskQuestionActivity.class);
                 startActivity(intent);
             }
@@ -333,13 +282,6 @@ public class AskQuestionActivity extends ActionBarActivity {
         });
 
     }
-
-/*    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_ask_question, menu);
-        return true;
-    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

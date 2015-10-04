@@ -54,45 +54,6 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
     }
 
     /*
-    This listener is used for deleting questions from the user's qs view
-    TODO: Figure out a way to always make swipe to delete work, and refactor this delete button to work with the new db
-     */
-    public class MyDeleteListener implements View.OnClickListener
-    {
-        final ParseObject my_obj;
-        int position;
-        public MyDeleteListener(ParseObject row, int pos){
-            this.my_obj = row;
-            this.position = pos;
-        }
-        @Override
-        public void onClick(View v){
-            String user_q_id = ParseUser.getCurrentUser().getString("uQId");
-            ParseQuery<ParseObject> q = ParseQuery.getQuery("UserQs");
-            q.whereEqualTo("objectId", user_q_id);
-            q.findInBackground(new FindCallback<ParseObject>() {
-                public void done(List<ParseObject> scoreList, ParseException e) {
-                    if (e == null) {
-                        //remove it from active qs
-                        scoreList.get(0).removeAll("theirQsId", Arrays.asList(my_obj.getObjectId()));
-                        //add it to deleted qs
-                        scoreList.get(0).addAllUnique("deletedTheirQsId", Arrays.asList(my_obj.getObjectId()));
-                        scoreList.get(0).saveInBackground();
-                    } else {
-                        //fail
-                    }
-                }
-
-            }); // end the async call to update the votes
-            //Now let's update the UI by removing this row from the list view
-            master_list.remove(position); //should maybe pop it from the array??
-            //now to update the actual list.
-            notifyDataSetChanged();
-            notifyDataSetInvalidated();
-
-        }
-    }
-    /*
     * This click handler is used for registering votes.
     * */
     public class MyCustomListener implements View.OnClickListener
@@ -454,7 +415,10 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                         }
                     } else {
                         //It was just an image in the question
+                        //TODO Refactor this nizzle
                         convertView = LayoutInflater.from(getContext()).inflate(R.layout.row_question_image_q, parent, false);
+                        //pass this as a reference into the click handler
+                        View referenceView = convertView.findViewById(R.id.lowerContainer);
                         TextView question_text = (TextView) convertView.findViewById(R.id.textViewQuestionText);
                         Button choice1 = (Button) convertView.findViewById(R.id.buttonChoice1);
                         Button choice2 = (Button) convertView.findViewById(R.id.buttonChoice2);

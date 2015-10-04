@@ -81,21 +81,15 @@ public class ViewMyQuestionsActivity extends ActionBarActivity {
         /*****************/
 
         ParseUser currentUser = ParseUser.getCurrentUser();
-        if (currentUser != null) {
-
-        } else {
-            // show the signup or login screen
-            Toast.makeText(getApplicationContext(), "User logged out?",
-                    Toast.LENGTH_LONG).show();
-        }
         String currUser = ParseUser.getCurrentUser().getUsername();
-        /*ParseQuery<ParseObject> vote_query = ParseQuery.getQuery("QJoin");
-        vote_query.include("question");
-        vote_query.whereEqualTo("sender", currUser);
-        vote_query.whereEqualTo("to",currUser);*/
-        ParseQuery<ParseObject> vote_query = ParseQuery.getQuery("SocialQs");
+        //ParseQuery<ParseObject> vote_query = ParseQuery.getQuery("SocialQs");
+        //vote_query.whereEqualTo("asker",ParseUser.getCurrentUser());
+        //vote_query.whereNotEqualTo("deleted",true);
+        ParseQuery<ParseObject> vote_query = ParseQuery.getQuery("QJoin");
         vote_query.whereEqualTo("asker",ParseUser.getCurrentUser());
-        vote_query.whereNotEqualTo("askerDeleted",true);
+        vote_query.whereNotEqualTo("deleted", true);
+        vote_query.whereEqualTo("to", ParseUser.getCurrentUser().getString("facebookId"));
+        vote_query.include("question");
         vote_query.findInBackground(new FindCallback<ParseObject>() {
             public void done(final List<ParseObject> resList, ParseException e) {
                 if (e == null) {
@@ -137,8 +131,12 @@ public class ViewMyQuestionsActivity extends ActionBarActivity {
                     };
                     //Now, create a listview from the R.id.questionList and use it to display the resList data
                     //ListView listView = (ListView) findViewById(R.id.questionList);
-                    //
-                    final MyQuestionAdapter adapter = new MyQuestionAdapter(ViewMyQuestionsActivity.this, resList);
+                    //TODO: Update reslist here to be the questions??
+                    final List<ParseObject> parseList = new ArrayList<ParseObject>();
+                    for(int i = 0; i < resList.size(); i++){
+                        parseList.add(resList.get(i).getParseObject("question"));
+                    }
+                    final MyQuestionAdapter adapter = new MyQuestionAdapter(ViewMyQuestionsActivity.this, parseList);//was res
                     //ListView listView = (ListView) findViewById(R.id.questionList2);
                     SwipeMenuListView listView = (SwipeMenuListView) findViewById(R.id.questionList2);
                     // set creator
@@ -152,7 +150,8 @@ public class ViewMyQuestionsActivity extends ActionBarActivity {
                                     //spawn the ViewVotesActivity...pass the SocialQs id in the intent?
                                     Intent intent = new Intent(ViewMyQuestionsActivity.this, ViewVotesActivity.class);
                                     Bundle bundle = new Bundle();
-                                    bundle.putString("questionId",resList.get(position).getObjectId());
+                                    ParseObject currentQuestion = resList.get(position).getParseObject("question");
+                                    bundle.putString("questionId",currentQuestion.getObjectId());
                                     intent.putExtras(bundle);
                                     startActivity(intent);
                                     break;
@@ -160,9 +159,10 @@ public class ViewMyQuestionsActivity extends ActionBarActivity {
                                     // delete
                                     //hit the server
                                     ParseObject sQ = resList.get(position); //QJoin
-                                    sQ.put("askerDeleted",true);
+                                    sQ.put("deleted",true);
                                     sQ.saveInBackground();
                                     resList.remove(position);
+                                    parseList.remove(position);
                                     adapter.notifyDataSetChanged();
                                     break;
                             }

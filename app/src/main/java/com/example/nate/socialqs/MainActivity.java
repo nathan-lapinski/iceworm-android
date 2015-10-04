@@ -191,7 +191,7 @@ public class MainActivity extends ActionBarActivity {
             //Go directly to the user info activity
             //First time only, execute a graph request to collect the users id if it is not already present
             //in the database
-            if(currentUser.getString("facebookId") == null ){
+            if(currentUser.getString("facebookId") == null || currentUser.getString("facebookId").length() < 1){
                 //hit the db and store this
                 new GraphRequest(
                         AccessToken.getCurrentAccessToken(),

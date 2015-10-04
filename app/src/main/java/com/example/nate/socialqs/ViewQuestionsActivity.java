@@ -91,18 +91,16 @@ public class ViewQuestionsActivity extends ActionBarActivity {
         /*****************/
 
 
-        String currentUser = ParseUser.getCurrentUser().getUsername();
+        //String currentUser = ParseUser.getCurrentUser().getUsername();
         ParseQuery<ParseObject> vote_query = ParseQuery.getQuery("QJoin");
         vote_query.include("question");
-        vote_query.whereEqualTo("to", currentUser );
-        vote_query.whereNotEqualTo("sender", currentUser);
-        vote_query.whereNotEqualTo("askeeDeleted",true);
+        vote_query.whereEqualTo("to", ParseUser.getCurrentUser().getString("facebookId") );
+        vote_query.whereNotEqualTo("asker", ParseUser.getCurrentUser());
+        vote_query.whereNotEqualTo("deleted",true);
 
         vote_query.findInBackground(new FindCallback<ParseObject>() {
             public void done(final List<ParseObject> resList, ParseException e) {
                 if (e == null) {
-                    Toast.makeText(getApplicationContext(), "Found " + resList.size() + " questions for this user",
-                            Toast.LENGTH_LONG).show();
                             if(resList.size() > 0) {
                                 //These are the new slide del codes
                                 SwipeMenuCreator creator = new SwipeMenuCreator() {
@@ -165,7 +163,7 @@ public class ViewQuestionsActivity extends ActionBarActivity {
                                                 // delete
                                                 //hit the server
                                                 ParseObject delQj = resList.get(position); //QJoin
-                                                delQj.put("askeeDeleted",true);
+                                                delQj.put("deleted",true);
                                                 delQj.saveInBackground();
                                                 resList.remove(position);
                                                 adapter.notifyDataSetChanged();
