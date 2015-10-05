@@ -43,4 +43,6 @@
     <string name="title_activity_user_details">UserDetailsActivity</string>
     <string name="title_activity_create_group">CreateGroupActivity</string>
     <string name="title_activity_select_group">SelectGroupActivity</string>
+    <string name="title_activity_splash_screen">SplashScreenActivity</string>
+    <string name="title_activity_handle_screen">HandleScreenActivity</string>
 </resources>

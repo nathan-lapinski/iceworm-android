@@ -106,92 +106,92 @@ public class MainActivity extends ActionBarActivity {
 
         }
 
-        //let's pull the facebook data
-        new GraphRequest(
-                AccessToken.getCurrentAccessToken(),
-                "/me/friends",
-                null,
-                HttpMethod.GET,
-                new GraphRequest.Callback() {
-                    public void onCompleted(GraphResponse response) {
-                                    /* handle the result */
-
-                        //let's try to handle this and extract the name and profile pic:
-                        try {
-                           JSONArray data = response.getJSONObject().getJSONArray("data");
-                            for(int i = 0; i < data.length(); i++) {
-                                JSONObject vals = data.getJSONObject(i);
-                                String id = vals.getString("id");
-                                String name = vals.getString("name");
-                                StupidClass stupie = new StupidClass(name,id);
-                                HashMap<String,StupidClass> temp = new HashMap<String, StupidClass>();
-                                temp.put("userData",stupie);
-                                facebookIds.add(temp);
-                            }
-
-                        }catch(JSONException e){
-                            Toast.makeText(getApplicationContext(), "LOSING THE GAME " + e,
-                                    Toast.LENGTH_LONG).show();
-                        }
-                    }
-                }
-        ).executeAsync();
-        //::::
-        //get from taggable as well
-        new GraphRequest(
-                AccessToken.getCurrentAccessToken(),
-                "/me/taggable_friends",
-                null,
-                HttpMethod.GET,
-                new GraphRequest.Callback() {
-                    public void onCompleted(GraphResponse response) {
-                                    /* handle the result */
-
-                        //let's try to handle this and extract the name and profile pic:
-                        try {
-
-                            JSONArray data = response.getJSONObject().getJSONArray("data");
-                            for(int i = 0; i < data.length(); i++) {
-                                JSONObject pPic = data.getJSONObject(i);
-                                String id = pPic.getString("id");
-                                Log.d("DS",""+pPic);
-                                String pic = pPic.getString("picture");
-                                JSONObject pics = pPic.getJSONObject("picture");
-                                final String uName  = pPic.getString("name");
-                                JSONObject datum = pics.getJSONObject("data");
-                                final String ur = datum.getString("url");
-
-                                //maven
-                                ImageLoader imageLoader = ImageLoader.getInstance();
-                                imageLoader.loadImage(ur, new SimpleImageLoadingListener() {
-                                    @Override
-                                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                                        // Do whatever you want with Bitmap
-                                        HashMap<String,GroupiesActivity.GroupiesObject> tempObj = new HashMap<String, GroupiesActivity.GroupiesObject>();
-                                        GroupiesActivity.GroupiesObject tempGroupie = new GroupiesActivity.GroupiesObject(uName,0,"objecid","facebook",loadedImage);
-                                        tempObj.put("userData",tempGroupie);
-                                        facebookData.add(tempObj);
-                                    }
-                                });
-                                //nevam
-                            }
-
-                        }catch(JSONException e){
-                            Toast.makeText(getApplicationContext(), "LOSING THE GAME " + e,
-                                    Toast.LENGTH_LONG).show();
-                        }
-                    }
-                }
-        ).executeAsync();
-        //;;;;;;;;;;;;;;;;;;
-
-
         final ParseUser currentUser = ParseUser.getCurrentUser();
         if((currentUser != null) && ParseFacebookUtils.isLinked(currentUser)){
             //Go directly to the user info activity
             //First time only, execute a graph request to collect the users id if it is not already present
             //in the database
             if(currentUser.getString("facebookId") == null || currentUser.getString("facebookId").length() < 1){
+
+                //let's pull the facebook data
+                new GraphRequest(
+                        AccessToken.getCurrentAccessToken(),
+                        "/me/friends",
+                        null,
+                        HttpMethod.GET,
+                        new GraphRequest.Callback() {
+                            public void onCompleted(GraphResponse response) {
+                                    /* handle the result */
+
+                                //let's try to handle this and extract the name and profile pic:
+                                try {
+                                    JSONArray data = response.getJSONObject().getJSONArray("data");
+                                    for(int i = 0; i < data.length(); i++) {
+                                        JSONObject vals = data.getJSONObject(i);
+                                        String id = vals.getString("id");
+                                        String name = vals.getString("name");
+                                        StupidClass stupie = new StupidClass(name,id);
+                                        HashMap<String,StupidClass> temp = new HashMap<String, StupidClass>();
+                                        temp.put("userData",stupie);
+                                        facebookIds.add(temp);
+                                    }
+
+                                }catch(JSONException e){
+                                    Toast.makeText(getApplicationContext(), "LOSING THE GAME " + e,
+                                            Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        }
+                ).executeAsync();
+                //::::
+                //get from taggable as well
+                new GraphRequest(
+                        AccessToken.getCurrentAccessToken(),
+                        "/me/taggable_friends",
+                        null,
+                        HttpMethod.GET,
+                        new GraphRequest.Callback() {
+                            public void onCompleted(GraphResponse response) {
+                                    /* handle the result */
+
+                                //let's try to handle this and extract the name and profile pic:
+                                try {
+
+                                    JSONArray data = response.getJSONObject().getJSONArray("data");
+                                    for(int i = 0; i < data.length(); i++) {
+                                        JSONObject pPic = data.getJSONObject(i);
+                                        String id = pPic.getString("id");
+                                        Log.d("DS",""+pPic);
+                                        String pic = pPic.getString("picture");
+                                        JSONObject pics = pPic.getJSONObject("picture");
+                                        final String uName  = pPic.getString("name");
+                                        JSONObject datum = pics.getJSONObject("data");
+                                        final String ur = datum.getString("url");
+
+                                        //maven
+                                        ImageLoader imageLoader = ImageLoader.getInstance();
+                                        imageLoader.loadImage(ur, new SimpleImageLoadingListener() {
+                                            @Override
+                                            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                                                // Do whatever you want with Bitmap
+                                                HashMap<String,GroupiesActivity.GroupiesObject> tempObj = new HashMap<String, GroupiesActivity.GroupiesObject>();
+                                                GroupiesActivity.GroupiesObject tempGroupie = new GroupiesActivity.GroupiesObject(uName,0,"objecid","facebook",loadedImage);
+                                                tempObj.put("userData",tempGroupie);
+                                                facebookData.add(tempObj);
+                                            }
+                                        });
+                                        //nevam
+                                    }
+
+                                }catch(JSONException e){
+                                    Toast.makeText(getApplicationContext(), "LOSING THE GAME " + e,
+                                            Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        }
+                ).executeAsync();
+                //;;;;;;;;;;;;;;;;;;
+
                 //hit the db and store this
                 new GraphRequest(
                         AccessToken.getCurrentAccessToken(),
@@ -220,7 +220,14 @@ public class MainActivity extends ActionBarActivity {
             }
             //>><><<><><><><><><><><><><><><><><><>><><<
             //TODO: This is part of the FB tutorial. Proceed to the AskQuestions activity
-            showUserDetailsActivity();
+            //TODO: Figure out if they already has a username
+            if(currentUser.getString("username") == null || currentUser.getString("username").length() > 15){
+                //they need to enter their username for the firsttime. FB autopopulates this with something greater than lenght 15
+                Intent intent = new Intent(MainActivity.this, HandleScreenActivity.class);
+                startActivity(intent);
+            }else {
+                showUserDetailsActivity();
+            }
         }
 
     }//end onCreate

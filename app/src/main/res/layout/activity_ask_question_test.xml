@@ -37,7 +37,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_weight="1"
-        android:background="#d3d3d3">
+        android:background="@drawable/bg5c">
 
         <LinearLayout
             android:orientation="vertical"

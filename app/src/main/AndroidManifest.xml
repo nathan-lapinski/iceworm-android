@@ -152,6 +152,14 @@
             android:name=".SelectGroupActivity"
             android:label="@string/title_activity_select_group" >
         </activity>
+        <activity
+            android:name=".SplashScreenActivity"
+            android:label="@string/title_activity_splash_screen" >
+        </activity>
+        <activity
+            android:name=".HandleScreenActivity"
+            android:label="@string/title_activity_handle_screen" >
+        </activity>
     </application>
 
 </manifest>

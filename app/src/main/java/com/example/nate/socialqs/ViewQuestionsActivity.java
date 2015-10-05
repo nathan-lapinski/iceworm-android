@@ -76,6 +76,7 @@ public class ViewQuestionsActivity extends ActionBarActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(ViewQuestionsActivity.this, ViewMyQuestionsActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
         global.setOnClickListener(new View.OnClickListener() {
@@ -84,8 +85,6 @@ public class ViewQuestionsActivity extends ActionBarActivity {
                 Toast.makeText(getApplicationContext(), "Global Qs Coming Soon!",
                         Toast.LENGTH_LONG).show();
                 //TODO: Implement global Qs
-                // Intent intent = new Intent(ViewMyQuestionsActivity.this, SettingsActivity.class);
-                // startActivity(intent);
             }
         });
         /*****************/
@@ -162,6 +161,9 @@ public class ViewQuestionsActivity extends ActionBarActivity {
                                             case 1:
                                                 // delete
                                                 //hit the server
+                                                ParseObject qObj = resList.get(position).getParseObject("question");
+                                                Toast.makeText(getApplicationContext(), "At position: " + position + " with: " + qObj.getString("question"),
+                                                        Toast.LENGTH_LONG).show();
                                                 ParseObject delQj = resList.get(position); //QJoin
                                                 delQj.put("deleted",true);
                                                 delQj.saveInBackground();

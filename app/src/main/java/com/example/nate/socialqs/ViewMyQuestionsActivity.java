@@ -66,6 +66,7 @@ public class ViewMyQuestionsActivity extends ActionBarActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(ViewMyQuestionsActivity.this, ViewQuestionsActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
         global.setOnClickListener(new View.OnClickListener() {

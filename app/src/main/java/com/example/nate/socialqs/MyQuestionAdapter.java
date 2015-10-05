@@ -41,43 +41,6 @@ public class MyQuestionAdapter extends ArrayAdapter<ParseObject> {
         this.master_list = data;
     }
 
-    public class MyDeleteListener implements View.OnClickListener
-    {
-        final ParseObject my_obj;
-        int position;
-        public MyDeleteListener(ParseObject row, int pos){
-            this.my_obj = row;
-            this.position = pos;
-        }
-        @Override
-        public void onClick(View v){
-            String user_q_id = ParseUser.getCurrentUser().getString("uQId");
-            ParseQuery<ParseObject> q = ParseQuery.getQuery("UserQs");
-            q.whereEqualTo("objectId", user_q_id);
-            q.findInBackground(new FindCallback<ParseObject>() {
-                public void done(List<ParseObject> scoreList, ParseException e) {
-                    if (e == null) {
-                        //remove it from active qs
-                        scoreList.get(0).removeAll("myQsId", Arrays.asList(my_obj.getObjectId()));
-                        //add it to deleted qs
-                        scoreList.get(0).addAllUnique("deletedMyQsId", Arrays.asList(my_obj.getObjectId()));
-                        scoreList.get(0).saveInBackground();
-                    } else {
-                        //fail
-                    }
-                }
-
-            }); // end the async call to update the votes
-            //Now let's update the UI by removing this row from the list view
-            master_list.remove(position); //should maybe pop it from the array??
-            //now to update the actual list.
-            notifyDataSetChanged();
-            notifyDataSetInvalidated();
-
-        }
-    }
-
-
     @Override
     public View getView(int position, View convertView, ViewGroup parent){
         //final ParseObject obJoin = getItem(position);
@@ -107,7 +70,7 @@ public class MyQuestionAdapter extends ArrayAdapter<ParseObject> {
                     ImageView v2 = (ImageView)convertView.findViewById(R.id.choice2_results_image);
                     ImageView q1 = (ImageView)convertView.findViewById(R.id.question_results_image);
                     int[] results = {0,0};
-                    results = getProgressStats(obj.getInt("stats1"),obj.getInt("stats2"));
+                    results = getProgressStats(obj.getInt("option1stats"),obj.getInt("option2stats"));
                     q.setText( obj.getString("question"));
                     c1.setText(obj.getString("option1") + " " + results[0]+"%");
                     c2.setText(obj.getString("option2") + " " + results[1]+"%");
@@ -131,7 +94,7 @@ public class MyQuestionAdapter extends ArrayAdapter<ParseObject> {
                     TextView c2 = (TextView)convertView.findViewById(R.id.choice2_results_text);
                     ImageView q1 = (ImageView)convertView.findViewById(R.id.question_results_image);
                     int[] results = {0,0};
-                    results = getProgressStats(obj.getInt("stats1"),obj.getInt("stats2"));
+                    results = getProgressStats(obj.getInt("option1stats"),obj.getInt("option2stats"));
                     q.setText( obj.getString("question"));
                     c1.setText(obj.getString("option1") + " " + results[0]+"%");
                     c2.setText(obj.getString("option2") + " " + results[1]+"%");
@@ -151,7 +114,7 @@ public class MyQuestionAdapter extends ArrayAdapter<ParseObject> {
 
 
                 int[] results = {0,0};
-                results = getProgressStats(obj.getInt("stats1"),obj.getInt("stats2"));
+                results = getProgressStats(obj.getInt("option1stats"),obj.getInt("option2stats"));
                 q.setText( obj.getString("question"));
                 c1.setText(obj.getString("option1") + " " + results[0]+"%");
                 c2.setText(obj.getString("option2") + " " + results[1]+"%");
@@ -172,7 +135,7 @@ public class MyQuestionAdapter extends ArrayAdapter<ParseObject> {
             TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
             TextView c2 = (TextView)convertView.findViewById(R.id.choice2_results_text);
             int[] results = {0,0};
-            results = getProgressStats(obj.getInt("stats1"),obj.getInt("stats2"));
+            results = getProgressStats(obj.getInt("option1stats"),obj.getInt("option2stats"));
             q.setText( obj.getString("question"));
             c1.setText(obj.getString("option1") + " " + results[0]+"%");
             c2.setText(obj.getString("option2") + " " + results[1]+"%");

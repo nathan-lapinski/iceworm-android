@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.parse.ParseUser;
@@ -15,48 +16,44 @@ import com.parse.ParseUser;
 
 public class SettingsActivity extends ActionBarActivity {
 
-    Button _logout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
-        /*Inflate the menu -- put this in a function at some point*/
-        ImageButton i_ask = (ImageButton) findViewById(R.id.image_button_ask);
-        ImageButton i_in = (ImageButton) findViewById(R.id.image_button_incoming);
-        ImageButton i_out = (ImageButton) findViewById(R.id.image_button_outgoing);
-        ImageButton i_set = (ImageButton) findViewById(R.id.image_button_settings);
+        /*
+        Set up the bottom menu. Again, make this shit modular
+         */
+        /*Inflate the bottom menu -- put this in a function at some point*/
+        ImageView my = (ImageView) findViewById(R.id.myQs);
+        ImageView their = (ImageView) findViewById(R.id.theirQs);
+        ImageView global = (ImageView) findViewById(R.id.global);
         //Assign the click functionality
-        i_ask.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(SettingsActivity.this, AskQuestionActivity.class);
-                startActivity(intent);
-            }
-        });
-        i_in.setOnClickListener(new View.OnClickListener() {
+        //i_ask is active
+        my.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(SettingsActivity.this, ViewMyQuestionsActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
-        i_out.setOnClickListener(new View.OnClickListener() {
+        their.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(SettingsActivity.this, ViewQuestionsActivity.class);
                 startActivity(intent);
+                finish();
+            }
+        });
+        global.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "Global Qs Coming Soon!",
+                        Toast.LENGTH_LONG).show();
+                //TODO: Implement global Qs
             }
         });
         /*****************/
-        _logout = (Button) findViewById(R.id.btn_logout);
-        _logout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ParseUser.logOut();
-                Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
-                startActivity(intent);
-            }
-        });
     }
 
     @Override
@@ -79,5 +76,24 @@ public class SettingsActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void onLogoutClick(View v) {
+        logout();
+    }
+
+    private void logout() {
+        // Log the user out
+        ParseUser.logOut();
+
+        // Go to the login view
+        startLoginActivity();
+    }
+
+    private void startLoginActivity() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 }
