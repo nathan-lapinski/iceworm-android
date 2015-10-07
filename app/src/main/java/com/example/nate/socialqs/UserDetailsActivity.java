@@ -1,5 +1,7 @@
 package com.example.nate.socialqs;
 
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -12,6 +14,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,10 +23,13 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
 import com.facebook.login.widget.ProfilePictureView;
+import com.parse.ParseFile;
 import com.parse.ParseUser;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
 
 public class UserDetailsActivity extends Activity {
 
@@ -147,6 +153,21 @@ public class UserDetailsActivity extends Activity {
 
                 if (userProfile.has("facebookId")) {
                     userProfilePictureView.setProfileId(userProfile.getString("facebookId"));
+                    //try the things?
+                    ImageView fbImage = ((ImageView) userProfilePictureView.getChildAt(0));
+                    Bitmap bitmap = ((BitmapDrawable) fbImage.getDrawable()).getBitmap();
+                    if(bitmap == null){
+                        Toast.makeText(UserDetailsActivity.this, "Error with the bitmap",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    // Compress image to lower quality scale 1 - 100
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                    byte[] image = stream.toByteArray();
+                    ParseFile x = new ParseFile("profilePicture.png", image);
+                    currentUser.put("profilePicture", x);
+                    currentUser.saveInBackground();
+
                 } else {
                     // Show the default, blank user profile picture
                     userProfilePictureView.setProfileId(null);

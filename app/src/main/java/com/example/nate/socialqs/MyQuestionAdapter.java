@@ -69,6 +69,16 @@ public class MyQuestionAdapter extends ArrayAdapter<ParseObject> {
                     ImageView v1 = (ImageView)convertView.findViewById(R.id.choice1_results_image);
                     ImageView v2 = (ImageView)convertView.findViewById(R.id.choice2_results_image);
                     ImageView q1 = (ImageView)convertView.findViewById(R.id.question_results_image);
+                    ImageView pPic = (ImageView)convertView.findViewById(R.id.profilePicture);
+                    ParseFile myPic = ParseUser.getCurrentUser().getParseFile("profilePicture");
+                    byte[] bitmapdata = {};
+                    try {
+                        bitmapdata = myPic.getData();
+                    } catch(ParseException e){
+
+                    }
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapdata , 0, bitmapdata.length);
+                    pPic.setImageBitmap(bitmap);
                     int[] results = {0,0};
                     results = getProgressStats(obj.getInt("option1stats"),obj.getInt("option2stats"));
                     q.setText( obj.getString("question"));
@@ -93,6 +103,16 @@ public class MyQuestionAdapter extends ArrayAdapter<ParseObject> {
                     TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
                     TextView c2 = (TextView)convertView.findViewById(R.id.choice2_results_text);
                     ImageView q1 = (ImageView)convertView.findViewById(R.id.question_results_image);
+                    ImageView pPic = (ImageView)convertView.findViewById(R.id.profilePicture);
+                    ParseFile myPic = ParseUser.getCurrentUser().getParseFile("profilePicture");
+                    byte[] bitmapdata = {};
+                    try {
+                        bitmapdata = myPic.getData();
+                    } catch(ParseException e){
+
+                    }
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapdata , 0, bitmapdata.length);
+                    pPic.setImageBitmap(bitmap);
                     int[] results = {0,0};
                     results = getProgressStats(obj.getInt("option1stats"),obj.getInt("option2stats"));
                     q.setText( obj.getString("question"));
@@ -111,6 +131,16 @@ public class MyQuestionAdapter extends ArrayAdapter<ParseObject> {
                 TextView c2 = (TextView)convertView.findViewById(R.id.choice2_results_text);
                 ImageView v1 = (ImageView)convertView.findViewById(R.id.choice1_results_image);
                 ImageView v2 = (ImageView)convertView.findViewById(R.id.choice2_results_image);
+                ImageView pPic = (ImageView)convertView.findViewById(R.id.profilePicture);
+                ParseFile myPic = ParseUser.getCurrentUser().getParseFile("profilePicture");
+                byte[] bitmapdata = {};
+                try {
+                    bitmapdata = myPic.getData();
+                } catch(ParseException e){
+
+                }
+                Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapdata , 0, bitmapdata.length);
+                pPic.setImageBitmap(bitmap);
 
 
                 int[] results = {0,0};
@@ -138,7 +168,18 @@ public class MyQuestionAdapter extends ArrayAdapter<ParseObject> {
             results = getProgressStats(obj.getInt("option1stats"),obj.getInt("option2stats"));
             q.setText( obj.getString("question"));
             c1.setText(obj.getString("option1") + " " + results[0]+"%");
-            c2.setText(obj.getString("option2") + " " + results[1]+"%");
+            c2.setText(obj.getString("option2") + " " + results[1] + "%");
+            ImageView pPic = (ImageView)convertView.findViewById(R.id.profilePicture);
+            ParseFile myPic = ParseUser.getCurrentUser().getParseFile("profilePicture");
+            byte[] bitmapdata = {};
+            try {
+                bitmapdata = myPic.getData();
+            } catch(ParseException e){
+
+            }
+            Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapdata , 0, bitmapdata.length);
+            pPic.setImageBitmap(bitmap);
+
         }
         return convertView;
     }

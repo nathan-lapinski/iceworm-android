@@ -28,6 +28,7 @@ import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,6 +39,7 @@ off to QuestionAdapter for display.
  */
 public class ViewQuestionsActivity extends ActionBarActivity {
 
+    public static ArrayList<HashMap<String,GroupiesActivity.GroupiesObject>> facebookFinal = new ArrayList<HashMap<String,GroupiesActivity.GroupiesObject>>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,10 +91,27 @@ public class ViewQuestionsActivity extends ActionBarActivity {
         });
         /*****************/
 
+        //Comletely arbitrary and rece condition prone. Can totally bork us.
+        //Prepare the facebook data by merging the two lists
+        for(int i = 0; i < MainActivity.facebookIds.size(); i++){
+            MainActivity.StupidClass stupie = MainActivity.facebookIds.get(i).get("userData");
+            String name = stupie.getName();
+            String id = stupie.getId();
+            for(int j = 0; j < MainActivity.facebookData.size(); j++){
+                if(name.equals(MainActivity.facebookData.get(j).get("userData").getName())){
+                    MainActivity.facebookData.get(j).get("userData").setId(id);
+                    HashMap<String, GroupiesActivity.GroupiesObject> tmp = new HashMap<String, GroupiesActivity.GroupiesObject>();
+                    tmp.put("userData",MainActivity.facebookData.get(j).get("userData"));
+                    facebookFinal.add(tmp);
+                }
+            }
+        }
+        //;;;;
 
         //String currentUser = ParseUser.getCurrentUser().getUsername();
         ParseQuery<ParseObject> vote_query = ParseQuery.getQuery("QJoin");
         vote_query.include("question");
+        vote_query.include("from");
         vote_query.whereEqualTo("to", ParseUser.getCurrentUser().getString("facebookId") );
         vote_query.whereNotEqualTo("asker", ParseUser.getCurrentUser());
         vote_query.whereNotEqualTo("deleted",true);

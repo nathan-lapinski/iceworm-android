@@ -14,9 +14,9 @@
         android:layout_margin="8dp">
 
         <ImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:id="@+id/imageView"
+            android:layout_width="50dp"
+            android:layout_height="45dp"
+            android:id="@+id/profilePicture"
             android:src="@drawable/profile" />
 
         <TextView
@@ -80,5 +80,26 @@
                 android:layout_marginBottom="8dp" />
 
         </LinearLayout>
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="45dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Medium Text"
+            android:id="@+id/hiddenText1"
+            android:background="#3A9ABC"
+            android:visibility="gone"
+            android:gravity="center"
+            android:textColor="#ffffff" />
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="45dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Medium Text"
+            android:id="@+id/hiddenText2"
+            android:background="#555555"
+            android:visibility="gone"
+            android:gravity="center"
+            android:textColor="#ffffff" />
     </LinearLayout>
 </LinearLayout>

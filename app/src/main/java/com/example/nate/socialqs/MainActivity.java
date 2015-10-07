@@ -28,6 +28,7 @@ import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
+import com.facebook.login.widget.ProfilePictureView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
@@ -36,6 +37,7 @@ import com.parse.Parse;
 import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
+import com.parse.ParseFile;
 import com.parse.ParsePush;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
@@ -44,6 +46,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -67,7 +70,7 @@ public class MainActivity extends ActionBarActivity {
     public static ArrayList<HashMap<String,GroupiesActivity.GroupiesObject>> facebookData = new ArrayList<HashMap<String,GroupiesActivity.GroupiesObject>>();
     public static ArrayList<HashMap<String,MainActivity.StupidClass>> facebookIds = new ArrayList<HashMap<String,MainActivity.StupidClass>>(); //used for  holding ids that we pull from /me/friends
     private Dialog progressDialog;
-
+    private ProfilePictureView userProfilePictureView;//hidden
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,7 +114,7 @@ public class MainActivity extends ActionBarActivity {
             //Go directly to the user info activity
             //First time only, execute a graph request to collect the users id if it is not already present
             //in the database
-            if(currentUser.getString("facebookId") == null || currentUser.getString("facebookId").length() < 1){
+            //if(currentUser.getString("facebookId") == null || currentUser.getString("facebookId").length() < 1 || currentUser.get("profilePicture") == null){
 
                 //let's pull the facebook data
                 new GraphRequest(
@@ -121,7 +124,7 @@ public class MainActivity extends ActionBarActivity {
                         HttpMethod.GET,
                         new GraphRequest.Callback() {
                             public void onCompleted(GraphResponse response) {
-                                    /* handle the result */
+
 
                                 //let's try to handle this and extract the name and profile pic:
                                 try {
@@ -187,15 +190,54 @@ public class MainActivity extends ActionBarActivity {
                                     Toast.makeText(getApplicationContext(), "LOSING THE GAME " + e,
                                             Toast.LENGTH_LONG).show();
                                 }
+                                //bombs away dream babies
+                              /* new GraphRequest(
+                                        AccessToken.getCurrentAccessToken(),
+                                        "/me/friends",
+                                        null,
+                                        HttpMethod.GET,
+                                        new GraphRequest.Callback() {
+                                            public void onCompleted(GraphResponse response) {
+
+                                                //let's try to handle this and extract the name and profile pic:
+                                                try {
+                                                    JSONArray data = response.getJSONObject().getJSONArray("data");
+                                                    for(int i = 0; i < data.length(); i++) {
+                                                        JSONObject vals = data.getJSONObject(i);
+                                                        String id = vals.getString("id");
+                                                        String name = vals.getString("name");
+                                                        for(int j = 0; j < facebookData.size(); j++){
+                                                            Toast.makeText(getApplicationContext(), "Comparing " + facebookData.get(j).get("userData").getName() + " and " + name ,
+                                                                    Toast.LENGTH_LONG).show();
+                                                            Log.d("FRANCINE","HELLO FRANCIS");
+                                                            if( facebookData.get(j).get("userData").getName().equals(name)){
+                                                                facebookData.get(j).get("userData").setId(id);
+                                                            }
+                                                        }
+                                                        //TODO: Refactor this out of GroupiesActivity. This is redundant and worthless
+                                                        StupidClass stupie = new StupidClass(name,id);
+                                                        HashMap<String,StupidClass> temp = new HashMap<String, StupidClass>();
+                                                        temp.put("userData",stupie);
+                                                        facebookIds.add(temp);
+                                                    }
+
+                                                }catch(JSONException e){
+                                                    Toast.makeText(getApplicationContext(), "LOSING THE GAME " + e,
+                                                            Toast.LENGTH_LONG).show();
+                                                }
+                                            }
+                                        }
+                                ).executeAsync();*/
+                                //.....
                             }
                         }
                 ).executeAsync();
                 //;;;;;;;;;;;;;;;;;;
-
+            if(currentUser.getString("facebookId") == null || currentUser.getString("facebookId").length() < 1 || currentUser.get("profilePicture") == null){
                 //hit the db and store this
                 new GraphRequest(
                         AccessToken.getCurrentAccessToken(),
-                        "/me",
+                        "/me",//"/me",
                         null,
                         HttpMethod.GET,
                         new GraphRequest.Callback() {
@@ -203,9 +245,10 @@ public class MainActivity extends ActionBarActivity {
                                     /* handle the result */
 
                                 //let's try to handle this and extract the name and profile pic:
-                                try {
+                               try {
 
                                     JSONObject data = response.getJSONObject();
+
                                     String fbId = data.getString("id");
                                     currentUser.put("facebookId",fbId);
                                     currentUser.saveInBackground();
@@ -325,6 +368,102 @@ public class MainActivity extends ActionBarActivity {
         }
         public String getId(){
             return this.id;
+        }
+    }
+
+    private void makeMeRequest() {
+        GraphRequest request = GraphRequest.newMeRequest(AccessToken.getCurrentAccessToken(),
+                new GraphRequest.GraphJSONObjectCallback() {
+                    @Override
+                    public void onCompleted(JSONObject jsonObject, GraphResponse graphResponse) {
+                        if (jsonObject != null) {
+                            JSONObject userProfile = new JSONObject();
+
+                            try {
+                                userProfile.put("facebookId", jsonObject.getLong("id"));
+                                userProfile.put("name", jsonObject.getString("name"));
+
+                                if (jsonObject.getString("gender") != null)
+                                    userProfile.put("gender", jsonObject.getString("gender"));
+
+                                if (jsonObject.getString("email") != null)
+                                    userProfile.put("email", jsonObject.getString("email"));
+
+                                // Save the user profile info in a user property
+                                ParseUser currentUser = ParseUser.getCurrentUser();
+                                currentUser.put("profile", userProfile);
+                                currentUser.saveInBackground();
+
+                                Toast.makeText(getApplicationContext(), "GOT HERE WITH: " + jsonObject.getString("name"),
+                                        Toast.LENGTH_LONG).show();
+
+                                // Show the user info
+                                updateViewsWithProfileInfo();
+                            } catch (JSONException e) {
+                                Log.d("sqs",
+                                        "Error parsing returned user data. " + e);
+                                Toast.makeText(getApplicationContext(), "Didn't GET HER DONE: "+e,
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        } else if (graphResponse.getError() != null) {
+                            switch (graphResponse.getError().getCategory()) {
+                                case LOGIN_RECOVERABLE:
+                                    Log.d("sqs",
+                                            "Authentication error: " + graphResponse.getError());
+                                    break;
+
+                                case TRANSIENT:
+                                    Log.d("sqs",
+                                            "Transient error. Try again. " + graphResponse.getError());
+                                    break;
+
+                                case OTHER:
+                                    Log.d("sqs",
+                                            "Some other error: " + graphResponse.getError());
+                                    break;
+                            }
+                        }
+                    }
+                });
+        Bundle parameters = new Bundle();
+        parameters.putString("fields", "id,email,gender,name");
+        request.setParameters(parameters);
+        request.executeAsync();
+    }
+
+    private void updateViewsWithProfileInfo() {
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        if (currentUser.has("profile")) {
+            JSONObject userProfile = currentUser.getJSONObject("profile");
+            try {
+
+                if (userProfile.has("facebookId")) {
+                    userProfilePictureView.setProfileId(userProfile.getString("facebookId"));
+                    ImageView fbImage = ((ImageView) userProfilePictureView.getChildAt(0));
+                    Bitmap bitmap = ((BitmapDrawable) fbImage.getDrawable()).getBitmap();
+                    if(bitmap == null){
+                        Toast.makeText(MainActivity.this, "Error with the bitmap",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                    ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                    // Compress image to lower quality scale 1 - 100
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                    byte[] image = stream.toByteArray();
+                    ParseFile x = new ParseFile("profilePicture.png", image);
+                    currentUser.put("profilePicture.png", x);
+                    currentUser.saveInBackground();
+
+                    showUserDetailsActivity();
+
+                } else {
+                    // Show the default, blank user profile picture
+                    userProfilePictureView.setProfileId(null);
+                }
+
+
+            } catch (JSONException e) {
+                Log.d("sqs", "Error parsing saved user data.");
+            }
         }
     }
 }

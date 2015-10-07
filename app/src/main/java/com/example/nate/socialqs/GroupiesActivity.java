@@ -124,6 +124,7 @@ public class GroupiesActivity extends ActionBarActivity {
                 }
             }
         }
+
         MyGroupiesAdapter adapter = new MyGroupiesAdapter(GroupiesActivity.this, facebookFinal,(View)findViewById(R.id.invisibleLayout));
         ListView listView = (ListView) findViewById(R.id.questionList2);
         listView.setAdapter(adapter);

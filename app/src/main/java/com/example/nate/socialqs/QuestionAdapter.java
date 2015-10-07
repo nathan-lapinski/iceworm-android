@@ -112,12 +112,12 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                 String c1f = "Choice 2 got " + c2_votes + " votes";
                                 String c2f = "Choice 1 got " + old_votes + " votes";
 
-                                View b1 = container_view.findViewById(R.id.buttonChoice1);
-                                View b2 = container_view.findViewById(R.id.buttonChoice2);
+
 
                                 int[] results = {0,0};
                                 results = getProgressStats(obj.getInt("option1stats")+1,obj.getInt("option2stats"));
 
+                                /*
                                 final ProgressBar view1 = new ProgressBar(getContext(),null,android.R.attr.progressBarStyleHorizontal);
                                 view1.setProgress(results[0]);
                                 view1.setMax(100);
@@ -135,6 +135,21 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                 container_view.addView(view1, index1);
                                 container_view.removeView(b2);
                                 container_view.addView(view2, index2);
+                                */
+                                View b1 = container_view.findViewById(R.id.buttonChoice1);
+                                View b2 = container_view.findViewById(R.id.buttonChoice2);
+                                String text1 = ((Button)b1).getText().toString();
+                                String text2 = ((Button)b2).getText().toString();
+                                b1.setVisibility(View.GONE);
+                                b2.setVisibility(View.GONE);
+                                View v1 = container_view.findViewById(R.id.hiddenText1);
+                                View v2 = container_view.findViewById(R.id.hiddenText2);
+                                TextView t1 = (TextView)v1;
+                                t1.setText( text1 + " " + results[0] + "%");
+                                TextView t2 = (TextView)v2;
+                                t2.setText( text2 + " " + results[1] + "%");
+                                v1.setVisibility(View.VISIBLE);
+                                v2.setVisibility(View.VISIBLE);
                                 container_view.refreshDrawableState();
 
                             } else {
@@ -195,9 +210,9 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                 View b2 = container_view.findViewById(R.id.buttonChoice2);
 
                                 int[] results = {0,0};
-                                results = getProgressStats(obj.getInt("option1stats")+1,obj.getInt("option2stats"));
+                                results = getProgressStats(obj.getInt("option1stats"),obj.getInt("option2stats")+1);
 
-                                final ProgressBar view1 = new ProgressBar(getContext(),null,android.R.attr.progressBarStyleHorizontal);
+                              /*  final ProgressBar view1 = new ProgressBar(getContext(),null,android.R.attr.progressBarStyleHorizontal);
                                 view1.setProgress(results[0]);
                                 view1.setMax(100);
                                 view1.setBackground(getContext().getResources().getDrawable(R.drawable.custom_progressbar));
@@ -214,6 +229,21 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                 container_view.addView(view1, index1);
                                 container_view.removeView(b2);
                                 container_view.addView(view2, index2);
+                                container_view.refreshDrawableState();*/
+                                View b1 = container_view.findViewById(R.id.buttonChoice1);
+                                View b2 = container_view.findViewById(R.id.buttonChoice2);
+                                String text1 = ((Button)b1).getText().toString();
+                                String text2 = ((Button)b2).getText().toString();
+                                b1.setVisibility(View.GONE);
+                                b2.setVisibility(View.GONE);
+                                View v1 = container_view.findViewById(R.id.hiddenText1);
+                                View v2 = container_view.findViewById(R.id.hiddenText2);
+                                TextView t1 = (TextView)v1;
+                                t1.setText( text1 + " " + results[0] + "%");
+                                TextView t2 = (TextView)v2;
+                                t2.setText( text2 + " " + results[1] + "%");
+                                v1.setVisibility(View.VISIBLE);
+                                v2.setVisibility(View.VISIBLE);
                                 container_view.refreshDrawableState();
 
                             } else {
@@ -233,6 +263,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
     //This is what handles the images from the ViewQuestions activity.
     //We are displaying correctly, but updating the ui onclick is still borked.
     //HACK: Simply reload the activity on vote...don't do this.
+    //TODO: Refactor the shit out of this shit. This thing has soooo much duplicate code it's abysmal.
     @Override
     public View getView(int position, View convertView, ViewGroup parent){
         final ParseObject obJoin = getItem(position); //QJoin
@@ -271,6 +302,20 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                         ImageView v1 = (ImageView)convertView.findViewById(R.id.choice1_results_image);
                         ImageView v2 = (ImageView)convertView.findViewById(R.id.choice2_results_image);
                         ImageView q1 = (ImageView)convertView.findViewById(R.id.question_results_image);
+                        //get fb image
+                        ParseUser fromThisUser = obJoin.getParseUser("from");
+                        String userId = fromThisUser.getString("facebookId");
+                        Bitmap imageMap = null;
+                        for(int i = 0; i < ViewQuestionsActivity.facebookFinal.size(); i++){
+                            if(userId.equals(ViewQuestionsActivity.facebookFinal.get(i).get("userData").getId())){
+                                imageMap = ViewQuestionsActivity.facebookFinal.get(i).get("userData").getBitmap();
+
+                            }
+                        }
+
+                        ImageView pPic = (ImageView)convertView.findViewById(R.id.profilePicture);
+                        pPic.setImageBitmap(imageMap);
+                        //
                         int[] results = {0,0};
                         results = getProgressStats(obj.getInt("option1stats"),obj.getInt("option2stats"));
                         q.setText( obj.getString("question"));
@@ -295,6 +340,19 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                         TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
                         TextView c2 = (TextView)convertView.findViewById(R.id.choice2_results_text);
                         ImageView q1 = (ImageView)convertView.findViewById(R.id.question_results_image);
+                        //get fb
+                        ParseUser fromThisUser = obJoin.getParseUser("from");
+                        String userId = fromThisUser.getString("facebookId");
+                        Bitmap imageMap = null;
+                        for(int i = 0; i < ViewQuestionsActivity.facebookFinal.size(); i++){
+                            if(userId.equals(ViewQuestionsActivity.facebookFinal.get(i).get("userData").getId())){
+                                imageMap = ViewQuestionsActivity.facebookFinal.get(i).get("userData").getBitmap();
+
+                            }
+                        }
+
+                        ImageView pPic = (ImageView)convertView.findViewById(R.id.profilePicture);
+                        pPic.setImageBitmap(imageMap);
                         int[] results = {0,0};
                         results = getProgressStats(obj.getInt("option1stats"),obj.getInt("option2stats"));
                         q.setText( obj.getString("question"));
@@ -313,6 +371,19 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                     TextView c2 = (TextView)convertView.findViewById(R.id.choice2_results_text);
                     ImageView v1 = (ImageView)convertView.findViewById(R.id.choice1_results_image);
                     ImageView v2 = (ImageView)convertView.findViewById(R.id.choice2_results_image);
+                    //fb
+                    ParseUser fromThisUser = obJoin.getParseUser("from");
+                    String userId = fromThisUser.getString("facebookId");
+                    Bitmap imageMap = null;
+                    for(int i = 0; i < ViewQuestionsActivity.facebookFinal.size(); i++){
+                        if(userId.equals(ViewQuestionsActivity.facebookFinal.get(i).get("userData").getId())){
+                            imageMap = ViewQuestionsActivity.facebookFinal.get(i).get("userData").getBitmap();
+
+                        }
+                    }
+
+                    ImageView pPic = (ImageView)convertView.findViewById(R.id.profilePicture);
+                    pPic.setImageBitmap(imageMap);
 
 
                     int[] results = {0,0};
@@ -336,6 +407,19 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                 TextView q = (TextView)convertView.findViewById(R.id.question_results_text);
                 TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
                 TextView c2 = (TextView)convertView.findViewById(R.id.choice2_results_text);
+                //fb
+                ParseUser fromThisUser = obJoin.getParseUser("from");
+                String userId = fromThisUser.getString("facebookId");
+                Bitmap imageMap = null;
+                for(int i = 0; i < ViewQuestionsActivity.facebookFinal.size(); i++){
+                    if(userId.equals(ViewQuestionsActivity.facebookFinal.get(i).get("userData").getId())){
+                        imageMap = ViewQuestionsActivity.facebookFinal.get(i).get("userData").getBitmap();
+
+                    }
+                }
+
+                ImageView pPic = (ImageView)convertView.findViewById(R.id.profilePicture);
+                pPic.setImageBitmap(imageMap);
                 int[] results = {0,0};
                 results = getProgressStats(obj.getInt("option1stats"),obj.getInt("option2stats"));
                 q.setText( obj.getString("question"));
@@ -367,10 +451,22 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                         TextView question_text = (TextView) convertView.findViewById(R.id.textViewQuestionText);
                         Button choice1 = (Button) convertView.findViewById(R.id.buttonChoice1);
                         Button choice2 = (Button) convertView.findViewById(R.id.buttonChoice2);
-                        // ImageButton del = (ImageButton)convertView.findViewById(R.id.btn_delete);
-                        // View.OnClickListener my_del = new MyDeleteListener(obj,position);
-                        // del.setOnClickListener(my_del);
+                        //display this users profile picture. This will be a little bit interesting
+                        //Extract the facebookId from the to field of the qjoin and use that to hit our facebook data strucute (use lds in future)
+                        //from there, we can extract their photo as well. Although this is going to be kinda ineffecient I thinks
+                        ParseUser fromThisUser = obJoin.getParseUser("from");
+                        String userId = fromThisUser.getString("facebookId");
+                        Bitmap imageMap = null;
+                        for(int i = 0; i < ViewQuestionsActivity.facebookFinal.size(); i++){
+                            if(userId.equals(ViewQuestionsActivity.facebookFinal.get(i).get("userData").getId())){
+                                imageMap = ViewQuestionsActivity.facebookFinal.get(i).get("userData").getBitmap();
 
+                            }
+                        }
+
+                        ImageView pPic = (ImageView)convertView.findViewById(R.id.profilePicture);
+                        pPic.setImageBitmap(imageMap);
+                        //...
                         View.OnClickListener my_test = new MyCustomListener(obj,position,(ViewGroup)convertView.findViewById(R.id.lowerContainer));
                         choice1.setOnClickListener(my_test);
                         choice2.setOnClickListener(my_test);
@@ -407,6 +503,19 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                         // ImageButton del = (ImageButton)convertView.findViewById(R.id.btn_delete);
                         // View.OnClickListener my_del = new MyDeleteListener(obj,position);
                         // del.setOnClickListener(my_del);
+                        ParseUser fromThisUser = obJoin.getParseUser("from");
+                        String userId = fromThisUser.getString("facebookId");
+                        Bitmap imageMap = null;
+                        for(int i = 0; i < ViewQuestionsActivity.facebookFinal.size(); i++){
+                            if(userId.equals(ViewQuestionsActivity.facebookFinal.get(i).get("userData").getId())){
+                                imageMap = ViewQuestionsActivity.facebookFinal.get(i).get("userData").getBitmap();
+
+                            }
+                        }
+
+                        ImageView pPic = (ImageView)convertView.findViewById(R.id.profilePicture);
+                        pPic.setImageBitmap(imageMap);
+                        //...
 
                         View.OnClickListener my_test = new MyCustomListener(obj,position,(ViewGroup)convertView.findViewById(R.id.lowerContainer));
                         choice1.setOnClickListener(my_test);
@@ -432,7 +541,19 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                     // ImageButton del = (ImageButton)convertView.findViewById(R.id.btn_delete);
                     // View.OnClickListener my_del = new MyDeleteListener(obj,position);
                     // del.setOnClickListener(my_del);
+                    ParseUser fromThisUser = obJoin.getParseUser("from");
+                    String userId = fromThisUser.getString("facebookId");
+                    Bitmap imageMap = null;
+                    for(int i = 0; i < ViewQuestionsActivity.facebookFinal.size(); i++){
+                        if(userId.equals(ViewQuestionsActivity.facebookFinal.get(i).get("userData").getId())){
+                            imageMap = ViewQuestionsActivity.facebookFinal.get(i).get("userData").getBitmap();
 
+                        }
+                    }
+
+                    ImageView pPic = (ImageView)convertView.findViewById(R.id.profilePicture);
+                    pPic.setImageBitmap(imageMap);
+                    //...
                     View.OnClickListener my_test = new MyCustomListener(obj,position,(ViewGroup)convertView.findViewById(R.id.lowerContainer));
                     choice1.setOnClickListener(my_test);
                     choice2.setOnClickListener(my_test);
@@ -466,6 +587,19 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                // ImageButton del = (ImageButton)convertView.findViewById(R.id.btn_delete);
                // View.OnClickListener my_del = new MyDeleteListener(obj,position);
                // del.setOnClickListener(my_del);
+                ParseUser fromThisUser = obJoin.getParseUser("from");
+                String userId = fromThisUser.getString("facebookId");
+                Bitmap imageMap = null;
+                for(int i = 0; i < ViewQuestionsActivity.facebookFinal.size(); i++){
+                    if(userId.equals(ViewQuestionsActivity.facebookFinal.get(i).get("userData").getId())){
+                        imageMap = ViewQuestionsActivity.facebookFinal.get(i).get("userData").getBitmap();
+
+                    }
+                }
+
+                ImageView pPic = (ImageView)convertView.findViewById(R.id.profilePicture);
+                pPic.setImageBitmap(imageMap);
+                //...
 
                 View.OnClickListener my_test = new MyCustomListener(obj,position,(ViewGroup)convertView.findViewById(R.id.lowerContainer));
                 choice1.setOnClickListener(my_test);

@@ -18,7 +18,7 @@
         <ImageView
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:id="@+id/imageView"
+            android:id="@+id/profilePicture"
             android:src="@drawable/profile" />
 
         <LinearLayout
@@ -73,6 +73,28 @@
             android:textColor="#ffffff"
             android:background="#555555"
             android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="45dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Medium Text"
+            android:id="@+id/hiddenText1"
+            android:background="#3A9ABC"
+            android:visibility="gone"
+            android:gravity="center"
+            android:textColor="#ffffff" />
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="45dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Medium Text"
+            android:id="@+id/hiddenText2"
+            android:background="#555555"
+            android:visibility="gone"
+            android:gravity="center"
+            android:textColor="#ffffff" />
     </LinearLayout>
 
 </LinearLayout>
