@@ -138,6 +138,8 @@ public class MainActivity extends ActionBarActivity {
                                         temp.put("userData",stupie);
                                         facebookIds.add(temp);
                                     }
+                                    Toast.makeText(getApplicationContext(), "Async 1 is done" ,
+                                            Toast.LENGTH_LONG).show();
 
                                 }catch(JSONException e){
                                     Toast.makeText(getApplicationContext(), "LOSING THE GAME " + e,
@@ -181,54 +183,19 @@ public class MainActivity extends ActionBarActivity {
                                                 GroupiesActivity.GroupiesObject tempGroupie = new GroupiesActivity.GroupiesObject(uName,0,"objecid","facebook",loadedImage);
                                                 tempObj.put("userData",tempGroupie);
                                                 facebookData.add(tempObj);
+                                                Toast.makeText(getApplicationContext(), "Async img is done" ,
+                                                        Toast.LENGTH_LONG).show();
                                             }
                                         });
                                         //nevam
+                                        Toast.makeText(getApplicationContext(), "Async 2 is done" ,
+                                                Toast.LENGTH_LONG).show();
                                     }
 
                                 }catch(JSONException e){
                                     Toast.makeText(getApplicationContext(), "LOSING THE GAME " + e,
                                             Toast.LENGTH_LONG).show();
                                 }
-                                //bombs away dream babies
-                              /* new GraphRequest(
-                                        AccessToken.getCurrentAccessToken(),
-                                        "/me/friends",
-                                        null,
-                                        HttpMethod.GET,
-                                        new GraphRequest.Callback() {
-                                            public void onCompleted(GraphResponse response) {
-
-                                                //let's try to handle this and extract the name and profile pic:
-                                                try {
-                                                    JSONArray data = response.getJSONObject().getJSONArray("data");
-                                                    for(int i = 0; i < data.length(); i++) {
-                                                        JSONObject vals = data.getJSONObject(i);
-                                                        String id = vals.getString("id");
-                                                        String name = vals.getString("name");
-                                                        for(int j = 0; j < facebookData.size(); j++){
-                                                            Toast.makeText(getApplicationContext(), "Comparing " + facebookData.get(j).get("userData").getName() + " and " + name ,
-                                                                    Toast.LENGTH_LONG).show();
-                                                            Log.d("FRANCINE","HELLO FRANCIS");
-                                                            if( facebookData.get(j).get("userData").getName().equals(name)){
-                                                                facebookData.get(j).get("userData").setId(id);
-                                                            }
-                                                        }
-                                                        //TODO: Refactor this out of GroupiesActivity. This is redundant and worthless
-                                                        StupidClass stupie = new StupidClass(name,id);
-                                                        HashMap<String,StupidClass> temp = new HashMap<String, StupidClass>();
-                                                        temp.put("userData",stupie);
-                                                        facebookIds.add(temp);
-                                                    }
-
-                                                }catch(JSONException e){
-                                                    Toast.makeText(getApplicationContext(), "LOSING THE GAME " + e,
-                                                            Toast.LENGTH_LONG).show();
-                                                }
-                                            }
-                                        }
-                                ).executeAsync();*/
-                                //.....
                             }
                         }
                 ).executeAsync();
@@ -252,6 +219,8 @@ public class MainActivity extends ActionBarActivity {
                                     String fbId = data.getString("id");
                                     currentUser.put("facebookId",fbId);
                                     currentUser.saveInBackground();
+                                   Toast.makeText(getApplicationContext(), "Async 3 is done" ,
+                                           Toast.LENGTH_LONG).show();
 
                                 }catch(JSONException e){
                                     Toast.makeText(getApplicationContext(), "LOSING THE GAME " + e,

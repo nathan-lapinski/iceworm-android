@@ -3,7 +3,8 @@
     android:layout_height="match_parent"
     android:background="#d3d3d3"
     tools:context="com.example.nate.socialqs.ViewQuestionsActivity"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:id="@+id/rootView">
 
     <LinearLayout
         android:orientation="horizontal"

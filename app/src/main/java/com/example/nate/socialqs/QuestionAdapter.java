@@ -13,6 +13,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -45,9 +46,8 @@ import java.util.List;
 
 public class QuestionAdapter extends ArrayAdapter<ParseObject> {
     private LayoutInflater inflater;
-
-    //testing this out
     List<ParseObject> master_list;
+
     public QuestionAdapter(Activity activity, List<ParseObject> data){
         super(activity, R.layout.row_question, data);
         inflater = activity.getWindow().getLayoutInflater();
@@ -63,9 +63,11 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
         ParseObject my_obj;//QJoin
         int position;
         ViewGroup container_view; //this will hold the reference to the container, which will be used to update the ui
+
         public MyCustomListener(ParseObject row, int pos, ViewGroup m) {
             this.my_obj = row; this.position = pos; this.container_view = m;
         }
+
         @Override
         public void onClick(View v)
         {
@@ -77,6 +79,7 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                     query.findInBackground(new FindCallback<ParseObject>() {
                         public void done(List<ParseObject> scoreList, ParseException e) {
                             if (e == null) {
+                                //TODO: Error check this
                                 ParseObject obj = scoreList.get(0);//SocialQ
 
                                 //count the vote
@@ -105,37 +108,12 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                                     Toast.LENGTH_SHORT).show();
                                         }
                                     }
-                                }); // end the asyn call to update the votes
+                                }); // end the async call to update the votes
 
-                                //handle the ui at this point
-                                int c2_votes = obj.getInt("stats2");
-                                String c1f = "Choice 2 got " + c2_votes + " votes";
-                                String c2f = "Choice 1 got " + old_votes + " votes";
-
-
-
+                                //TODO: Turn this into a function
+                                //update the ui
                                 int[] results = {0,0};
                                 results = getProgressStats(obj.getInt("option1stats")+1,obj.getInt("option2stats"));
-
-                                /*
-                                final ProgressBar view1 = new ProgressBar(getContext(),null,android.R.attr.progressBarStyleHorizontal);
-                                view1.setProgress(results[0]);
-                                view1.setMax(100);
-                                view1.setBackground(getContext().getResources().getDrawable(R.drawable.custom_progressbar));
-
-                                final ProgressBar view2 = new ProgressBar(getContext(),null,android.R.attr.progressBarStyleHorizontal);
-                                view2.setProgress(results[1]);
-                                view2.setMax(100);
-                                view2.setBackground(getContext().getResources().getDrawable(R.drawable.custom_progressbar));
-
-                                int index1 = container_view.indexOfChild(b1);
-                                int index2 = container_view.indexOfChild(b2);
-
-                                container_view.removeView(b1);
-                                container_view.addView(view1, index1);
-                                container_view.removeView(b2);
-                                container_view.addView(view2, index2);
-                                */
                                 View b1 = container_view.findViewById(R.id.buttonChoice1);
                                 View b2 = container_view.findViewById(R.id.buttonChoice2);
                                 String text1 = ((Button)b1).getText().toString();
@@ -198,38 +176,10 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                                         }
                                     }
 
-                                }); // end the asyn call to update the votes
-
-                                //hit the ui
-                                //handle the ui at this point
-                                int c2_votes = obj.getInt("option1stats");
-                                String c1f = "Choice 2 got " + c2_votes + " votes";
-                                String c2f = "Choice 1 got " + old_votes + " votes";
-
-                                View b1 = container_view.findViewById(R.id.buttonChoice1);
-                                View b2 = container_view.findViewById(R.id.buttonChoice2);
+                                }); // end the async call to update the votes
 
                                 int[] results = {0,0};
                                 results = getProgressStats(obj.getInt("option1stats"),obj.getInt("option2stats")+1);
-
-                              /*  final ProgressBar view1 = new ProgressBar(getContext(),null,android.R.attr.progressBarStyleHorizontal);
-                                view1.setProgress(results[0]);
-                                view1.setMax(100);
-                                view1.setBackground(getContext().getResources().getDrawable(R.drawable.custom_progressbar));
-
-                                final ProgressBar view2 = new ProgressBar(getContext(),null,android.R.attr.progressBarStyleHorizontal);
-                                view2.setProgress(results[1]);
-                                view2.setMax(100);
-                                view2.setBackground(getContext().getResources().getDrawable(R.drawable.custom_progressbar));
-
-                                int index1 = container_view.indexOfChild(b1);
-                                int index2 = container_view.indexOfChild(b2);
-
-                                container_view.removeView(b1);
-                                container_view.addView(view1, index1);
-                                container_view.removeView(b2);
-                                container_view.addView(view2, index2);
-                                container_view.refreshDrawableState();*/
                                 View b1 = container_view.findViewById(R.id.buttonChoice1);
                                 View b2 = container_view.findViewById(R.id.buttonChoice2);
                                 String text1 = ((Button)b1).getText().toString();
@@ -260,9 +210,6 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
 
     };
 
-    //This is what handles the images from the ViewQuestions activity.
-    //We are displaying correctly, but updating the ui onclick is still borked.
-    //HACK: Simply reload the activity on vote...don't do this.
     //TODO: Refactor the shit out of this shit. This thing has soooo much duplicate code it's abysmal.
     @Override
     public View getView(int position, View convertView, ViewGroup parent){
@@ -270,14 +217,14 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
         final ParseObject obj = (ParseObject)obJoin.get("question"); //Should be a SocialQ
 
         // Check if an existing view is being reused, otherwise inflate the view
-        //this probably is not necessary
+        //but we likely just change the view again anyway once we know which layout to use, so
+        //we never get the benefit of recycling views??
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.row_question, parent, false);
         }
+
         //For each join object we've received, check to see if it has it's vote property set or not.
         if (obJoin.get("vote") != null && (obJoin.getInt("vote") !=  0)) {
-            //They have already voted on this question
-            // here we are viewing results...so we need to differentiate whether or not it has an image. Check obj for this.
             /*
             TODO: may need to figure out how to extract this from the local data store at some point.
             TODO: Also, how do we handle updating this to reflect other people who have voted on it?
@@ -579,32 +526,31 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
             } else {
                 //Cases 1
 
+                //inflate the imageless layout.
                 convertView = LayoutInflater.from(getContext()).inflate(R.layout.row_questions_new, parent, false);
 
+                //get the question text
                 TextView question_text = (TextView) convertView.findViewById(R.id.textViewQuestionText);
+                //get the buttons
                 Button choice1 = (Button) convertView.findViewById(R.id.buttonChoice1);
                 Button choice2 = (Button) convertView.findViewById(R.id.buttonChoice2);
-               // ImageButton del = (ImageButton)convertView.findViewById(R.id.btn_delete);
-               // View.OnClickListener my_del = new MyDeleteListener(obj,position);
-               // del.setOnClickListener(my_del);
+
+                //Find the proper user image to associate with this question.
+                //TODO: This is ineffecient. Optimize it.
                 ParseUser fromThisUser = obJoin.getParseUser("from");
                 String userId = fromThisUser.getString("facebookId");
                 Bitmap imageMap = null;
                 for(int i = 0; i < ViewQuestionsActivity.facebookFinal.size(); i++){
                     if(userId.equals(ViewQuestionsActivity.facebookFinal.get(i).get("userData").getId())){
                         imageMap = ViewQuestionsActivity.facebookFinal.get(i).get("userData").getBitmap();
-
                     }
                 }
-
                 ImageView pPic = (ImageView)convertView.findViewById(R.id.profilePicture);
                 pPic.setImageBitmap(imageMap);
-                //...
-
+                //handle user clicks
                 View.OnClickListener my_test = new MyCustomListener(obj,position,(ViewGroup)convertView.findViewById(R.id.lowerContainer));
                 choice1.setOnClickListener(my_test);
                 choice2.setOnClickListener(my_test);
-                // Populate the data into the template view using the data object
                 question_text.setText(obj.getString("question"));
                 choice1.setText(obj.getString("option1"));
                 choice2.setText(obj.getString("option2"));
@@ -650,4 +596,5 @@ public class QuestionAdapter extends ArrayAdapter<ParseObject> {
                     Toast.LENGTH_SHORT).show();
         }
     }// load image
+
 }

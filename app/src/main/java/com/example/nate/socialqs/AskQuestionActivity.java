@@ -1,7 +1,9 @@
 package com.example.nate.socialqs;
 
+import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -77,9 +79,12 @@ public class AskQuestionActivity extends ActionBarActivity {
     ParseFile file2;
     ParseFile file3;
 
+    //used for detecting the active image
+    int active_image = 0;
 
     //This is used when choosing a photo from the gallery. Leave it alone for now.
     private static int RESULT_LOAD_IMAGE = 1;
+    int REQUEST_CAMERA = 0, SELECT_FILE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -260,7 +265,9 @@ public class AskQuestionActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 _b1_id = v.getId();
-                loadImagefromGallery(v,_b1_id);
+                active_image = 1;
+                selectImage();
+               // loadImagefromGallery(v,_b1_id);
             }
 
         });
@@ -268,7 +275,9 @@ public class AskQuestionActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 _b2_id = v.getId();
-                loadImagefromGallery(v,_b2_id);
+                active_image = 2;
+                selectImage();
+                //loadImagefromGallery(v,_b2_id);
             }
 
         });
@@ -276,7 +285,9 @@ public class AskQuestionActivity extends ActionBarActivity {
             @Override
             public void onClick(View v) {
                 _b3_id = v.getId();
-                loadImagefromGallery(v,_b3_id);
+                active_image = 3;
+                selectImage();
+                //loadImagefromGallery(v,_b3_id);
             }
 
         });
@@ -315,110 +326,148 @@ public class AskQuestionActivity extends ActionBarActivity {
     /*
     TODO: Refactor the shit out of this shit
      */
+
+    //for displaying the popup dialog
+    private void selectImage() {
+        final CharSequence[] items = { "Take Photo", "Choose from Library", "Cancel" };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(AskQuestionActivity.this);
+        builder.setTitle("Add Photo!");
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int item) {
+                if (items[item].equals("Take Photo")) {
+                    Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    startActivityForResult(intent, REQUEST_CAMERA);
+                } else if (items[item].equals("Choose from Library")) {
+                    Intent intent = new Intent(
+                            Intent.ACTION_PICK,
+                            android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    intent.setType("image/*");
+                    startActivityForResult(
+                            Intent.createChooser(intent, "Select File"),
+                            SELECT_FILE);
+                } else if (items[item].equals("Cancel")) {
+                    dialog.dismiss();
+                }
+            }
+        });
+        builder.show();
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_CAMERA) {
+                Bitmap thumbnail = (Bitmap) data.getExtras().get("data");
+                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                thumbnail.compress(Bitmap.CompressFormat.JPEG, 90, bytes);
+                //thumbnail is now the bitmap that you want. Do something with it.
+                //find the active imageview
+                switch(active_image){
+                    case 1:
+                        ImageView pic = (ImageView)findViewById(R.id.img_btn_question);
+                        pic.setImageBitmap(thumbnail);
+                        prepareImageForParse(bytes,"q1.png",1);
+                        active_image = 0;
+                        break;
+                    case 2:
+                        ImageView pic2 = (ImageView)findViewById(R.id.img_btn_one);
+                        pic2.setImageBitmap(thumbnail);
+                        prepareImageForParse(bytes, "o1.png", 2);
+                        active_image = 0;
+                        break;
+                    case 3:
+                        ImageView pic3 = (ImageView)findViewById(R.id.img_btn_two);
+                        pic3.setImageBitmap(thumbnail);
+                        prepareImageForParse(bytes,"o2.png",3);
+                        active_image = 0;
+                        break;
+                    default:
+                }
+            } else if (requestCode == SELECT_FILE) {
+                Uri selectedImageUri = data.getData();
+                String[] projection = {MediaStore.MediaColumns.DATA};
+                Cursor cursor = managedQuery(selectedImageUri, projection, null, null,
+                        null);
+                int column_index = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
+                cursor.moveToFirst();
+                String selectedImagePath = cursor.getString(column_index);
+                Bitmap bm;
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                BitmapFactory.decodeFile(selectedImagePath, options);
+                final int REQUIRED_SIZE = 200;
+                int scale = 1;
+                while (options.outWidth / scale / 2 >= REQUIRED_SIZE
+                        && options.outHeight / scale / 2 >= REQUIRED_SIZE)
+                    scale *= 2;
+                options.inSampleSize = scale;
+                options.inJustDecodeBounds = false;
+                bm = BitmapFactory.decodeFile(selectedImagePath, options);
+                //bm is now the bitmap. Do something with it
+                switch(active_image){
+                    case 1:
+                        ImageView pic = (ImageView)findViewById(R.id.img_btn_question);
+                        pic.setImageBitmap(bm);
+                        prepareImageForParse(bm, "q1.png", 1);
+                        active_image = 0;
+                        break;
+                    case 2:
+                        ImageView pic2 = (ImageView)findViewById(R.id.img_btn_one);
+                        pic2.setImageBitmap(bm);
+                        prepareImageForParse(bm, "o1.png", 2);
+                        active_image = 0;
+                        break;
+                    case 3:
+                        ImageView pic3 = (ImageView)findViewById(R.id.img_btn_two);
+                        pic3.setImageBitmap(bm);
+                        prepareImageForParse(bm, "o2.png", 3);
+                        active_image = 0;
+                        break;
+                    default:
+                }
 
-        if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK && null != data) {
-            Uri selectedImage = data.getData();
-            String[] filePathColumn = { MediaStore.Images.Media.DATA };
-
-            Cursor cursor = getContentResolver().query(selectedImage,
-                    filePathColumn, null, null, null);
-            cursor.moveToFirst();
-
-            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-            String picturePath = cursor.getString(columnIndex);
-            cursor.close();
-
-            //try to update the image that was passed via the intent
-            if(_b1_id > 0){
-                ImageButton _clk = (ImageButton) findViewById(_b1_id);
-                _clk.setImageBitmap(BitmapFactory.decodeFile(picturePath));
-                Bitmap bitmap = BitmapFactory.decodeFile(picturePath);
-                // Convert it to byte
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                // Compress image to lower quality scale 1 - 100
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                byte[] image = stream.toByteArray();
-                //update the parsefile
-                file1 = new ParseFile("q1.png", image);
-                // Upload the image into Parse Cloud
-               // file1.saveInBackground();
-
-                // Create a New Class called "ImageUpload" in Parse
-                ParseObject imgupload = new ParseObject("ImageUpload");
-
-                // Create a column named "ImageName" and set the string
-                imgupload.put("ImageName", "Quesion_img");
-
-                // Create a column named "ImageFile" and insert the image
-                imgupload.put("ImageFile", file1);
-
-                // Create the class and the columns
-               // imgupload.saveInBackground();
-                _b1_id = 0;
-            } else if(_b2_id > 0) {
-                ImageButton _clk = (ImageButton) findViewById(_b2_id);
-                _clk.setImageBitmap(BitmapFactory.decodeFile(picturePath));
-                Bitmap bitmap = BitmapFactory.decodeFile(picturePath);
-                // Convert it to byte
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                // Compress image to lower quality scale 1 - 100
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                byte[] image = stream.toByteArray();
-                //update the parsefile
-                file2 = new ParseFile("o1.png", image);
-                // Upload the image into Parse Cloud
-             //   file2.saveInBackground();
-
-                // Create a New Class called "ImageUpload" in Parse
-                ParseObject imgupload = new ParseObject("ImageUpload");
-
-                // Create a column named "ImageName" and set the string
-                imgupload.put("ImageName", "Quesion_img");
-
-                // Create a column named "ImageFile" and insert the image
-                imgupload.put("ImageFile", file2);
-
-                // Create the class and the columns
-             //   imgupload.saveInBackground();
-                _b2_id = 0;
-            } else if (_b3_id > 0) {
-                ImageButton _clk = (ImageButton) findViewById(_b3_id);
-                _clk.setImageBitmap(BitmapFactory.decodeFile(picturePath));
-                Bitmap bitmap = BitmapFactory.decodeFile(picturePath);
-                // Convert it to byte
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                // Compress image to lower quality scale 1 - 100
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                byte[] image = stream.toByteArray();
-                //update the parsefile
-                file3 = new ParseFile("o2.png", image);
-                // Upload the image into Parse Cloud
-          //      file3.saveInBackground();
-
-                // Create a New Class called "ImageUpload" in Parse
-                ParseObject imgupload = new ParseObject("ImageUpload");
-
-                // Create a column named "ImageName" and set the string
-                imgupload.put("ImageName", "Quesion_img");
-
-                // Create a column named "ImageFile" and insert the image
-                imgupload.put("ImageFile", file3);
-
-                // Create the class and the columns
-           //     imgupload.saveInBackground();
-                _b3_id = 0;
-            } else {
-                //uh oh...
-                Toast.makeText(AskQuestionActivity.this, "Error with the intent",
-                        Toast.LENGTH_SHORT).show();
             }
-
+        } else {
+            //handle the error
         }
+    }//end function
 
-
+    //TODO: May need to implement the previous compression algorithm here as well.
+    public void prepareImageForParse(ByteArrayOutputStream b,String s, int i){
+        byte[] image = b.toByteArray();
+        switch(i) {
+            case 1:
+                file1 = new ParseFile(s, image);
+                break;
+            case 2:
+                file2 = new ParseFile(s, image);
+                break;
+            case 3:
+                file3 = new ParseFile(s, image);
+                break;
+            default:
+        }
+    }
+    public void prepareImageForParse(Bitmap b,String s, int i){
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        // Compress image to lower quality scale 1 - 100
+        b.compress(Bitmap.CompressFormat.PNG, 100, stream);
+        byte[] image = stream.toByteArray();
+        switch(i) {
+            case 1:
+                file1 = new ParseFile(s, image);
+                break;
+            case 2:
+                file2 = new ParseFile(s, image);
+                break;
+            case 3:
+                file3 = new ParseFile(s, image);
+                break;
+            default:
+        }
     }
 
     public class GroupiesCloudWrapper{

@@ -1,6 +1,7 @@
 package com.example.nate.socialqs;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.ActionBarActivity;
@@ -11,6 +12,8 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -39,15 +42,23 @@ off to QuestionAdapter for display.
  */
 public class ViewQuestionsActivity extends ActionBarActivity {
 
+    SwipeMenuListView listView;
+
+    //TODO: Unused??
     public static ArrayList<HashMap<String,GroupiesActivity.GroupiesObject>> facebookFinal = new ArrayList<HashMap<String,GroupiesActivity.GroupiesObject>>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_questions);
 
 
+        /*************************************************
+         * Inflate the top and bottom menus
+         */
         /*Inflate the top menu*/
         ImageView ask = (ImageView) findViewById(R.id.ask);
+
         ask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -56,6 +67,7 @@ public class ViewQuestionsActivity extends ActionBarActivity {
             }
         });
         ImageView settings = (ImageView) findViewById(R.id.settings);
+
         settings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -89,9 +101,12 @@ public class ViewQuestionsActivity extends ActionBarActivity {
                 //TODO: Implement global Qs
             }
         });
-        /*****************/
+        /***
+         * End menu setup
+         * ********************************************************************/
 
-        //Comletely arbitrary and rece condition prone. Can totally bork us.
+        //TODO: Unneeded?
+        //Comletely arbitrary and race condition prone. Can totally bork us.
         //Prepare the facebook data by merging the two lists
         for(int i = 0; i < MainActivity.facebookIds.size(); i++){
             MainActivity.StupidClass stupie = MainActivity.facebookIds.get(i).get("userData");
@@ -108,19 +123,26 @@ public class ViewQuestionsActivity extends ActionBarActivity {
         }
         //;;;;
 
-        //String currentUser = ParseUser.getCurrentUser().getUsername();
+
+        //Begin querying parse to pull down the questions for this user.
+        /*
+        The algorithm for this is as such:
+        TheirQs means that the asker/from fields are not equal to the current user,
+        but the 'to' field is equal to the current user's facebookId.
+        We also need to make sure that the question has not yet been deleted
+         */
+
         ParseQuery<ParseObject> vote_query = ParseQuery.getQuery("QJoin");
         vote_query.include("question");
         vote_query.include("from");
         vote_query.whereEqualTo("to", ParseUser.getCurrentUser().getString("facebookId") );
         vote_query.whereNotEqualTo("asker", ParseUser.getCurrentUser());
         vote_query.whereNotEqualTo("deleted",true);
-
         vote_query.findInBackground(new FindCallback<ParseObject>() {
             public void done(final List<ParseObject> resList, ParseException e) {
                 if (e == null) {
-                            if(resList.size() > 0) {
-                                //These are the new slide del codes
+                            if(resList.size() > 0) { //if we have results from the cloud
+                                //This builds the open/delete buttons for swipe to delete
                                 SwipeMenuCreator creator = new SwipeMenuCreator() {
 
                                     @Override
@@ -159,10 +181,8 @@ public class ViewQuestionsActivity extends ActionBarActivity {
 
                                 //
                                 final QuestionAdapter adapter = new QuestionAdapter(ViewQuestionsActivity.this, resList);
-                                //Now, create a listview from the R.id.questionList and use it to display the resList data
-                                //ListView listView = (ListView) findViewById(R.id.questionList);
-                                SwipeMenuListView listView = (SwipeMenuListView) findViewById(R.id.listView);
-
+                                listView = (SwipeMenuListView) findViewById(R.id.listView);
+                                listView.setAdapter(adapter);
                                 // set creator
                                 listView.setMenuCreator(creator);
                                 listView.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
@@ -170,9 +190,10 @@ public class ViewQuestionsActivity extends ActionBarActivity {
                                     public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
                                         switch (index) {
                                             case 0:
+                                                //TODO: Unbork this code. ViewVotesActivity needs refactored to match new db structure
                                                 Intent intent = new Intent(ViewQuestionsActivity.this, ViewVotesActivity.class);
                                                 Bundle bundle = new Bundle();
-                                                ParseObject tmpQ = (ParseObject)resList.get(position).get("question");
+                                                ParseObject tmpQ = (ParseObject) resList.get(position).get("question");
                                                 bundle.putString("questionId", tmpQ.getObjectId());
                                                 intent.putExtras(bundle);
                                                 startActivity(intent);
@@ -181,13 +202,14 @@ public class ViewQuestionsActivity extends ActionBarActivity {
                                                 // delete
                                                 //hit the server
                                                 ParseObject qObj = resList.get(position).getParseObject("question");
-                                                Toast.makeText(getApplicationContext(), "At position: " + position + " with: " + qObj.getString("question"),
-                                                        Toast.LENGTH_LONG).show();
                                                 ParseObject delQj = resList.get(position); //QJoin
-                                                delQj.put("deleted",true);
+                                                delQj.put("deleted", true);
                                                 delQj.saveInBackground();
                                                 resList.remove(position);
                                                 adapter.notifyDataSetChanged();
+                                               // QuestionAdapter tempeh = new QuestionAdapter(ViewQuestionsActivity.this, resList);
+                                                listView = (SwipeMenuListView) findViewById(R.id.listView);
+                                                listView.setAdapter(adapter);
                                                 break;
                                         }
                                         // false : close the menu; true : not close the menu
@@ -219,15 +241,11 @@ public class ViewQuestionsActivity extends ActionBarActivity {
                                     public void onMenuClose(int position) {
                                     }
                                 });
-                                listView.setAdapter(adapter);
                             } else {
-                                Toast.makeText(getApplicationContext(), "Found " + resList.size() + " questions for this user",
-                                        Toast.LENGTH_LONG).show();
+                                //TODO: resList was 0. So either error out or add the orignial welcome question if it is their first time using the app
                             }
-
-
                 } else {
-                    //There has been an error
+                    //TODO: Custom error reporting
                     Toast.makeText(getApplicationContext(), "Error accessing join table",
                             Toast.LENGTH_LONG).show();
                 }
@@ -244,13 +262,14 @@ public class ViewQuestionsActivity extends ActionBarActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_left) {
+            listView.setSwipeDirection(SwipeMenuListView.DIRECTION_LEFT);
+            return true;
+        }
+        if (id == R.id.action_right) {
+            listView.setSwipeDirection(SwipeMenuListView.DIRECTION_RIGHT);
             return true;
         }
 

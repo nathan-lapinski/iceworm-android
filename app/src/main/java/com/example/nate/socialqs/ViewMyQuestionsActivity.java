@@ -30,7 +30,7 @@ import java.util.List;
 
 
 public class ViewMyQuestionsActivity extends ActionBarActivity {
-
+    SwipeMenuListView listView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -139,7 +139,7 @@ public class ViewMyQuestionsActivity extends ActionBarActivity {
                     }
                     final MyQuestionAdapter adapter = new MyQuestionAdapter(ViewMyQuestionsActivity.this, parseList);//was res
                     //ListView listView = (ListView) findViewById(R.id.questionList2);
-                    SwipeMenuListView listView = (SwipeMenuListView) findViewById(R.id.questionList2);
+                    listView = (SwipeMenuListView) findViewById(R.id.questionList2);
                     // set creator
                     listView.setMenuCreator(creator);
                     listView.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
@@ -165,6 +165,9 @@ public class ViewMyQuestionsActivity extends ActionBarActivity {
                                     resList.remove(position);
                                     parseList.remove(position);
                                     adapter.notifyDataSetChanged();
+                                 //   QuestionAdapter tempeh = new QuestionAdapter(ViewMyQuestionsActivity.this, resList);
+                                    listView = (SwipeMenuListView) findViewById(R.id.questionList2);
+                                    listView.setAdapter(adapter);
                                     break;
                             }
                             // false : close the menu; true : not close the menu
