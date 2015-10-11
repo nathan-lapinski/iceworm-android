@@ -45,4 +45,5 @@
     <string name="title_activity_select_group">SelectGroupActivity</string>
     <string name="title_activity_splash_screen">SplashScreenActivity</string>
     <string name="title_activity_handle_screen">HandleScreenActivity</string>
+    <string name="title_activity_cloud_testing">CloudTestingActivity</string>
 </resources>

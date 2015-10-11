@@ -35,8 +35,20 @@ public class MyVotesAdapter extends ArrayAdapter<ParseObject> {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.votes_row, parent, false);
         }
         //simply display the user name for now
+        //We can try to pull this, but it's possible that this data doesn't exist yet...
         TextView tt = (TextView) convertView.findViewById(R.id.voterName);
-        tt.setText(obj.getString("to"));//obj.getString("to")); //userData should return a GroupiesObject.
+        if( (ViewQuestionsActivity.facebookFinal != null) && (ViewQuestionsActivity.facebookFinal.size() > 0) ){
+            String userName;
+            for(int i = 0; i < ViewQuestionsActivity.facebookFinal.size(); i++){
+                if(ViewQuestionsActivity.facebookFinal.get(i).get("userData").getId().equals(obj.getString("to"))){
+                    userName = ViewQuestionsActivity.facebookFinal.get(i).get("userData").getName();
+                    tt.setText(userName);
+                    break;
+                }
+            }
+        } else {
+            tt.setText(obj.getString("to")); //just the id, so need to fix this, LDS
+        }
         Toast.makeText(getContext(), "Writing things",
                 Toast.LENGTH_LONG).show();
        // View.OnClickListener my_test = new MyCustomListener(obj,position);

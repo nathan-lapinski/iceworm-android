@@ -160,6 +160,10 @@
             android:name=".HandleScreenActivity"
             android:label="@string/title_activity_handle_screen" >
         </activity>
+        <activity
+            android:name=".CloudTestingActivity"
+            android:label="@string/title_activity_cloud_testing" >
+        </activity>
     </application>
 
 </manifest>

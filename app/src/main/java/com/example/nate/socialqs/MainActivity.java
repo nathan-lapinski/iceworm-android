@@ -181,10 +181,8 @@ public class MainActivity extends ActionBarActivity {
                                                 // Do whatever you want with Bitmap
                                                 HashMap<String,GroupiesActivity.GroupiesObject> tempObj = new HashMap<String, GroupiesActivity.GroupiesObject>();
                                                 GroupiesActivity.GroupiesObject tempGroupie = new GroupiesActivity.GroupiesObject(uName,0,"objecid","facebook",loadedImage);
-                                                tempObj.put("userData",tempGroupie);
+                                                tempObj.put("userData", tempGroupie);
                                                 facebookData.add(tempObj);
-                                                Toast.makeText(getApplicationContext(), "Async img is done" ,
-                                                        Toast.LENGTH_LONG).show();
                                             }
                                         });
                                         //nevam
@@ -238,7 +236,10 @@ public class MainActivity extends ActionBarActivity {
                 Intent intent = new Intent(MainActivity.this, HandleScreenActivity.class);
                 startActivity(intent);
             }else {
-                showUserDetailsActivity();
+                //Currently, only use this activity for testing (especially cloud testing)
+                //showUserDetailsActivity();
+                Intent intent = new Intent(MainActivity.this, SplashScreenActivity.class);
+                startActivity(intent);
             }
         }
 

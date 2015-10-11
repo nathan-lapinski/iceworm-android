@@ -67,6 +67,15 @@ public class UserDetailsActivity extends Activity {
             makeMeRequest();
         }
 
+        Button testLaunch = (Button) findViewById(R.id.testApp);
+        testLaunch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(UserDetailsActivity.this, CloudTestingActivity.class);
+                startActivity(intent);
+            }
+        });
+
     }
 
     @Override
