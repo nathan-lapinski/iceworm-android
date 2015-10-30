@@ -20,6 +20,7 @@ import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
 import com.parse.FindCallback;
+import com.parse.GcmBroadcastReceiver;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
@@ -89,7 +90,8 @@ public class ViewMyQuestionsActivity extends ActionBarActivity {
         ParseQuery<ParseObject> vote_query = ParseQuery.getQuery("QJoin");
         vote_query.whereEqualTo("asker",ParseUser.getCurrentUser());
         vote_query.whereNotEqualTo("deleted", true);
-        vote_query.whereEqualTo("to", ParseUser.getCurrentUser().getString("facebookId"));
+        //vote_query.whereEqualTo("to", ParseUser.getCurrentUser().getString("facebookId"));
+        vote_query.whereEqualTo("to", ParseUser.getCurrentUser());
         vote_query.include("question");
         vote_query.findInBackground(new FindCallback<ParseObject>() {
             public void done(final List<ParseObject> resList, ParseException e) {

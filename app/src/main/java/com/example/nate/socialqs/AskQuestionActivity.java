@@ -1,6 +1,8 @@
 package com.example.nate.socialqs;
 
 import android.app.AlertDialog;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.DialogInterface;
@@ -27,21 +29,29 @@ import android.widget.Toast;
 
 import com.parse.FindCallback;
 import com.parse.FunctionCallback;
+import com.parse.GetCallback;
 import com.parse.Parse;
 import com.parse.ParseACL;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
+import com.parse.ParsePush;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 
@@ -53,6 +63,8 @@ public class AskQuestionActivity extends ActionBarActivity {
     1. (major) Update AskQuestion to use the new database model
     2. (major) Update photo options to allow the user to take a photo with their phone's camera if it's present on the device, as well as uploading a photo from the gallery
      */
+    //If there are any errors that would prevent the question from being sent, we bump this to false
+    boolean can_ask = true;
 
     //main ask question buttons
     Button _submit;
@@ -81,6 +93,15 @@ public class AskQuestionActivity extends ActionBarActivity {
 
     //used for detecting the active image
     int active_image = 0;
+
+    //TODO: Remove or refactor this code
+    //Testing code for the new cloud function for asking questions
+    byte[] qFull;
+    byte[] qThumb;
+    byte[] o1Full;
+    byte[] o1Thumb;
+    byte[] o2Full;
+    byte[] o2Thumb;
 
     //This is used when choosing a photo from the gallery. Leave it alone for now.
     private static int RESULT_LOAD_IMAGE = 1;
@@ -126,6 +147,7 @@ public class AskQuestionActivity extends ActionBarActivity {
         _submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                can_ask = true;
                 String q = _question.getText().toString();
                 String c1 = _choice1.getText().toString();
                 String c2 = _choice2.getText().toString();
@@ -146,98 +168,235 @@ public class AskQuestionActivity extends ActionBarActivity {
                 }
 
                 if((q.equals("")) || (c1.equals("")) || (c2.equals(""))){
-                    Toast.makeText(getApplicationContext(), "Error: One or more required parameters is empty",
-                            Toast.LENGTH_LONG).show();
-                    Intent intent = new Intent(AskQuestionActivity.this, AskQuestionActivity.class);
-                    startActivity(intent);
+                    FragmentManager manager = getFragmentManager();
+                    Fragment frag = manager.findFragmentByTag("fragment_edit_name");
+                    if (frag != null) {
+                        manager.beginTransaction().remove(frag).commit();
+                    }
+                    ErrorFragment editNameDialog = new ErrorFragment();
+                    editNameDialog.show(manager, "fragment_edit_name");
+                    can_ask = false;
                 }
 
-                userQuestion.put("question", q);
-                userQuestion.put("option1", c1);
-                userQuestion.put("option2", c2);
-                userQuestion.put("stats1",0);
-                userQuestion.put("stats2",0);
-                userQuestion.put("asker",ParseUser.getCurrentUser());//store the actual user object
-                userQuestion.put("askerId",currentUser.getObjectId());
-                userQuestion.setACL(acl);
-
-                if(file1 != null){
-                    userQuestion.put("questionPhoto", file1);
+                if(GroupiesActivity.myCurrentGroupies.size() <= 0){
+                    FragmentManager manager = getFragmentManager();
+                    Fragment frag = manager.findFragmentByTag("fragment_edit_name");
+                    if (frag != null) {
+                        manager.beginTransaction().remove(frag).commit();
+                    }
+                    ErrorFragment editNameDialog = new ErrorFragment();
+                    editNameDialog.show(manager, "fragment_edit_name");
+                    can_ask = false;
                 }
-                if(file2 != null){
-                    userQuestion.put("option1Photo",file2);
-                }
-                if(file3 != null){
-                    userQuestion.put("option2Photo",file3);
-                }
-
+                //Testing cloud
                 /*
-                TODO: make #1 and #2 execute in the Parse cloud instead of on device
-                 */
-                userQuestion.saveInBackground(new SaveCallback() {
-                    @Override
-                    public void done(ParseException e) {
+                final HashMap<String, Object> params = new HashMap<String, Object>();
+                final HashMap<String,Object> optionImageThumbs = new HashMap<String, Object>();
+                final HashMap<String,Object> optionImageFull = new HashMap<String, Object>();
+                optionImageThumbs.put("q",qThumb);
+                optionImageFull.put("q",qFull);
+                optionImageThumbs.put("1",o1Thumb);
+                optionImageThumbs.put("2",o2Thumb);
+                optionImageFull.put("1",o1Full);
+                optionImageFull.put("2",o2Full);
+                params.put("optionImageThumbs",optionImageThumbs);
+                params.put("optionImageFull",optionImageFull);
+                final HashMap<String,String> strData = new HashMap<String, String>();
+                strData.put("questionText","newtesttext");
+                strData.put("option1Text","option1test");
+                strData.put("option2Text", "option2test");
+                params.put("stringData",strData);
+                params.put("currentUserId",ParseUser.getCurrentUser().getObjectId());
+                ArrayList<String> facebook = new ArrayList<String>();
+                facebook.add(ParseUser.getCurrentUser().getString("facebookId"));
+                for(int c = 0; c < GroupiesActivity.myCurrentGroupies.size(); c++){
+                    facebook.add(GroupiesActivity.myCurrentGroupies.get(c).get("userData").getId());
+                }
+                HashMap<String,ArrayList<String>> to = new HashMap<String, ArrayList<String>>();
+                to.put("facebook",facebook);
+                params.put("to",to);
+                ParseCloud.callFunctionInBackground("submitQuestion", params, new FunctionCallback<Map<String, Object>>() {
+                    public void done(Map<String, Object> mapObject, ParseException e) {
                         if (e == null) {
-                            //#1 Create the join
-                            ParseObject userJoin = new ParseObject("QJoin");
-                            userJoin.put("asker",ParseUser.getCurrentUser());
-                            userJoin.put("to",ParseUser.getCurrentUser().getString("facebookId"));
-                            userJoin.put("from",ParseUser.getCurrentUser());
-                           // userJoin.put("sender",ParseUser.getCurrentUser().getUsername());
-                            userJoin.put("question",userQuestion);
-                            userJoin.put("vote",0);
-                            userJoin.put("deleted",false);
-                            userJoin.setACL(acl);
-                            userJoin.saveInBackground(new SaveCallback() {
-                                public void done(ParseException e) {
-                                    if (e == null) {
-                                        //TODO: Something here?
-
+                             Toast.makeText(getApplicationContext(), "Let's have a toast for the douchebags ", Toast.LENGTH_LONG).show();
+                            //let's try to pull down the socialq
+                            ParseQuery testQ = new ParseQuery("SocialQs");
+                            testQ.include("imagesArray");
+                            testQ.getFirstInBackground(new GetCallback<ParseObject>() {
+                                public void done(ParseObject object, ParseException e) {
+                                    if (object == null) {
+                                        Log.d("score", "The getFirst request failed.");
                                     } else {
-                                        Toast.makeText(getApplicationContext(), "Error creating Qjoin: " + e,
-                                                Toast.LENGTH_LONG).show();
+                                        Toast.makeText(getApplicationContext(), "Let's have a toast for the assholes ", Toast.LENGTH_LONG).show();
+                                        JSONArray imagesMy = object.get("imagesArray");
+                                        Toast.makeText(getApplicationContext(), ""+object.get("imagesArray"), Toast.LENGTH_LONG).show();
                                     }
                                 }
                             });
-                            for(int i = 0; i < GroupiesActivity.myCurrentGroupies.size(); i++){
-                                //create a new join object and send that bitch up
-                                ParseObject gJoin = new ParseObject("QJoin");
-                                gJoin.put("asker",ParseUser.getCurrentUser());
-                                gJoin.put("to", GroupiesActivity.myCurrentGroupies.get(i).get("userData").getId());
-                                gJoin.put("from",ParseUser.getCurrentUser());
-                                gJoin.put("vote",0);
-                              //  gJoin.put("sender", ParseUser.getCurrentUser().getUsername());
-                                gJoin.put("question",userQuestion);
-                                gJoin.put("deleted",false);
-                                gJoin.setACL(acl);
-                                gJoin.saveInBackground(new SaveCallback() {
-                                    @Override
-                                    public void done(ParseException e) {
-                                        if(e == null){
-                                            //Toast.makeText(getApplicationContext(), "Gott it",
-                                              //      Toast.LENGTH_LONG).show();
-                                        } else {
-                                            //Toast.makeText(getApplicationContext(), "Error creating join: " + e,
-                                              //      Toast.LENGTH_LONG).show();
-                                        }
-                                    }
-                                });
-                            }
-                            //at this point, the q is asked. so clear the current groupies
-                            GroupiesActivity.myCurrentGroupies.clear();
-                            //TODO: Write a function that updates the ui here as well
+
                         } else {
-                            Toast.makeText(getApplicationContext(), "Error Asking Question: " + e,
+                            Toast.makeText(getApplicationContext(), "Cloud failed " + e,
                                     Toast.LENGTH_LONG).show();
                         }
                     }
-                });
+                });*/ //End testing cloud
 
-                Toast.makeText(AskQuestionActivity.this, "Question Submitted",
-                        Toast.LENGTH_SHORT).show();
 
-            }
+                if(can_ask) {
+                    userQuestion.put("questionText", q);
+                    userQuestion.put("option1Text", c1);
+                    userQuestion.put("option2Text", c2);
+                    userQuestion.put("option1Stats", 0);
+                    userQuestion.put("option2Stats", 0);
+                    userQuestion.put("asker", ParseUser.getCurrentUser());//store the actual user object
+                    userQuestion.put("askerId", currentUser.getObjectId());
+                    userQuestion.setACL(acl);
+
+                    if (file1 != null) {
+                        userQuestion.put("questionImageFull", file1);
+                        userQuestion.put("questionImageThumb", file1);
+                    }
+                    if (file2 != null) {
+                        userQuestion.put("option1ImageFull", file2);
+                        userQuestion.put("option1ImageThumb", file2);
+                    }
+                    if (file3 != null) {
+                        userQuestion.put("option2ImageFull", file3);
+                        userQuestion.put("option2ImageThumb", file3);
+                    }
+
+                    userQuestion.saveInBackground(new SaveCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if (e == null) {
+                                //#1 Create the join
+                                ParseObject userJoin = new ParseObject("QJoin");
+                                userJoin.put("asker", ParseUser.getCurrentUser());
+                                userJoin.put("to", ParseUser.getCurrentUser()); //this is a *User now
+                                userJoin.put("from", ParseUser.getCurrentUser());
+                                // userJoin.put("sender",ParseUser.getCurrentUser().getUsername());
+                                userJoin.put("question", userQuestion);
+                                //userJoin.put("vote", 0);
+                                userJoin.put("deleted", false);
+                                userJoin.setACL(acl);
+                                userJoin.saveInBackground(new SaveCallback() {
+                                    public void done(ParseException e) {
+                                        if (e == null) {
+                                            //TODO: Something here?
+
+                                        } else {
+                                            Toast.makeText(getApplicationContext(), "Error creating Qjoin: " + e,
+                                                    Toast.LENGTH_LONG).show();
+                                        }
+                                    }
+                                });
+                                //create an array to query
+                                ArrayList<String> groupiesId = new ArrayList<String>();
+                                final LinkedList<String> channels = new LinkedList<String>();
+                                for (int i = 0; i < GroupiesActivity.myCurrentGroupies.size(); i++) {
+                                    groupiesId.add(GroupiesActivity.myCurrentGroupies.get(i).get("userData").getId());
+                                }
+                                //find them
+                                ParseQuery getGroupies = new ParseQuery("_User");
+                                getGroupies.whereContainedIn("facebookId",groupiesId);
+                                getGroupies.findInBackground(new FindCallback<ParseObject>() {
+                                    public void done(final List<ParseObject> resList, ParseException e) {
+                                        if (e == null) {
+                                            //you know have objects for each of the groupies. Send up the qJoins
+                                            ArrayList<ParseObject> theQJoins = new ArrayList<ParseObject>();
+                                            for(int i = 0; i < resList.size(); i++){
+                                                ParseObject gJoin = new ParseObject("QJoin");
+                                                gJoin.put("asker", ParseUser.getCurrentUser());
+                                                gJoin.put("to", resList.get(i));
+                                                gJoin.put("from", ParseUser.getCurrentUser());
+                                               // gJoin.put("vote",null); //TODO:Test this
+                                                //  gJoin.put("sender", ParseUser.getCurrentUser().getUsername());
+                                                gJoin.put("question", userQuestion);
+                                                gJoin.put("deleted", false);
+                                                gJoin.setACL(acl);
+                                                theQJoins.add(gJoin);
+                                                String new_channel = "user_" + resList.get(i).getObjectId();
+                                                channels.add(new_channel);
+
+                                            }
+                                            ParseObject.saveAllInBackground(theQJoins);
+                                            ParsePush push = new ParsePush();
+                                            push.setChannels(channels); // Notice we use setChannels not setChannel
+                                            JSONObject data = new JSONObject();
+                                            try {
+                                                data.put("alert", "New Q from Nate"); //TODO: Change
+                                                data.put("badge", "Increment");
+                                                data.put("content-available", "1");
+                                                data.put("action", "newQ");
+                                            }catch (JSONException ee){
+
+                                            }
+                                            push.setData(data);
+                                            //push.setMessage("Nate sent you a new SocialQ!");
+                                            push.sendInBackground();
+
+                                        } else {
+                                            Toast.makeText(getApplicationContext(), "faaack man", Toast.LENGTH_LONG).show();
+                                        }
+                                    }
+                                });
+                                //
+                               /* for (int i = 0; i < GroupiesActivity.myCurrentGroupies.size(); i++) {
+                                    //create a new join object and send that bitch up
+                                    ParseObject gJoin = new ParseObject("QJoin");
+                                    gJoin.put("asker", ParseUser.getCurrentUser());
+                                    gJoin.put("to", GroupiesActivity.myCurrentGroupies.get(i).get("userData").getId());
+                                    gJoin.put("from", ParseUser.getCurrentUser());
+                                    gJoin.put("vote", 0);
+                                    //  gJoin.put("sender", ParseUser.getCurrentUser().getUsername());
+                                    gJoin.put("question", userQuestion);
+                                    gJoin.put("deleted", false);
+                                    gJoin.setACL(acl);
+                                    gJoin.saveInBackground(new SaveCallback() {
+                                        @Override
+                                        public void done(ParseException e) {
+                                            if (e == null) {
+                                                //Toast.makeText(getApplicationContext(), "Gott it",
+                                                //      Toast.LENGTH_LONG).show();
+                                            } else {
+                                                //Toast.makeText(getApplicationContext(), "Error creating join: " + e,
+                                                //      Toast.LENGTH_LONG).show();
+                                            }
+                                        }
+                                    });
+                                }*/
+                                //at this point, the q is asked. so clear the current groupies
+                                GroupiesActivity.myCurrentGroupies.clear();
+                                //TODO: Write a function that updates the ui here as well
+                                //reset image views (re-inflate for now?)
+                                //clear files
+                                //clear text fields
+                                _question.setText("");
+                                _choice1.setText("");
+                                _choice2.setText("");
+                                file1 = file2 = file3 = null;
+                                _img_btn_q.setImageResource(R.drawable.camera);
+                                _img_btn_one.setImageResource(R.drawable.camera);
+                                _img_btn_two.setImageResource(R.drawable.camera);
+
+                            } else {
+                                Toast.makeText(getApplicationContext(), "Error Asking Question: " + e,
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        }
+                    });
+
+                    Toast.makeText(AskQuestionActivity.this, "Question Submitted",
+                            Toast.LENGTH_SHORT).show();
+                }else{
+                    //can't ask :(
+                    Toast.makeText(getApplicationContext(), "Failed to ask question. Please try again!",
+                            Toast.LENGTH_LONG).show();
+                }
+            }//end onclick
         });
+
+
 
         /*
         This should clear out the user text and any images
@@ -253,6 +412,7 @@ public class AskQuestionActivity extends ActionBarActivity {
                 //TODO: Use the ui function from above here
                 Intent intent = new Intent(AskQuestionActivity.this, AskQuestionActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
 
@@ -456,15 +616,44 @@ public class AskQuestionActivity extends ActionBarActivity {
         // Compress image to lower quality scale 1 - 100
         b.compress(Bitmap.CompressFormat.PNG, 100, stream);
         byte[] image = stream.toByteArray();
+
+        //test cloud
+        //-----
+       /* final HashMap<String, Object> params = new HashMap<String, Object>();
+        params.put("fileData", image);
+        ParseCloud.callFunctionInBackground("testImageUpload", params, new FunctionCallback<Map<String, Object>>() {
+            public void done(Map<String, Object> mapObject, ParseException e) {
+                if (e == null) {
+                      Toast.makeText(getApplicationContext(), "testing the cloud and looking good", Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Cloud failed " + e,
+                            Toast.LENGTH_LONG).show();
+                }
+            }
+        });*/
+        //
+
         switch(i) {
             case 1:
                 file1 = new ParseFile(s, image);
+                //testing
+                qFull = image;
+                qThumb = image;
+                //
                 break;
             case 2:
                 file2 = new ParseFile(s, image);
+                //testing
+                o1Full = image;
+                o1Thumb = image;
+                //
                 break;
             case 3:
                 file3 = new ParseFile(s, image);
+                //testing
+                o2Full = image;
+                o2Thumb = image;
+                //
                 break;
             default:
         }

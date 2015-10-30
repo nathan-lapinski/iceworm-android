@@ -9,7 +9,7 @@ import android.view.MenuItem;
 
 
 public class SplashScreenActivity extends ActionBarActivity {
-    private static int SPLASH_TIME_OUT = 6000;
+    private static int SPLASH_TIME_OUT = 7000;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

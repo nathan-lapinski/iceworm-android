@@ -4,9 +4,14 @@
     android:background="#ffffff">
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="60dp"
+        android:layout_height="50dp"
         android:orientation="horizontal">
 
+
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/profileImage" />
 
         <TextView
             android:id="@+id/voterName"

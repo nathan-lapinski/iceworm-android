@@ -7,4 +7,15 @@
     tools:context="com.example.nate.socialqs.SplashScreenActivity"
     android:background="@drawable/splash5reduced">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Loading..."
+        android:id="@+id/textView"
+        android:layout_gravity="center_vertical"
+        android:textSize="30dp"
+        android:textAlignment="center"
+        android:textIsSelectable="true"
+        android:layout_marginLeft="120dp" />
 </LinearLayout>

@@ -71,8 +71,6 @@ public class GroupiesActivity extends ActionBarActivity {
                                 mySearchGroupies.add(MainActivity.myGroupies.get(i).get("userData"));
                             }
                         }
-                        Toast.makeText(getApplicationContext(), "Found: "+mySearchGroupies.size(),
-                                Toast.LENGTH_LONG).show();
                     }
                     return true;
                 }
@@ -155,12 +153,7 @@ public class GroupiesActivity extends ActionBarActivity {
     @Override
     public void onResume(){
         super.onResume();
-        Toast.makeText(getApplicationContext(), "We're back!",
-                Toast.LENGTH_LONG).show();
-        for(int i = 0; i < GroupiesActivity.myCurrentGroupies.size(); i++){
-            Toast.makeText(getApplicationContext(), ""+GroupiesActivity.myCurrentGroupies.get(i).get("userData").getName(),
-                    Toast.LENGTH_LONG).show();
-        }
+
     }
 
     public void onDoneClick(View v){

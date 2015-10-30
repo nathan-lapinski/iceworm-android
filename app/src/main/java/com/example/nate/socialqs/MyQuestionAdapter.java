@@ -36,33 +36,80 @@ public class MyQuestionAdapter extends ArrayAdapter<ParseObject> {
     private LayoutInflater inflater;
     List<ParseObject> master_list;
     public MyQuestionAdapter(Activity activity, List<ParseObject> data){
-        super(activity, R.layout.question_results_view, data);
+        //super(activity, R.layout.question_results_view, data);
+        super(activity, R.layout.view_vote, data);
         inflater = activity.getWindow().getLayoutInflater();
         this.master_list = data;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent){
+        final ParseObject obj = getItem(position);
+        if(convertView == null){
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout.view_vote, parent, false);
+        }
+
+        TextView q = (TextView)convertView.findViewById(R.id.question_results_text);
+        TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
+        TextView c2 = (TextView)convertView.findViewById(R.id.choice2_results_text);
+        ImageView v1 = (ImageView)convertView.findViewById(R.id.choice1_results_image);
+        ImageView v2 = (ImageView)convertView.findViewById(R.id.choice2_results_image);
+        ImageView q1 = (ImageView)convertView.findViewById(R.id.question_results_image);
+        ImageView pPic = (ImageView)convertView.findViewById(R.id.profilePicture);
+        ParseFile myPic = ParseUser.getCurrentUser().getParseFile("profilePicture");
+        byte[] bitmapdata = {};
+        try {
+            bitmapdata = myPic.getData();
+        } catch(ParseException e){
+
+        }
+        Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapdata , 0, bitmapdata.length);
+        pPic.setImageBitmap(bitmap);
+        int[] results = {0,0};
+        results = getProgressStats(obj.getInt("option1Stats"),obj.getInt("option2Stats"));
+        q.setText( obj.getString("questionText"));
+        c1.setText(obj.getString("option1Text") + " " + results[0]+"%");
+        c2.setText(obj.getString("option2Text") + " " + results[1]+"%");
+        v1.setImageBitmap(null);
+        v2.setImageBitmap(null);
+        q1.setImageBitmap(null);
+        if((obj.get("option1ImageThumb") != null)) {
+            ParseFile image = (ParseFile) obj.getParseFile("option1ImageThumb");
+            loadImages(image, v1);
+        }
+        if((obj.get("option2ImageThumb") != null)) {
+            ParseFile image = (ParseFile) obj.getParseFile("option2ImageThumb");
+            loadImages(image, v2);
+        }
+        if((obj.get("questionImageThumb") != null)) {
+            ParseFile image = (ParseFile) obj.getParseFile("questionImageThumb");
+            loadImages(image, q1);
+        }
+
+        return convertView;
+    }
+    /*
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent){
         //final ParseObject obJoin = getItem(position);
         //final ParseObject obj = (ParseObject)obJoin.get("question");
         final ParseObject obj = getItem(position);
         // Check if an existing view is being reused, otherwise inflate the view
-        if (convertView == null) {
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.question_results_view, parent, false);
-        }
+      //  if (convertView == null) {
+        //    convertView = LayoutInflater.from(getContext()).inflate(R.layout.question_results_view, parent, false);
+        //}
 
-        if( (obj.get("questionPhoto") != null) || (obj.get("option1Photo") != null) || (obj.get("option2Photo") != null)  ){
-            /*
-            In this case, we have at least one image. There are 3 templating options to choose from at this point:
-            1: No image question, image for one or more options
-            2: image question, no image options
-            3: image question and one or more image options
-             */
-            if(obj.get("questionPhoto") != null){
+        if( (obj.get("questionImageThumb") != null) || (obj.get("option1ImageThumb") != null) || (obj.get("option2ImageThumb") != null)  ){
+
+            if(obj.get("questionImageThumb") != null){
                 //then we know that the question has an image
-                if( (obj.get("option1Photo") != null) || (obj.get("option2Photo") != null) ){
+                if( (obj.get("option1ImageThumb") != null) || (obj.get("option2ImageThumb") != null) ){
                     //image options
-                    convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_result_more_images, parent, false);
+                    if (convertView == null) {
+                     //   convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_result_one_image, parent, false);
+                        convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_result_more_images, parent, false);
+                    }
+                    //convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_result_more_images, parent, false);
                     TextView q = (TextView)convertView.findViewById(R.id.question_results_text);
                     TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
                     TextView c2 = (TextView)convertView.findViewById(R.id.choice2_results_text);
@@ -80,25 +127,28 @@ public class MyQuestionAdapter extends ArrayAdapter<ParseObject> {
                     Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapdata , 0, bitmapdata.length);
                     pPic.setImageBitmap(bitmap);
                     int[] results = {0,0};
-                    results = getProgressStats(obj.getInt("option1stats"),obj.getInt("option2stats"));
-                    q.setText( obj.getString("question"));
-                    c1.setText(obj.getString("option1") + " " + results[0]+"%");
-                    c2.setText(obj.getString("option2") + " " + results[1]+"%");
-                    if((obj.get("option1Photo") != null)) {
-                        ParseFile image = (ParseFile) obj.getParseFile("option1Photo");
+                    results = getProgressStats(obj.getInt("option1Stats"),obj.getInt("option2Stats"));
+                    q.setText( obj.getString("questionText"));
+                    c1.setText(obj.getString("option1Text") + " " + results[0]+"%");
+                    c2.setText(obj.getString("option2Text") + " " + results[1]+"%");
+                    if((obj.get("option1ImageThumb") != null)) {
+                        ParseFile image = (ParseFile) obj.getParseFile("option1ImageThumb");
                         loadImages(image, v1);
                     }
-                    if((obj.get("option2Photo") != null)) {
-                        ParseFile image = (ParseFile) obj.getParseFile("option2Photo");
+                    if((obj.get("option2ImageThumb") != null)) {
+                        ParseFile image = (ParseFile) obj.getParseFile("option2ImageThumb");
                         loadImages(image, v2);
                     }
-                    if((obj.get("questionPhoto") != null)) {
-                        ParseFile image = (ParseFile) obj.getParseFile("questionPhoto");
+                    if((obj.get("questionImageThumb") != null)) {
+                        ParseFile image = (ParseFile) obj.getParseFile("questionImageThumb");
                         loadImages(image, q1);
                     }
                 }else{
                     //no image options
-                    convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_result_one_image, parent, false);
+                    if (convertView == null) {
+                        convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_result_one_image, parent, false);
+                    }
+                    //convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_result_one_image, parent, false);
                     TextView q = (TextView)convertView.findViewById(R.id.question_results_text);
                     TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
                     TextView c2 = (TextView)convertView.findViewById(R.id.choice2_results_text);
@@ -114,18 +164,21 @@ public class MyQuestionAdapter extends ArrayAdapter<ParseObject> {
                     Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapdata , 0, bitmapdata.length);
                     pPic.setImageBitmap(bitmap);
                     int[] results = {0,0};
-                    results = getProgressStats(obj.getInt("option1stats"),obj.getInt("option2stats"));
-                    q.setText( obj.getString("question"));
-                    c1.setText(obj.getString("option1") + " " + results[0]+"%");
-                    c2.setText(obj.getString("option2") + " " + results[1]+"%");
-                    if((obj.get("questionPhoto") != null)) {
-                        ParseFile image = (ParseFile) obj.getParseFile("questionPhoto");
+                    results = getProgressStats(obj.getInt("option1Stats"),obj.getInt("option2Stats"));
+                    q.setText( obj.getString("questionText"));
+                    c1.setText(obj.getString("option1Text") + " " + results[0]+"%");
+                    c2.setText(obj.getString("option2Text") + " " + results[1]+"%");
+                    if((obj.get("questionImageThumb") != null)) {
+                        ParseFile image = (ParseFile) obj.getParseFile("questionImageThumb");
                         loadImages(image, q1);
                     }
                 }
             } else {
                 //no question image, but options image(s)
-                convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_results_view_image, parent, false);
+                if (convertView == null) {
+                    convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_results_view_image, parent, false);
+                }
+                //convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_results_view_image, parent, false);
                 TextView q = (TextView)convertView.findViewById(R.id.question_results_text);
                 TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
                 TextView c2 = (TextView)convertView.findViewById(R.id.choice2_results_text);
@@ -144,31 +197,35 @@ public class MyQuestionAdapter extends ArrayAdapter<ParseObject> {
 
 
                 int[] results = {0,0};
-                results = getProgressStats(obj.getInt("option1stats"),obj.getInt("option2stats"));
-                q.setText( obj.getString("question"));
-                c1.setText(obj.getString("option1") + " " + results[0]+"%");
-                c2.setText(obj.getString("option2") + " " + results[1]+"%");
-                if((obj.get("option1Photo") != null)) {
-                    ParseFile image = (ParseFile) obj.getParseFile("option1Photo");
+                results = getProgressStats(obj.getInt("option1Stats"),obj.getInt("option2Stats"));
+                q.setText( obj.getString("questionText"));
+                c1.setText(obj.getString("option1Text") + " " + results[0]+"%");
+                c2.setText(obj.getString("option2Text") + " " + results[1]+"%");
+                if((obj.get("option1ImageThumb") != null)) {
+                    ParseFile image = (ParseFile) obj.getParseFile("option1ImageThumb");
                     loadImages(image, v1);
                 }
-                if((obj.get("option2Photo") != null)) {
-                    ParseFile image = (ParseFile) obj.getParseFile("option2Photo");
+                if((obj.get("option2ImageThumb") != null)) {
+                    ParseFile image = (ParseFile) obj.getParseFile("option2ImageThumb");
                     loadImages(image, v2);
                 }
             }
 
         } else {
             //we have no images, so use the default template
-            convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_results_view_test, parent, false);
+            if (convertView == null) {
+                //convertView = LayoutInflater.from(getContext()).inflate(R.layout.question_results_view, parent, false);
+                convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_results_view_test, parent, false);
+            }
+           // convertView = LayoutInflater.from(getContext()).inflate(R.layout.questions_results_view_test, parent, false);
             TextView q = (TextView)convertView.findViewById(R.id.question_results_text);
             TextView c1 = (TextView)convertView.findViewById(R.id.choice1_results_text);
             TextView c2 = (TextView)convertView.findViewById(R.id.choice2_results_text);
             int[] results = {0,0};
-            results = getProgressStats(obj.getInt("option1stats"),obj.getInt("option2stats"));
-            q.setText( obj.getString("question"));
-            c1.setText(obj.getString("option1") + " " + results[0]+"%");
-            c2.setText(obj.getString("option2") + " " + results[1] + "%");
+            results = getProgressStats(obj.getInt("option1Stats"), obj.getInt("option2Stats"));
+            q.setText( obj.getString("questionText"));
+            c1.setText(obj.getString("option1Text") + " " + results[0] + "%");
+            c2.setText(obj.getString("option2Text") + " " + results[1] + "%");
             ImageView pPic = (ImageView)convertView.findViewById(R.id.profilePicture);
             ParseFile myPic = ParseUser.getCurrentUser().getParseFile("profilePicture");
             byte[] bitmapdata = {};
@@ -182,7 +239,7 @@ public class MyQuestionAdapter extends ArrayAdapter<ParseObject> {
 
         }
         return convertView;
-    }
+    } */
 
     private int[] getProgressStats(int choice_1_votes, int choice_2_votes){
         int[] results = {0,0}; //set both results to zero, initially.

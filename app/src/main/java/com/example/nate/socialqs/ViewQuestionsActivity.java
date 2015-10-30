@@ -135,12 +135,16 @@ public class ViewQuestionsActivity extends ActionBarActivity {
         ParseQuery<ParseObject> vote_query = ParseQuery.getQuery("QJoin");
         vote_query.include("question");
         vote_query.include("from");
-        vote_query.whereEqualTo("to", ParseUser.getCurrentUser().getString("facebookId") );
+        //vote_query.whereEqualTo("to", ParseUser.getCurrentUser().getString("facebookId") );
+        vote_query.whereEqualTo("to", ParseUser.getCurrentUser() );
         vote_query.whereNotEqualTo("asker", ParseUser.getCurrentUser());
         vote_query.whereNotEqualTo("deleted",true);
         vote_query.findInBackground(new FindCallback<ParseObject>() {
             public void done(final List<ParseObject> resList, ParseException e) {
                 if (e == null) {
+
+                    Toast.makeText(getApplicationContext(), "Found : " + resList.size(),
+                            Toast.LENGTH_LONG).show();
                             if(resList.size() > 0) { //if we have results from the cloud
                                 //This builds the open/delete buttons for swipe to delete
                                 SwipeMenuCreator creator = new SwipeMenuCreator() {

@@ -1,18 +1,24 @@
 package com.example.nate.socialqs;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.parse.FindCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,10 +45,64 @@ public class ViewVotesActivity extends ActionBarActivity {
                 qQuery.findInBackground(new FindCallback<ParseObject>() {
                     public void done(final List<ParseObject> resList, ParseException e) {
                         if (e == null) {
-                            //found the question, now find the QJoins
+                            //update the ui...
+                            ParseFile q = resList.get(0).getParseFile("questionImageFull");
+                            ParseFile o1 = resList.get(0).getParseFile("option1ImageFull");
+                            ParseFile o2 = resList.get(0).getParseFile("option2ImageFull");
+                            //check if these are null, if not update the image views
+                            if(q != null){
+                                //draw the image
+                                ImageView pPic = (ImageView)findViewById(R.id.questionImage);
+                                byte[] bitmapdata = {};
+                                try {
+                                    bitmapdata = q.getData();
+                                } catch(ParseException e1){
+
+                                }
+                                Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapdata, 0, bitmapdata.length);
+                                pPic.setImageBitmap(bitmap);
+                            }
+                            if(o1 != null){
+                                ImageView pPic = (ImageView)findViewById(R.id.option1Image);
+                                byte[] bitmapdata = {};
+                                try {
+                                    bitmapdata = o1.getData();
+                                } catch(ParseException e1){
+
+                                }
+                                Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapdata, 0, bitmapdata.length);
+                                pPic.setImageBitmap(bitmap);
+
+                            }
+                            if(o2 != null){
+                                ImageView pPic = (ImageView)findViewById(R.id.option2Image);
+                                byte[] bitmapdata = {};
+                                try {
+                                    bitmapdata = o2.getData();
+                                } catch(ParseException e1){
+
+                                }
+                                Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapdata, 0, bitmapdata.length);
+                                pPic.setImageBitmap(bitmap);
+
+                            }
+                            if(resList.get(0).getString("questionText") != null){
+                                TextView qt = (TextView)findViewById(R.id.questionText);
+                                qt.setText(resList.get(0).getString("questionText"));
+                            }
+                            if(resList.get(0).getString("option1Text") != null){
+                                TextView qt = (TextView)findViewById(R.id.optionOneText);
+                                qt.setText(resList.get(0).getString("option1Text"));
+                            }
+                            if(resList.get(0).getString("option2Text") != null){
+                                TextView qt = (TextView)findViewById(R.id.optionTwoText);
+                                qt.setText(resList.get(0).getString("option2Text"));
+                            }
+                                    //found the question, now find the QJoins
                             ParseQuery qjQuery = new ParseQuery("QJoin");
                             qjQuery.whereEqualTo("question",resList.get(0));
                             qjQuery.include("question");//this is dumb
+                            qjQuery.include("to"); // get the user obj
                             qjQuery.whereNotEqualTo("vote",0); //update this to use undefined/null
                             qjQuery.findInBackground(new FindCallback<ParseObject>() {
                                 public void done(final List<ParseObject> resList, ParseException e) {
@@ -85,7 +145,7 @@ public class ViewVotesActivity extends ActionBarActivity {
                         Toast.LENGTH_LONG).show();
             }
         } else {
-            Toast.makeText(getApplicationContext(), "We're fucked",
+            Toast.makeText(getApplicationContext(), "oh shazbot",
                     Toast.LENGTH_LONG).show();
         }
     }

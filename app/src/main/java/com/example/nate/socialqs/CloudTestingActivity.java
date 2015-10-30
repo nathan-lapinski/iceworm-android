@@ -1,11 +1,18 @@
 package com.example.nate.socialqs;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -16,6 +23,7 @@ import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
+import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,16 +45,16 @@ public class CloudTestingActivity extends ActionBarActivity {
 
                 final ParseObject statsObject = new ParseObject("Stats");
                 final ParseObject questionObject = new ParseObject("SocialQs");
-                questionObject.put("questionText","test question");
-                questionObject.put("option1Text","test option 1");
-                questionObject.put("option2Text","test option 2");
-                questionObject.put("option3Text","test option 3");
-                questionObject.put("images",imageObject);
-                questionObject.put("stats",statsObject);
+                questionObject.put("questionText", "test question");
+                questionObject.put("option1Text", "test option 1");
+                questionObject.put("option2Text", "test option 2");
+                questionObject.put("option3Text", "test option 3");
+                questionObject.put("images", imageObject);
+                questionObject.put("stats", statsObject);
 
-                statsObject.put("option1Stats",0);
-                statsObject.put("option2Stats",4);
-                statsObject.put("option3Stats",7);
+                statsObject.put("option1Stats", 0);
+                statsObject.put("option2Stats", 4);
+                statsObject.put("option3Stats", 7);
 
                 questionObject.saveInBackground(new SaveCallback() {
                     @Override
@@ -54,7 +62,7 @@ public class CloudTestingActivity extends ActionBarActivity {
                         if (e == null) {
                             Toast.makeText(getApplicationContext(), "Success",
                                     Toast.LENGTH_LONG).show();
-                            statsObject.put("question",questionObject);
+                            statsObject.put("question", questionObject);
                             statsObject.saveInBackground(new SaveCallback() {
                                 @Override
                                 public void done(ParseException e) {
@@ -69,7 +77,7 @@ public class CloudTestingActivity extends ActionBarActivity {
                                                 if (e == null) {
                                                     Toast.makeText(getApplicationContext(), "op3 got: " + mapObject.get("option3Stats").toString(), Toast.LENGTH_LONG).show();
                                                 } else {
-                                                    Toast.makeText(getApplicationContext(), "Cloud failed " + e ,
+                                                    Toast.makeText(getApplicationContext(), "Cloud failed " + e,
                                                             Toast.LENGTH_LONG).show();
                                                 }
                                             }
@@ -84,6 +92,44 @@ public class CloudTestingActivity extends ActionBarActivity {
                             });
                         } else {
                             Toast.makeText(getApplicationContext(), "Error Asking Question: " + e,
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+            }
+        });
+
+        Button testPopup = (Button) findViewById(R.id.testPopup);
+        testPopup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager manager = getFragmentManager();
+                Fragment frag = manager.findFragmentByTag("fragment_edit_name");
+                if (frag != null) {
+                    manager.beginTransaction().remove(frag).commit();
+                }
+                ErrorFragment editNameDialog = new ErrorFragment();
+                editNameDialog.show(manager, "fragment_edit_name");
+            }
+        });
+
+        Button testImage = (Button) findViewById(R.id.testImage);
+        testImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bitmap bm = BitmapFactory.decodeFile("/Users/nate/Desktop/nate_crop.png");
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                bm.compress(Bitmap.CompressFormat.JPEG, 100, baos); //bm is the bitmap object
+                byte[] b = baos.toByteArray();
+                //-----
+                final HashMap<String, Object> params = new HashMap<String, Object>();
+                params.put("fileData", b);
+                ParseCloud.callFunctionInBackground("testImageUpload", params, new FunctionCallback<Map<String, Object>>() {
+                    public void done(Map<String, Object> mapObject, ParseException e) {
+                        if (e == null) {
+                          //  Toast.makeText(getApplicationContext(), "op3 got: " + mapObject.get("option3Stats").toString(), Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Cloud failed " + e,
                                     Toast.LENGTH_LONG).show();
                         }
                     }

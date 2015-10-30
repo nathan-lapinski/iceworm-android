@@ -1,24 +1,23 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:layout_height="match_parent"
     tools:context="com.example.nate.socialqs.ViewVotesActivity"
     android:orientation="vertical"
-    android:background="#ffffff">
+    android:background="@drawable/bg5c">
 
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
-        android:layout_weight="1.7">
+        android:layout_weight="1.7"
+        android:background="#646464">
 
         <ImageView
             android:layout_width="45dp"
             android:layout_height="45dp"
-            android:id="@+id/imageView5" />
+            android:id="@+id/questionImage"
+            android:adjustViewBounds="true"/>
 
         <TextView
             android:layout_width="fill_parent"
@@ -26,9 +25,11 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="Question Text"
             android:id="@+id/questionText"
-            android:textColor="#000000"
+            android:textColor="#ffffff"
             android:textAlignment="center"
-            android:background="#4F8194" />
+            android:background="#646464"
+            android:textIsSelectable="true"
+            android:gravity="center" />
 
     </LinearLayout>
 
@@ -42,21 +43,24 @@
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="4">
+            android:layout_weight="4"
+            android:background="#4F8194">
 
             <ImageView
-                android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:id="@+id/imageView3" />
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:id="@+id/option1Image"
+                android:adjustViewBounds="true"/>
 
             <TextView
                 android:layout_width="fill_parent"
-                android:layout_height="40dp"
+                android:layout_height="50dp"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="Option 1"
                 android:id="@+id/optionOneText"
-                android:textColor="#000000"
-                android:background="#EE4C50" />
+                android:textColor="#ffffff"
+                android:background="#4F8194"
+                android:gravity="center" />
 
         </LinearLayout>
 
@@ -80,18 +84,21 @@
             android:layout_weight="4">
 
             <ImageView
-                android:layout_width="45dp"
-                android:layout_height="45dp"
-                android:id="@+id/imageView4" />
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:id="@+id/option2Image"
+                android:background="#4F8194"
+                android:adjustViewBounds="true"/>
 
             <TextView
                 android:layout_width="fill_parent"
-                android:layout_height="40dp"
+                android:layout_height="50dp"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="Option 2"
                 android:id="@+id/optionTwoText"
-                android:textColor="#000000"
-                android:background="#EE4C50" />
+                android:textColor="#ffffff"
+                android:background="#4F8194"
+                android:gravity="center" />
 
         </LinearLayout>
 

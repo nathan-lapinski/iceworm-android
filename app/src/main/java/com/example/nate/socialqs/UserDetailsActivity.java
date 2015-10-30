@@ -163,7 +163,7 @@ public class UserDetailsActivity extends Activity {
                 if (userProfile.has("facebookId")) {
                     userProfilePictureView.setProfileId(userProfile.getString("facebookId"));
                     //try the things?
-                    ImageView fbImage = ((ImageView) userProfilePictureView.getChildAt(0));
+                    /*ImageView fbImage = ((ImageView) userProfilePictureView.getChildAt(0));
                     Bitmap bitmap = ((BitmapDrawable) fbImage.getDrawable()).getBitmap();
                     if(bitmap == null){
                         Toast.makeText(UserDetailsActivity.this, "Error with the bitmap",
@@ -175,7 +175,7 @@ public class UserDetailsActivity extends Activity {
                     byte[] image = stream.toByteArray();
                     ParseFile x = new ParseFile("profilePicture.png", image);
                     currentUser.put("profilePicture", x);
-                    currentUser.saveInBackground();
+                    currentUser.saveInBackground();*/
 
                 } else {
                     // Show the default, blank user profile picture

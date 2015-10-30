@@ -36,7 +36,8 @@
     <string name="title_activity_settings">SettingsActivity</string>
     <string name="title_activity_view_my_questions">ViewMyQuestionsActivity</string>
     <string name="title_activity_facebook_test">FacebookTest</string>
-    <string name="facebook_app_id">867007226701100</string>
+    <!--<string name="facebook_app_id">867007226701100</string>-->
+    <string name="facebook_app_id">1506348096347203</string>
     <string name="title_activity_groupies">GroupiesActivity</string>
     <string name="title_activity_view_votes">ViewVotesActivity</string>
     <string name="title_activity_login">LoginActivity</string>

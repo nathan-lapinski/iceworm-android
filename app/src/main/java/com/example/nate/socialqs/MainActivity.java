@@ -38,8 +38,10 @@ import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseFile;
+import com.parse.ParseInstallation;
 import com.parse.ParsePush;
 import com.parse.ParseUser;
+import com.parse.PushService;
 import com.parse.SaveCallback;
 
 import org.json.JSONArray;
@@ -55,14 +57,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-/*
-****Author: Nathan Lapinski
-* Purpose: The MainActivity is responsible for setting up the parse and facebook(soon) authentication. It is also responsible
-* for providing the user with the choice of logging in, signing up for a socialQs account, or signing in/up via facebook(soon).
-* A method needs to be added for checking if the user is already logged in, so as not to force a login every time.
- */
-
-
 public class MainActivity extends ActionBarActivity {
 
     //testing for global groupies
@@ -71,6 +65,7 @@ public class MainActivity extends ActionBarActivity {
     public static ArrayList<HashMap<String,MainActivity.StupidClass>> facebookIds = new ArrayList<HashMap<String,MainActivity.StupidClass>>(); //used for  holding ids that we pull from /me/friends
     private Dialog progressDialog;
     private ProfilePictureView userProfilePictureView;//hidden
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,14 +78,25 @@ public class MainActivity extends ActionBarActivity {
         //Parse.enableLocalDatastore(getApplicationContext());
        // ParseCrashReporting.enable(getApplicationContext());
         FacebookSdk.sdkInitialize(getApplicationContext());
-        Parse.initialize(this, "RMtJAmKZBf5qwRZ9UvbZmTOETF2xZv9FSgYpXrFw", "TZXgbmdUVzHuKRh7z1U3luPO43EDvCwreeNNPMKk");
+       // Parse.initialize(this, "RMtJAmKZBf5qwRZ9UvbZmTOETF2xZv9FSgYpXrFw", "TZXgbmdUVzHuKRh7z1U3luPO43EDvCwreeNNPMKk"); //ham
+        Parse.initialize(this, "TLaFl9hrzzz7BG5ou2mJaeokLLElJbOCBIrZqCPR", "Ajogm9URc6Ix9gxur6j7JnGGcg4tw2ytR89Ooy6s"); //dev
+        ParseInstallation.getCurrentInstallation().saveInBackground();
         ParseFacebookUtils.initialize(this);
         ParseUser.enableAutomaticUser();
         ParseACL defaultACL = new ParseACL();
         ParseACL.setDefaultACL(defaultACL, true);
-        //image loader??
+        //image loader
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext()).build();
         ImageLoader.getInstance().init(config);
+
+        //test subscription
+        //ParsePush.subscribeInBackground("AndroidQs");
+        ParsePush.subscribeInBackground("user_wBAMvboy7t");
+        PushService.setDefaultPushCallback(this, SettingsActivity.class);
+
+        Toast.makeText(getApplicationContext(), "" + ParseInstallation.getCurrentInstallation().getInstallationId(),
+                Toast.LENGTH_LONG).show();
+        //PushService.setDefaultCallback(this, MainActivity.class);
 
         //find the buttons
 
@@ -110,6 +116,7 @@ public class MainActivity extends ActionBarActivity {
         }
 
         final ParseUser currentUser = ParseUser.getCurrentUser();
+
         if((currentUser != null) && ParseFacebookUtils.isLinked(currentUser)){
             //Go directly to the user info activity
             //First time only, execute a graph request to collect the users id if it is not already present
@@ -138,11 +145,9 @@ public class MainActivity extends ActionBarActivity {
                                         temp.put("userData",stupie);
                                         facebookIds.add(temp);
                                     }
-                                    Toast.makeText(getApplicationContext(), "Async 1 is done" ,
-                                            Toast.LENGTH_LONG).show();
 
                                 }catch(JSONException e){
-                                    Toast.makeText(getApplicationContext(), "LOSING THE GAME " + e,
+                                    Toast.makeText(getApplicationContext(), "" + e,
                                             Toast.LENGTH_LONG).show();
                                 }
                             }
@@ -179,19 +184,17 @@ public class MainActivity extends ActionBarActivity {
                                             @Override
                                             public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
                                                 // Do whatever you want with Bitmap
-                                                HashMap<String,GroupiesActivity.GroupiesObject> tempObj = new HashMap<String, GroupiesActivity.GroupiesObject>();
-                                                GroupiesActivity.GroupiesObject tempGroupie = new GroupiesActivity.GroupiesObject(uName,0,"objecid","facebook",loadedImage);
+                                                HashMap<String, GroupiesActivity.GroupiesObject> tempObj = new HashMap<String, GroupiesActivity.GroupiesObject>();
+                                                GroupiesActivity.GroupiesObject tempGroupie = new GroupiesActivity.GroupiesObject(uName, 0, "objecid", "facebook", loadedImage);
                                                 tempObj.put("userData", tempGroupie);
                                                 facebookData.add(tempObj);
                                             }
                                         });
                                         //nevam
-                                        Toast.makeText(getApplicationContext(), "Async 2 is done" ,
-                                                Toast.LENGTH_LONG).show();
                                     }
 
                                 }catch(JSONException e){
-                                    Toast.makeText(getApplicationContext(), "LOSING THE GAME " + e,
+                                    Toast.makeText(getApplicationContext(), "" + e,
                                             Toast.LENGTH_LONG).show();
                                 }
                             }
@@ -215,13 +218,11 @@ public class MainActivity extends ActionBarActivity {
                                     JSONObject data = response.getJSONObject();
 
                                     String fbId = data.getString("id");
-                                    currentUser.put("facebookId",fbId);
+                                    currentUser.put("facebookId", fbId);
                                     currentUser.saveInBackground();
-                                   Toast.makeText(getApplicationContext(), "Async 3 is done" ,
-                                           Toast.LENGTH_LONG).show();
 
                                 }catch(JSONException e){
-                                    Toast.makeText(getApplicationContext(), "LOSING THE GAME " + e,
+                                    Toast.makeText(getApplicationContext(), "" + e,
                                             Toast.LENGTH_LONG).show();
                                 }
                             }
@@ -237,9 +238,9 @@ public class MainActivity extends ActionBarActivity {
                 startActivity(intent);
             }else {
                 //Currently, only use this activity for testing (especially cloud testing)
-                //showUserDetailsActivity();
-                Intent intent = new Intent(MainActivity.this, SplashScreenActivity.class);
-                startActivity(intent);
+                showUserDetailsActivity();
+                //Intent intent = new Intent(MainActivity.this, SplashScreenActivity.class);
+                //startActivity(intent);
             }
         }
 
@@ -297,6 +298,7 @@ public class MainActivity extends ActionBarActivity {
     }
     private void showUserDetailsActivity() {
         Intent intent = new Intent(this, UserDetailsActivity.class);
+        //Intent intent = new Intent(this,SplashScreenActivity.class);
         startActivity(intent);
     }
 
@@ -364,16 +366,12 @@ public class MainActivity extends ActionBarActivity {
                                 currentUser.put("profile", userProfile);
                                 currentUser.saveInBackground();
 
-                                Toast.makeText(getApplicationContext(), "GOT HERE WITH: " + jsonObject.getString("name"),
-                                        Toast.LENGTH_LONG).show();
-
                                 // Show the user info
                                 updateViewsWithProfileInfo();
                             } catch (JSONException e) {
                                 Log.d("sqs",
                                         "Error parsing returned user data. " + e);
-                                Toast.makeText(getApplicationContext(), "Didn't GET HER DONE: "+e,
-                                        Toast.LENGTH_LONG).show();
+
                             }
                         } else if (graphResponse.getError() != null) {
                             switch (graphResponse.getError().getCategory()) {
@@ -412,8 +410,7 @@ public class MainActivity extends ActionBarActivity {
                     ImageView fbImage = ((ImageView) userProfilePictureView.getChildAt(0));
                     Bitmap bitmap = ((BitmapDrawable) fbImage.getDrawable()).getBitmap();
                     if(bitmap == null){
-                        Toast.makeText(MainActivity.this, "Error with the bitmap",
-                                Toast.LENGTH_SHORT).show();
+
                     }
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
                     // Compress image to lower quality scale 1 - 100

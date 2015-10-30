@@ -1,14 +1,20 @@
 package com.example.nate.socialqs;
 
 import android.app.Activity;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.ParseException;
+import com.parse.ParseFile;
 import com.parse.ParseObject;
+import com.parse.ParseUser;
 
 import java.util.HashMap;
 import java.util.List;
@@ -30,29 +36,34 @@ public class MyVotesAdapter extends ArrayAdapter<ParseObject> {
         //should the sorting be done up top? Or is this a nested listview situation?? (probably)
 
         //inflate the view that you actually want within the adapter
-        ParseObject obj  = getItem(position);
+        ParseObject obj  = getItem(position); //qjoin
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout.votes_row, parent, false);
         }
         //simply display the user name for now
         //We can try to pull this, but it's possible that this data doesn't exist yet...
         TextView tt = (TextView) convertView.findViewById(R.id.voterName);
-        if( (ViewQuestionsActivity.facebookFinal != null) && (ViewQuestionsActivity.facebookFinal.size() > 0) ){
-            String userName;
-            for(int i = 0; i < ViewQuestionsActivity.facebookFinal.size(); i++){
-                if(ViewQuestionsActivity.facebookFinal.get(i).get("userData").getId().equals(obj.getString("to"))){
-                    userName = ViewQuestionsActivity.facebookFinal.get(i).get("userData").getName();
-                    tt.setText(userName);
-                    break;
-                }
-            }
+        ParseUser currGroupie = obj.getParseUser("to");
+        String userName = currGroupie.getString("name");
+        ParseFile userPic = currGroupie.getParseFile("profilePicture");
+        if(userName != null){
+            tt.setText(userName);
         } else {
-            tt.setText(obj.getString("to")); //just the id, so need to fix this, LDS
+            tt.setText("Unknown");
         }
-        Toast.makeText(getContext(), "Writing things",
-                Toast.LENGTH_LONG).show();
-       // View.OnClickListener my_test = new MyCustomListener(obj,position);
-       // tt.setOnClickListener(my_test);
+        if(userPic != null){
+            ImageView pPic = (ImageView)convertView.findViewById(R.id.profileImage);
+            byte[] bitmapdata = {};
+            try {
+                bitmapdata = userPic.getData();
+            } catch(ParseException e1){
+
+            }
+            Bitmap bitmap = BitmapFactory.decodeByteArray(bitmapdata, 0, bitmapdata.length);
+            pPic.setImageBitmap(bitmap);
+        } else {
+            //hmmmm
+        }
         return convertView;
     }
 
@@ -68,8 +79,7 @@ public class MyVotesAdapter extends ArrayAdapter<ParseObject> {
         {
             final View j = v;
             GroupiesActivity.myCurrentGroupies.add(my_obj);
-            Toast.makeText(getContext(), "Added it, list now has: " + GroupiesActivity.myCurrentGroupies.size() + " groupies",
-                    Toast.LENGTH_LONG).show();
+
         }
 
     };
