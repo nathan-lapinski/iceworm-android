@@ -89,8 +89,11 @@ public class CreateGroupActivity extends ActionBarActivity {
                                         tempGroup.saveInBackground();
                                     }
                                 }
+                                //TODO: At this point, the GroupJoin is created. You should already have myCurrentGroupies populated.
+                                //So just go back to that activity I think
+                                onBackPressed();
                             } else {
-                                // error
+                                // errored out on the shiz
                             }
                         }
                     });

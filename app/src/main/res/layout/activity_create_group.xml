@@ -28,7 +28,7 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/groupNameText"
                 android:textColor="#000000"
-                android:text="Enter a name"
+                android:text="Enter a group name"
                 android:singleLine="false" />
         </LinearLayout>
 

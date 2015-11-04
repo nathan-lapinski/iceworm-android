@@ -153,7 +153,17 @@ public class GroupiesActivity extends ActionBarActivity {
     @Override
     public void onResume(){
         super.onResume();
-
+        //TODO: Populate the textview
+        String names = "";
+        TextView groupies = (TextView)findViewById(R.id.groupiesTextView);
+        for(int i = 0; i < myCurrentGroupies.size(); i++){
+            if(i < myCurrentGroupies.size() - 1 ) {
+                names += myCurrentGroupies.get(i).get("userData").getName() + ", ";
+            } else {
+                names += myCurrentGroupies.get(i).get("userData").getName();
+            }
+        }
+        groupies.setText(names);
     }
 
     public void onDoneClick(View v){

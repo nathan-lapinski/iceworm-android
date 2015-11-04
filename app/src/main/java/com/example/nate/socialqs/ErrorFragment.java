@@ -16,7 +16,7 @@ import android.widget.TextView;
 /**
  * Created by nate on 10/11/15.
  */
-public class ErrorFragment extends DialogFragment implements TextView.OnEditorActionListener {
+public class ErrorFragment extends DialogFragment /*implements TextView.OnEditorActionListener*/ {
     private EditText mEditText;
 
 
@@ -38,9 +38,9 @@ public class ErrorFragment extends DialogFragment implements TextView.OnEditorAc
         // set this instance as callback for editor action
        // mEditText.setOnEditorActionListener(this);
        // mEditText.requestFocus();
-        getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+        //getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
         getDialog().getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        getDialog().setTitle("You have a blank field in your question!");
+        getDialog().setTitle("There has been an accident...");
 
         Button closeDialog = (Button) view.findViewById(R.id.closeButton);
         closeDialog.setOnClickListener(new View.OnClickListener() {
@@ -55,6 +55,7 @@ public class ErrorFragment extends DialogFragment implements TextView.OnEditorAc
         return view;
     }
 
+    /*
     @Override
     public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
         // Return input text to activity
@@ -62,5 +63,5 @@ public class ErrorFragment extends DialogFragment implements TextView.OnEditorAc
         activity.onFinishUserDialog(mEditText.getText().toString());
         this.dismiss();
         return true;
-    }
+    }*/
 }

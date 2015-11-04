@@ -93,6 +93,7 @@ public class ViewMyQuestionsActivity extends ActionBarActivity {
         //vote_query.whereEqualTo("to", ParseUser.getCurrentUser().getString("facebookId"));
         vote_query.whereEqualTo("to", ParseUser.getCurrentUser());
         vote_query.include("question");
+        vote_query.include("from");
         vote_query.findInBackground(new FindCallback<ParseObject>() {
             public void done(final List<ParseObject> resList, ParseException e) {
                 if (e == null) {
@@ -139,7 +140,7 @@ public class ViewMyQuestionsActivity extends ActionBarActivity {
                     for(int i = 0; i < resList.size(); i++){
                         parseList.add(resList.get(i).getParseObject("question"));
                     }
-                    final MyQuestionAdapter adapter = new MyQuestionAdapter(ViewMyQuestionsActivity.this, parseList);//was res
+                    final MyQuestionAdapter adapter = new MyQuestionAdapter(ViewMyQuestionsActivity.this, resList);//wasparse
                     //ListView listView = (ListView) findViewById(R.id.questionList2);
                     listView = (SwipeMenuListView) findViewById(R.id.questionList2);
                     // set creator

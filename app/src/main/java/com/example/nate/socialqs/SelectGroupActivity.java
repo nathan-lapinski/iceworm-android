@@ -33,10 +33,6 @@ public class SelectGroupActivity extends ActionBarActivity {
             public void done(final List<ParseObject> resList, ParseException e) {
                 if (e == null) {
                     ArrayList<String> myGroups = (ArrayList<String>) resList.get(0).get("myGroups");
-                    for (int i = 0; i < myGroups.size(); i++) {
-                        Toast.makeText(getApplicationContext(), "Found Group: " + myGroups.get(i),
-                                Toast.LENGTH_LONG).show();
-                    }
                     GroupListAdapter adapter = new GroupListAdapter(SelectGroupActivity.this,myGroups);
                     ListView listView = (ListView) findViewById(R.id.groupList);
                     listView.setAdapter(adapter);

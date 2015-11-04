@@ -125,7 +125,8 @@ public class AskQuestionActivity extends ActionBarActivity {
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onBackPressed();
+                Intent intent = new Intent(AskQuestionActivity.this, ViewMyQuestionsActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -167,7 +168,9 @@ public class AskQuestionActivity extends ActionBarActivity {
                             Toast.LENGTH_LONG).show();
                 }
 
-                if((q.equals("")) || (c1.equals("")) || (c2.equals(""))){
+                //TODO: This removes the check for null questions, but we might use the frag
+                //for something else
+                /*if((q.equals("")) || (c1.equals("")) || (c2.equals(""))){
                     FragmentManager manager = getFragmentManager();
                     Fragment frag = manager.findFragmentByTag("fragment_edit_name");
                     if (frag != null) {
@@ -176,7 +179,7 @@ public class AskQuestionActivity extends ActionBarActivity {
                     ErrorFragment editNameDialog = new ErrorFragment();
                     editNameDialog.show(manager, "fragment_edit_name");
                     can_ask = false;
-                }
+                }*/
 
                 if(GroupiesActivity.myCurrentGroupies.size() <= 0){
                     FragmentManager manager = getFragmentManager();

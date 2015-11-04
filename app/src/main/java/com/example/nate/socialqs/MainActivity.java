@@ -24,10 +24,15 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
 import com.facebook.HttpMethod;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.facebook.login.widget.ProfilePictureView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
@@ -65,41 +70,39 @@ public class MainActivity extends ActionBarActivity {
     public static ArrayList<HashMap<String,MainActivity.StupidClass>> facebookIds = new ArrayList<HashMap<String,MainActivity.StupidClass>>(); //used for  holding ids that we pull from /me/friends
     private Dialog progressDialog;
     private ProfilePictureView userProfilePictureView;//hidden
+    CallbackManager callbackManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main); //load up the proper xml screen
 
-        /*
-        TODO: Move all of this into a bootstrap activity.
-        Initialize all of the things
-         */
+
         //Parse.enableLocalDatastore(getApplicationContext());
-       // ParseCrashReporting.enable(getApplicationContext());
+        //ParseCrashReporting.enable(getApplicationContext());
         FacebookSdk.sdkInitialize(getApplicationContext());
-       // Parse.initialize(this, "RMtJAmKZBf5qwRZ9UvbZmTOETF2xZv9FSgYpXrFw", "TZXgbmdUVzHuKRh7z1U3luPO43EDvCwreeNNPMKk"); //ham
-        Parse.initialize(this, "TLaFl9hrzzz7BG5ou2mJaeokLLElJbOCBIrZqCPR", "Ajogm9URc6Ix9gxur6j7JnGGcg4tw2ytR89Ooy6s"); //dev
+        // Parse.initialize(this, "RMtJAmKZBf5qwRZ9UvbZmTOETF2xZv9FSgYpXrFw", "TZXgbmdUVzHuKRh7z1U3luPO43EDvCwreeNNPMKk"); //ham
+        Parse.initialize(this, "ihGBifEgzvdXCfGKTcj8BmttbCZL9ZW7ggu3xdUQ", "MXMkHm3TOzttdicWqklYmco4li1NQSoZJJp5aazf"); //dev
         ParseInstallation.getCurrentInstallation().saveInBackground();
         ParseFacebookUtils.initialize(this);
         ParseUser.enableAutomaticUser();
         ParseACL defaultACL = new ParseACL();
         ParseACL.setDefaultACL(defaultACL, true);
-        //image loader
+
+
+        //image loader bootstrapping
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext()).build();
         ImageLoader.getInstance().init(config);
 
         //test subscription
         //ParsePush.subscribeInBackground("AndroidQs");
-        ParsePush.subscribeInBackground("user_wBAMvboy7t");
+        setContentView(R.layout.activity_main); //load up the proper xml screen
+        //subscribe the user to channel
+        //TODO: This can be moved into the splash screen or something.
         PushService.setDefaultPushCallback(this, SettingsActivity.class);
 
-        Toast.makeText(getApplicationContext(), "" + ParseInstallation.getCurrentInstallation().getInstallationId(),
-                Toast.LENGTH_LONG).show();
-        //PushService.setDefaultCallback(this, MainActivity.class);
 
-        //find the buttons
-
+        //set up the packages accordingly
+        //TODO: May have to update this for releases
         try {
             PackageInfo info = getPackageManager().getPackageInfo(
                     "com.example.nate.socialqs",
@@ -110,13 +113,173 @@ public class MainActivity extends ActionBarActivity {
                 Log.d("KeyHash:", Base64.encodeToString(md.digest(), Base64.DEFAULT));
             }
         } catch (PackageManager.NameNotFoundException e) {
-
+            //TODO
         } catch (NoSuchAlgorithmException e) {
-
+            //TODO
         }
 
-        final ParseUser currentUser = ParseUser.getCurrentUser();
+        /*
+        You don't have to look above here for FB login. This is all just app set up above this point
+         */
 
+        /*What is the algorithm for logging in a user??
+          1.Check if the current parse user is null?
+        */
+
+
+        /*
+        callbackManager = CallbackManager.Factory.create();
+        final ParseUser currentUser = ParseUser.getCurrentUser();
+        LoginButton buttonLogin = (LoginButton) findViewById(R.id.login_button);
+        //buttonLogin.setReadPermissions("user_friends");
+        buttonLogin.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                //hi
+                Toast.makeText(getApplicationContext(), "good" + loginResult.getAccessToken(),
+                        Toast.LENGTH_LONG).show();
+                //DUMB THINGS
+                //do the parse user thing
+                ParseUser cUser = ParseUser.getCurrentUser();
+                if(cUser.getString("firstName") == null){
+                    Toast.makeText(getApplicationContext(), "we have a new user" + loginResult.getAccessToken(),
+                            Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getApplicationContext(), "EXISTING USR!" + loginResult.getAccessToken(),
+                            Toast.LENGTH_LONG).show();
+                }
+                //cUser.put("firstName","testingNames");
+                //
+                //Graph attack!
+                new GraphRequest(
+                        AccessToken.getCurrentAccessToken(),
+                        "/me/friends",
+                        null,
+                        HttpMethod.GET,
+                        new GraphRequest.Callback() {
+                            public void onCompleted(GraphResponse response) {
+
+
+                                //let's try to handle this and extract the name and profile pic:
+                                try {
+                                    JSONArray data = response.getJSONObject().getJSONArray("data");
+                                    for(int i = 0; i < data.length(); i++) {
+                                        JSONObject vals = data.getJSONObject(i);
+                                        String id = vals.getString("id");
+                                        String name = vals.getString("name");
+                                        MainActivity.StupidClass stupie = new MainActivity.StupidClass(name,id);
+                                        HashMap<String,MainActivity.StupidClass> temp = new HashMap<String, MainActivity.StupidClass>();
+                                        temp.put("userData", stupie);
+                                        Toast.makeText(getApplicationContext(), "good1",
+                                                Toast.LENGTH_LONG).show();
+                                        facebookIds.add(temp);
+                                    }
+
+                                }catch(JSONException e){
+                                    Toast.makeText(getApplicationContext(), "" + e,
+                                            Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        }
+                ).executeAsync();
+                //::::
+                //get from taggable as well
+                new GraphRequest(
+                        AccessToken.getCurrentAccessToken(),
+                        "/me/taggable_friends",
+                        null,
+                        HttpMethod.GET,
+                        new GraphRequest.Callback() {
+                            public void onCompleted(GraphResponse response) {
+
+
+                                //let's try to handle this and extract the name and profile pic:
+                                try {
+
+                                    JSONArray data = response.getJSONObject().getJSONArray("data");
+                                    for(int i = 0; i < data.length(); i++) {
+                                        JSONObject pPic = data.getJSONObject(i);
+                                        String id = pPic.getString("id");
+                                        Log.d("DS", "" + pPic);
+                                        String pic = pPic.getString("picture");
+                                        JSONObject pics = pPic.getJSONObject("picture");
+                                        final String uName  = pPic.getString("name");
+                                        JSONObject datum = pics.getJSONObject("data");
+                                        final String ur = datum.getString("url");
+
+                                        //maven
+                                        ImageLoader imageLoader = ImageLoader.getInstance();
+                                        imageLoader.loadImage(ur, new SimpleImageLoadingListener() {
+                                            @Override
+                                            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                                                // Do whatever you want with Bitmap
+                                                HashMap<String, GroupiesActivity.GroupiesObject> tempObj = new HashMap<String, GroupiesActivity.GroupiesObject>();
+                                                GroupiesActivity.GroupiesObject tempGroupie = new GroupiesActivity.GroupiesObject(uName, 0, "objecid", "facebook", loadedImage);
+                                                tempObj.put("userData", tempGroupie);
+                                                Toast.makeText(getApplicationContext(), "good2",
+                                                        Toast.LENGTH_LONG).show();
+                                                facebookData.add(tempObj);
+                                            }
+                                        });
+                                        //nevam
+                                    }
+
+                                }catch(JSONException e){
+                                    Toast.makeText(getApplicationContext(), "" + e,
+                                            Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        }
+                ).executeAsync();
+                new GraphRequest(
+                        AccessToken.getCurrentAccessToken(),
+                        "/me",//"/me",
+                        null,
+                        HttpMethod.GET,
+                        new GraphRequest.Callback() {
+                            public void onCompleted(GraphResponse response) {
+
+
+                                //let's try to handle this and extract the name and profile pic:
+                                try {
+
+                                    JSONObject data = response.getJSONObject();
+
+                                    String fbId = data.getString("id");
+                                    currentUser.put("facebookId", fbId);
+                                    currentUser.saveInBackground();
+                                    Toast.makeText(getApplicationContext(), "part3",
+                                            Toast.LENGTH_LONG).show();
+                                }catch(JSONException e){
+                                    Toast.makeText(getApplicationContext(), "" + e,
+                                            Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        }
+                ).executeAsync();
+                //GGGGGG
+                //
+                Intent intent = new Intent(MainActivity.this, SplashScreenActivity.class);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onCancel() {
+                //lo
+                Toast.makeText(getApplicationContext(), "cancel" + AccessToken.getCurrentAccessToken(),
+                        Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onError(FacebookException e) {
+                //ho
+                Toast.makeText(getApplicationContext(), "fuck"+AccessToken.getCurrentAccessToken() ,
+                        Toast.LENGTH_LONG).show();
+            }
+        });*/
+
+
+        /*
         if((currentUser != null) && ParseFacebookUtils.isLinked(currentUser)){
             //Go directly to the user info activity
             //First time only, execute a graph request to collect the users id if it is not already present
@@ -162,7 +325,7 @@ public class MainActivity extends ActionBarActivity {
                         HttpMethod.GET,
                         new GraphRequest.Callback() {
                             public void onCompleted(GraphResponse response) {
-                                    /* handle the result */
+
 
                                 //let's try to handle this and extract the name and profile pic:
                                 try {
@@ -210,7 +373,7 @@ public class MainActivity extends ActionBarActivity {
                         HttpMethod.GET,
                         new GraphRequest.Callback() {
                             public void onCompleted(GraphResponse response) {
-                                    /* handle the result */
+
 
                                 //let's try to handle this and extract the name and profile pic:
                                try {
@@ -242,7 +405,7 @@ public class MainActivity extends ActionBarActivity {
                 //Intent intent = new Intent(MainActivity.this, SplashScreenActivity.class);
                 //startActivity(intent);
             }
-        }
+        }*/
 
     }//end onCreate
 
@@ -255,6 +418,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        //callbackManager.onActivityResult(requestCode, resultCode, data);
         ParseFacebookUtils.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -286,12 +450,34 @@ public class MainActivity extends ActionBarActivity {
                 progressDialog.dismiss();
                 if (user == null) {
                     Log.d("socialQsFacebook", "Uh oh. The user cancelled the Facebook login.");
+                    Toast.makeText(getApplicationContext(),"Please click the login again " ,
+                            Toast.LENGTH_LONG).show();
+                    //TODO: Let's log them out of here then
+                    ParseUser.logOut();
+                    //TODO: They can simply try to login in again, and it will work, but lets try to make this a little cleaner
                 } else if (user.isNew()) {
                     Log.d("socialQsFacebook", "User signed up and logged in through Facebook!");
-                    showUserDetailsActivity();
+                    //sign them up here and handle the graph requests?
+                    Toast.makeText(getApplicationContext(),"Logging in" ,
+                            Toast.LENGTH_LONG).show();
+                    //We have a new user object at this point, so lets populate the shizz out of it.
+                    //TODO: Signup screen and populate through graph request.
+                    Intent intent = new Intent(MainActivity.this,HandleScreenActivity.class);
+                    startActivity(intent);
+                    //showUserDetailsActivity();//go to the username selection?
                 } else {
                     Log.d("socialQsFacebook", "User logged in through Facebook!");
-                    showUserDetailsActivity();
+                    Toast.makeText(getApplicationContext(),"Logging in" ,
+                            Toast.LENGTH_LONG).show();
+                    if(ParseUser.getCurrentUser().get("name") == null){
+                        Intent intent = new Intent(MainActivity.this,HandleScreenActivity.class);
+                        startActivity(intent);
+                    }else {
+                        //showUserDetailsActivity();
+                        Intent intent = new Intent(MainActivity.this,SplashScreenActivity.class);
+                        startActivity(intent);
+                    }
+                    //go straight to splash screen?
                 }
             }
         });
@@ -303,7 +489,7 @@ public class MainActivity extends ActionBarActivity {
     }
 
     //custom code for returning a Bitmap from a URL
-    public static class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
+    /*public static class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
         Bitmap bmImage;
 
         public DownloadImageTask(Bitmap bmImage) {
@@ -326,7 +512,7 @@ public class MainActivity extends ActionBarActivity {
         protected void onPostExecute(Bitmap result) {
             bmImage = result;
         }
-    }
+    }*/
 
     public static class StupidClass{
         String name;
@@ -343,6 +529,8 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
+
+    /*
     private void makeMeRequest() {
         GraphRequest request = GraphRequest.newMeRequest(AccessToken.getCurrentAccessToken(),
                 new GraphRequest.GraphJSONObjectCallback() {
@@ -397,8 +585,9 @@ public class MainActivity extends ActionBarActivity {
         parameters.putString("fields", "id,email,gender,name");
         request.setParameters(parameters);
         request.executeAsync();
-    }
+    }*/
 
+    /*
     private void updateViewsWithProfileInfo() {
         ParseUser currentUser = ParseUser.getCurrentUser();
         if (currentUser.has("profile")) {
@@ -432,5 +621,5 @@ public class MainActivity extends ActionBarActivity {
                 Log.d("sqs", "Error parsing saved user data.");
             }
         }
-    }
+    }*/
 }

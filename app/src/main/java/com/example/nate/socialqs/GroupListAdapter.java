@@ -35,11 +35,12 @@ import java.util.List;
 public class GroupListAdapter extends ArrayAdapter<String> {
     private LayoutInflater inflater;
     ArrayList<String> master_list;
-
+    Activity callingActivity;
     public GroupListAdapter(Activity activity, ArrayList<String> data){
         super(activity, R.layout.row_question, data);
         inflater = activity.getWindow().getLayoutInflater();
         this.master_list = data;
+        this.callingActivity = activity;
     }
     @Override
     public View getView(int position, View convertView, ViewGroup parent){
@@ -74,8 +75,6 @@ public class GroupListAdapter extends ArrayAdapter<String> {
             vote_query.findInBackground(new FindCallback<ParseObject>() {
                 public void done(final List<ParseObject> resList, ParseException e) {
                     if (e == null) {
-                        Toast.makeText(getContext(), "Found for this group: " + resList.size(),
-                                Toast.LENGTH_LONG).show();
                         //create a groupies object and add it to myCurrentGroupies
                         for(int i = 0; i < resList.size(); i++){
                             //what do I populate this with??
@@ -87,7 +86,7 @@ public class GroupListAdapter extends ArrayAdapter<String> {
                             GroupiesActivity.myCurrentGroupies.add(tmp);
                         }
                         //TODO:don't really want to throw a new intent here...but onBackPressed isn't really workings
-
+                        callingActivity.onBackPressed();
                     } else {
                         //There has been an error
                         Toast.makeText(getContext(), "Error accessing join table",
@@ -97,8 +96,6 @@ public class GroupListAdapter extends ArrayAdapter<String> {
             });
         }
             //.....
-
-
             /*GroupiesActivity.myCurrentGroupies.add(my_obj);
             Toast.makeText(getContext(), "Added it, list now has: " + GroupiesActivity.myCurrentGroupies.size() + " groupies",
                     Toast.LENGTH_LONG).show();*/
